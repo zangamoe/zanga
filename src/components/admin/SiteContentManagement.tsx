@@ -159,6 +159,11 @@ const SiteContentManagement = () => {
     setting.key.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  // Prioritize common settings
+  const priorityKeys = ['site_name', 'site_description', 'site_logo'];
+  const prioritySettings = filteredSettings.filter(s => priorityKeys.includes(s.key));
+  const otherSettings = filteredSettings.filter(s => !priorityKeys.includes(s.key));
+
   if (loading) {
     return <div className="text-center py-8">Loading...</div>;
   }
@@ -271,9 +276,72 @@ const SiteContentManagement = () => {
         </Dialog>
       </div>
 
-      <div className="grid gap-4">
-        {filteredSettings.map((setting) => (
-          <Card key={setting.id} className="bg-gradient-card border-border/50">
+      {prioritySettings.length > 0 && (
+        <div className="space-y-4">
+          <h3 className="text-lg font-semibold">Key Settings</h3>
+          <div className="grid gap-4">
+            {prioritySettings.map((setting) => (
+              <Card key={setting.id} className="bg-gradient-card border-border/50">
+                <CardHeader>
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <CardTitle className="text-lg">{setting.key}</CardTitle>
+                      <CardDescription>
+                        Type: {setting.type} | Last updated: {new Date(setting.last_updated).toLocaleString()}
+                      </CardDescription>
+                    </div>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleEdit(setting)}
+                    >
+                      <Pencil className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  {setting.type === "image" ? (
+                    <img
+                      src={(() => {
+                        if (typeof setting.value === 'string') {
+                          try {
+                            return JSON.parse(setting.value);
+                          } catch {
+                            return setting.value;
+                          }
+                        }
+                        return setting.value;
+                      })()}
+                      alt={setting.key}
+                      className="max-w-xs rounded"
+                    />
+                  ) : (
+                    <p className="text-sm text-muted-foreground line-clamp-3">
+                      {(() => {
+                        if (typeof setting.value === 'string') {
+                          try {
+                            return JSON.parse(setting.value);
+                          } catch {
+                            return setting.value;
+                          }
+                        }
+                        return String(setting.value);
+                      })()}
+                    </p>
+                  )}
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {otherSettings.length > 0 && (
+        <div className="space-y-4">
+          <h3 className="text-lg font-semibold">All Settings</h3>
+          <div className="grid gap-4">
+            {otherSettings.map((setting) => (
+              <Card key={setting.id} className="bg-gradient-card border-border/50">
             <CardHeader>
               <div className="flex justify-between items-start">
                 <div>
@@ -324,7 +392,9 @@ const SiteContentManagement = () => {
             </CardContent>
           </Card>
         ))}
-      </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
