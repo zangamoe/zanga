@@ -133,9 +133,17 @@ const SiteContentManagement = () => {
 
   const handleEdit = (setting: SiteSetting) => {
     setEditingSetting(setting);
+    let parsedValue = setting.value;
+    if (typeof setting.value === 'string') {
+      try {
+        parsedValue = JSON.parse(setting.value);
+      } catch {
+        parsedValue = setting.value;
+      }
+    }
     setFormData({
       key: setting.key,
-      value: typeof setting.value === 'string' ? JSON.parse(setting.value) : setting.value,
+      value: parsedValue,
       type: setting.type,
     });
     setDialogOpen(true);
@@ -286,13 +294,31 @@ const SiteContentManagement = () => {
             <CardContent>
               {setting.type === "image" ? (
                 <img
-                  src={typeof setting.value === 'string' ? JSON.parse(setting.value) : setting.value}
+                  src={(() => {
+                    if (typeof setting.value === 'string') {
+                      try {
+                        return JSON.parse(setting.value);
+                      } catch {
+                        return setting.value;
+                      }
+                    }
+                    return setting.value;
+                  })()}
                   alt={setting.key}
                   className="max-w-xs rounded"
                 />
               ) : (
                 <p className="text-sm text-muted-foreground line-clamp-3">
-                  {typeof setting.value === 'string' ? JSON.parse(setting.value) : String(setting.value)}
+                  {(() => {
+                    if (typeof setting.value === 'string') {
+                      try {
+                        return JSON.parse(setting.value);
+                      } catch {
+                        return setting.value;
+                      }
+                    }
+                    return String(setting.value);
+                  })()}
                 </p>
               )}
             </CardContent>
