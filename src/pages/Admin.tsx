@@ -158,9 +158,9 @@ const Admin = () => {
           <TabsContent value="menu">
             <Card className="bg-gradient-card border-border/50">
               <CardHeader>
-                <CardTitle>Menu Management</CardTitle>
+                <CardTitle>Navigation Menu</CardTitle>
                 <CardDescription>
-                  Manage navigation menu items and their order
+                  Customize the top navigation bar items - edit labels, paths, and order
                 </CardDescription>
               </CardHeader>
               <CardContent>

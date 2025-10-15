@@ -44,7 +44,7 @@ const Navigation = () => {
       .eq("enabled", true)
       .order("order_index");
 
-    if (menuData) {
+    if (menuData && menuData.length > 0) {
       setMenuItems(menuData);
     }
   };
@@ -59,23 +59,37 @@ const Navigation = () => {
             </div>
           </Link>
 
-          <div className="flex items-center gap-1">
+          <div className="hidden md:flex items-center gap-6">
             {menuItems.map((item) => {
               const isActive = location.pathname === item.path;
               
               return (
-                <Button
+                <Link
                   key={item.id}
-                  asChild
-                  variant={isActive ? "default" : "ghost"}
-                  className={isActive ? "bg-gradient-primary" : ""}
+                  to={item.path}
+                  className={`text-sm font-medium transition-colors hover:text-primary ${
+                    isActive 
+                      ? "text-primary" 
+                      : "text-foreground/60"
+                  }`}
                 >
-                  <Link to={item.path}>
-                    <span>{item.label}</span>
-                  </Link>
-                </Button>
+                  {item.label}
+                </Link>
               );
             })}
+          </div>
+
+          {/* Mobile menu - simplified */}
+          <div className="md:hidden flex items-center gap-2">
+            {menuItems.slice(0, 3).map((item) => (
+              <Link
+                key={item.id}
+                to={item.path}
+                className="text-sm text-foreground/60 hover:text-primary"
+              >
+                {item.label}
+              </Link>
+            ))}
           </div>
         </div>
       </div>
