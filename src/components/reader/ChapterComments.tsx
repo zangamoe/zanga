@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import { Trash2, MessageCircle } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { commentSchema, validateInput } from "@/lib/validation";
+import { getUserFriendlyError } from "@/lib/errorHandler";
 
 interface Comment {
   id: string;
@@ -78,7 +79,7 @@ const ChapterComments = ({ chapterId }: { chapterId: string }) => {
       });
 
     if (error) {
-      toast.error("Failed to post comment");
+      toast.error(getUserFriendlyError(error));
     } else {
       toast.success("Comment posted!");
       setNewComment("");
@@ -94,7 +95,7 @@ const ChapterComments = ({ chapterId }: { chapterId: string }) => {
       .eq("id", commentId);
 
     if (error) {
-      toast.error("Failed to delete comment");
+      toast.error(getUserFriendlyError(error));
     } else {
       toast.success("Comment deleted");
       fetchComments();

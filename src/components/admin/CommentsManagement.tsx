@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Trash2, MessageCircle } from "lucide-react";
 import { toast } from "sonner";
 import { formatDistanceToNow } from "date-fns";
+import { getUserFriendlyError } from "@/lib/errorHandler";
 
 interface Comment {
   id: string;
@@ -65,7 +66,7 @@ const CommentsManagement = () => {
       .eq("id", id);
 
     if (error) {
-      toast.error("Failed to delete comment");
+      toast.error(getUserFriendlyError(error));
     } else {
       toast.success("Comment deleted");
       fetchComments();

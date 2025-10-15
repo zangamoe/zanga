@@ -12,6 +12,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Switch } from "@/components/ui/switch";
 import { useNavigate } from "react-router-dom";
 import ImageCropper from "./ImageCropper";
+import { getUserFriendlyError } from "@/lib/errorHandler";
 
 interface Series {
   id: string;
@@ -101,7 +102,7 @@ const SeriesManagement = () => {
     if (uploadError) {
       toast({
         title: "Error",
-        description: "Failed to upload image",
+        description: getUserFriendlyError(uploadError),
         variant: "destructive",
       });
       setShowCropper(false);
@@ -136,7 +137,7 @@ const SeriesManagement = () => {
       } else {
         toast({
           title: "Error",
-          description: "Failed to update series",
+          description: getUserFriendlyError(error),
           variant: "destructive",
         });
       }
@@ -151,7 +152,7 @@ const SeriesManagement = () => {
       } else {
         toast({
           title: "Error",
-          description: "Failed to create series",
+          description: getUserFriendlyError(error),
           variant: "destructive",
         });
       }
@@ -206,7 +207,7 @@ const SeriesManagement = () => {
     if (error) {
       toast({
         title: "Error",
-        description: "Failed to delete series",
+        description: getUserFriendlyError(error),
         variant: "destructive",
       });
     } else {
