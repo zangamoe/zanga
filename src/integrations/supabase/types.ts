@@ -14,16 +14,286 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      authors: {
+        Row: {
+          bio: string | null
+          created_at: string
+          id: string
+          instagram_url: string | null
+          name: string
+          profile_picture_url: string | null
+          twitter_url: string | null
+          updated_at: string
+          website_url: string | null
+        }
+        Insert: {
+          bio?: string | null
+          created_at?: string
+          id?: string
+          instagram_url?: string | null
+          name: string
+          profile_picture_url?: string | null
+          twitter_url?: string | null
+          updated_at?: string
+          website_url?: string | null
+        }
+        Update: {
+          bio?: string | null
+          created_at?: string
+          id?: string
+          instagram_url?: string | null
+          name?: string
+          profile_picture_url?: string | null
+          twitter_url?: string | null
+          updated_at?: string
+          website_url?: string | null
+        }
+        Relationships: []
+      }
+      chapter_pages: {
+        Row: {
+          chapter_id: string
+          created_at: string
+          id: string
+          image_url: string
+          page_number: number
+        }
+        Insert: {
+          chapter_id: string
+          created_at?: string
+          id?: string
+          image_url: string
+          page_number: number
+        }
+        Update: {
+          chapter_id?: string
+          created_at?: string
+          id?: string
+          image_url?: string
+          page_number?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chapter_pages_chapter_id_fkey"
+            columns: ["chapter_id"]
+            isOneToOne: false
+            referencedRelation: "chapters"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      chapters: {
+        Row: {
+          chapter_number: number
+          created_at: string
+          id: string
+          published_date: string
+          series_id: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          chapter_number: number
+          created_at?: string
+          id?: string
+          published_date?: string
+          series_id: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          chapter_number?: number
+          created_at?: string
+          id?: string
+          published_date?: string
+          series_id?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chapters_series_id_fkey"
+            columns: ["series_id"]
+            isOneToOne: false
+            referencedRelation: "series"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      genres: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+        }
+        Relationships: []
+      }
+      merchandise: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          image_url: string | null
+          price: number | null
+          purchase_url: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          price?: number | null
+          purchase_url?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          price?: number | null
+          purchase_url?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      series: {
+        Row: {
+          cover_image_url: string
+          created_at: string
+          id: string
+          status: string
+          synopsis: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          cover_image_url: string
+          created_at?: string
+          id?: string
+          status: string
+          synopsis: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          cover_image_url?: string
+          created_at?: string
+          id?: string
+          status?: string
+          synopsis?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      series_authors: {
+        Row: {
+          author_id: string
+          series_id: string
+        }
+        Insert: {
+          author_id: string
+          series_id: string
+        }
+        Update: {
+          author_id?: string
+          series_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "series_authors_author_id_fkey"
+            columns: ["author_id"]
+            isOneToOne: false
+            referencedRelation: "authors"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "series_authors_series_id_fkey"
+            columns: ["series_id"]
+            isOneToOne: false
+            referencedRelation: "series"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      series_genres: {
+        Row: {
+          genre_id: string
+          series_id: string
+        }
+        Insert: {
+          genre_id: string
+          series_id: string
+        }
+        Update: {
+          genre_id?: string
+          series_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "series_genres_genre_id_fkey"
+            columns: ["genre_id"]
+            isOneToOne: false
+            referencedRelation: "genres"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "series_genres_series_id_fkey"
+            columns: ["series_id"]
+            isOneToOne: false
+            referencedRelation: "series"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_roles: {
+        Row: {
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "user"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +420,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "user"],
+    },
   },
 } as const
