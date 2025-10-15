@@ -2,40 +2,42 @@ import Navigation from "@/components/Navigation";
 import SeriesCard from "@/components/SeriesCard";
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
-import { useState } from "react";
-import mangaCover1 from "@/assets/manga-cover-1.jpg";
-import mangaCover2 from "@/assets/manga-cover-2.jpg";
-import mangaCover3 from "@/assets/manga-cover-3.jpg";
+import { useState, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
 
 const Series = () => {
   const [searchQuery, setSearchQuery] = useState("");
+  const [allSeries, setAllSeries] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const allSeries = [
-    {
-      id: "1",
-      title: "Chronicles of the Azure Sky",
-      cover: mangaCover1,
-      status: "ongoing" as const,
-      latestChapter: "Chapter 12",
-      description: "An epic adventure following a young warrior's journey to save their world from an ancient evil.",
-    },
-    {
-      id: "2",
-      title: "Moonlit Memories",
-      cover: mangaCover2,
-      status: "ongoing" as const,
-      latestChapter: "Chapter 8",
-      description: "A heartwarming romance story about rediscovering love under the moonlight.",
-    },
-    {
-      id: "3",
-      title: "Neon Requiem",
-      cover: mangaCover3,
-      status: "ongoing" as const,
-      latestChapter: "Chapter 15",
-      description: "A cyberpunk thriller set in a dystopian future where technology and humanity collide.",
-    },
-  ];
+  useEffect(() => {
+    fetchSeries();
+  }, []);
+
+  const fetchSeries = async () => {
+    const { data: seriesData } = await supabase
+      .from("series")
+      .select(`
+        *,
+        chapters(chapter_number)
+      `)
+      .order("title");
+
+    if (seriesData) {
+      const formattedSeries = seriesData.map((series) => ({
+        id: series.id,
+        title: series.title,
+        cover: series.cover_image_url,
+        status: series.status as "ongoing" | "completed" | "hiatus",
+        latestChapter: series.chapters?.length > 0 
+          ? `Chapter ${Math.max(...series.chapters.map((c: any) => c.chapter_number))}`
+          : undefined,
+        description: series.synopsis,
+      }));
+      setAllSeries(formattedSeries);
+    }
+    setLoading(false);
+  };
 
   const filteredSeries = allSeries.filter((series) =>
     series.title.toLowerCase().includes(searchQuery.toLowerCase())
@@ -66,18 +68,30 @@ const Series = () => {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {filteredSeries.map((series) => (
-            <div key={series.id} className="animate-fade-in">
-              <SeriesCard {...series} />
-            </div>
-          ))}
-        </div>
-
-        {filteredSeries.length === 0 && (
+        {loading ? (
           <div className="text-center py-12">
-            <p className="text-muted-foreground text-lg">No series found matching your search.</p>
+            <p className="text-muted-foreground">Loading series...</p>
           </div>
+        ) : (
+          <>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {filteredSeries.map((series) => (
+                <div key={series.id} className="animate-fade-in">
+                  <SeriesCard {...series} />
+                </div>
+              ))}
+            </div>
+
+            {filteredSeries.length === 0 && (
+              <div className="text-center py-12">
+                <p className="text-muted-foreground text-lg">
+                  {allSeries.length === 0 
+                    ? "No series available yet. Check back soon!"
+                    : "No series found matching your search."}
+                </p>
+              </div>
+            )}
+          </>
         )}
       </div>
     </div>
