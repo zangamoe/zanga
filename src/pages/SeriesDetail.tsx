@@ -143,18 +143,18 @@ const SeriesDetail = () => {
           <h2 className="text-2xl font-bold mb-6">Chapters</h2>
           <div className="space-y-3">
             {displaySeries.chapters?.map((chapter: any) => (
-              <Card key={chapter.number} className="hover:shadow-glow transition-all duration-300 bg-gradient-card border-border/50">
+              <Card key={chapter.id} className="hover:shadow-glow transition-all duration-300 bg-gradient-card border-border/50">
                 <CardContent className="p-4">
                   <Link
-                    to={`/read/${id}/${chapter.number}`}
+                    to={`/read/${id}/${chapter.chapter_number}`}
                     className="flex items-center justify-between group"
                   >
                     <div className="flex-1">
                       <h3 className="font-semibold group-hover:text-primary transition-colors">
-                        Chapter {chapter.number}: {chapter.title}
+                        Chapter {chapter.chapter_number}: {chapter.title}
                       </h3>
                       <p className="text-sm text-muted-foreground">
-                        {new Date(chapter.date).toLocaleDateString("en-US", {
+                        {new Date(chapter.published_date).toLocaleDateString("en-US", {
                           year: "numeric",
                           month: "long",
                           day: "numeric",

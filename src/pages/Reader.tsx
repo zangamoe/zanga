@@ -1,15 +1,55 @@
 import { useParams, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight, Home, List } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
+
+interface ChapterPage {
+  id: string;
+  page_number: number;
+  image_url: string;
+}
 
 const Reader = () => {
   const { seriesId, chapterNumber } = useParams();
   const [currentPage, setCurrentPage] = useState(1);
+  const [pages, setPages] = useState<ChapterPage[]>([]);
+  const [chapterTitle, setChapterTitle] = useState("");
+  const [loading, setLoading] = useState(true);
   
-  // Mock data - in a real app, this would come from a database
-  const totalPages = 24;
   const chapterNum = parseInt(chapterNumber || "1");
+
+  useEffect(() => {
+    if (seriesId && chapterNumber) {
+      fetchChapterPages();
+    }
+  }, [seriesId, chapterNumber]);
+
+  const fetchChapterPages = async () => {
+    // First get the chapter ID
+    const { data: chapterData } = await supabase
+      .from("chapters")
+      .select("id, title")
+      .eq("series_id", seriesId)
+      .eq("chapter_number", chapterNum)
+      .single();
+
+    if (chapterData) {
+      setChapterTitle(chapterData.title);
+      
+      // Then get the pages for this chapter
+      const { data: pagesData } = await supabase
+        .from("chapter_pages")
+        .select("*")
+        .eq("chapter_id", chapterData.id)
+        .order("page_number", { ascending: true });
+
+      if (pagesData) {
+        setPages(pagesData);
+      }
+    }
+    setLoading(false);
+  };
   
   const goToPrevChapter = () => {
     if (chapterNum > 1) {
@@ -20,6 +60,42 @@ const Reader = () => {
   const goToNextChapter = () => {
     window.location.href = `/read/${seriesId}/${chapterNum + 1}`;
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <p className="text-muted-foreground">Loading chapter...</p>
+      </div>
+    );
+  }
+
+  if (pages.length === 0) {
+    return (
+      <div className="min-h-screen bg-background">
+        <div className="sticky top-0 z-50 bg-background/95 backdrop-blur border-b border-border">
+          <div className="container mx-auto px-4 py-3">
+            <Button asChild variant="ghost" size="sm">
+              <Link to={`/series/${seriesId}`} className="flex items-center gap-2">
+                <ChevronLeft className="h-4 w-4" />
+                Back to Series
+              </Link>
+            </Button>
+          </div>
+        </div>
+        <div className="container mx-auto px-4 py-12 text-center">
+          <h1 className="text-2xl font-bold mb-4">Chapter Not Found</h1>
+          <p className="text-muted-foreground mb-6">
+            This chapter hasn't been uploaded yet or doesn't exist.
+          </p>
+          <Button asChild>
+            <Link to={`/series/${seriesId}`}>
+              Back to Series
+            </Link>
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background">
@@ -43,8 +119,8 @@ const Reader = () => {
             </div>
             
             <div className="text-center">
-              <p className="font-semibold">Chapter {chapterNumber}</p>
-              <p className="text-sm text-muted-foreground">Page {currentPage} of {totalPages}</p>
+              <p className="font-semibold">Chapter {chapterNumber}{chapterTitle && `: ${chapterTitle}`}</p>
+              <p className="text-sm text-muted-foreground">Page {currentPage} of {pages.length}</p>
             </div>
 
             <div className="flex items-center gap-2">
@@ -73,22 +149,18 @@ const Reader = () => {
       {/* Reader Content - Scroll-based */}
       <div className="container mx-auto px-4 py-8 max-w-4xl">
         <div className="space-y-2">
-          {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+          {pages.map((page) => (
             <div
-              key={page}
-              className="bg-secondary/20 rounded-lg overflow-hidden shadow-card"
-              onMouseEnter={() => setCurrentPage(page)}
+              key={page.id}
+              className="rounded-lg overflow-hidden shadow-card"
+              onMouseEnter={() => setCurrentPage(page.page_number)}
             >
-              <div className="aspect-[2/3] flex items-center justify-center text-muted-foreground">
-                <div className="text-center">
-                  <p className="text-6xl font-bold mb-2">{page}</p>
-                  <p className="text-sm">Manga Page {page}</p>
-                  <p className="text-xs mt-4 max-w-md px-4">
-                    In a real implementation, this would display the actual manga page image.
-                    Pages would be uploaded through an admin panel.
-                  </p>
-                </div>
-              </div>
+              <img
+                src={page.image_url}
+                alt={`Page ${page.page_number}`}
+                className="w-full h-auto"
+                loading="lazy"
+              />
             </div>
           ))}
         </div>

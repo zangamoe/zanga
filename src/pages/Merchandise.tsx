@@ -1,44 +1,49 @@
 import Navigation from "@/components/Navigation";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { ShoppingCart, ExternalLink } from "lucide-react";
+import { useState, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
+
+interface Merchandise {
+  id: string;
+  title: string;
+  description: string | null;
+  price: number | null;
+  image_url: string | null;
+  purchase_url: string | null;
+}
 
 const Merchandise = () => {
-  const products = [
-    {
-      id: 1,
-      name: "Chronicles of the Azure Sky - Vol. 1",
-      price: "$14.99",
-      image: "https://images.unsplash.com/photo-1589829085413-56de8ae18c73?w=400&h=600&fit=crop",
-      category: "Manga",
-      available: true,
-    },
-    {
-      id: 2,
-      name: "Moonlit Memories Poster Set",
-      price: "$24.99",
-      image: "https://images.unsplash.com/photo-1611312449408-fcece27cdbb7?w=400&h=600&fit=crop",
-      category: "Poster",
-      available: true,
-    },
-    {
-      id: 3,
-      name: "Neon Requiem Art Book",
-      price: "$29.99",
-      image: "https://images.unsplash.com/photo-1532012197267-da84d127e765?w=400&h=600&fit=crop",
-      category: "Art Book",
-      available: true,
-    },
-    {
-      id: 4,
-      name: "Azure Sky Character T-Shirt",
-      price: "$19.99",
-      image: "https://images.unsplash.com/photo-1576566588028-4147f3842f27?w=400&h=600&fit=crop",
-      category: "Apparel",
-      available: false,
-    },
-  ];
+  const [products, setProducts] = useState<Merchandise[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchMerchandise();
+  }, []);
+
+  const fetchMerchandise = async () => {
+    const { data } = await supabase
+      .from("merchandise")
+      .select("*")
+      .order("created_at", { ascending: false });
+    
+    if (data) {
+      setProducts(data);
+    }
+    setLoading(false);
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Navigation />
+        <div className="container mx-auto px-4 py-12 text-center">
+          <p className="text-muted-foreground">Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background">
@@ -54,50 +59,66 @@ const Merchandise = () => {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {products.map((product) => (
-            <Card key={product.id} className="group overflow-hidden bg-gradient-card border-border/50 hover:shadow-glow transition-all duration-300">
-              <div className="aspect-[2/3] overflow-hidden relative">
-                <img
-                  src={product.image}
-                  alt={product.name}
-                  className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-110"
-                />
-                {!product.available && (
-                  <div className="absolute inset-0 bg-background/80 flex items-center justify-center">
-                    <Badge variant="secondary" className="text-lg">
-                      Coming Soon
-                    </Badge>
-                  </div>
-                )}
-              </div>
-              <CardContent className="p-4">
-                <Badge variant="outline" className="mb-2">
-                  {product.category}
-                </Badge>
-                <h3 className="font-semibold text-lg mb-2 line-clamp-2">
-                  {product.name}
-                </h3>
-                <p className="text-2xl font-bold text-primary mb-4">
-                  {product.price}
-                </p>
-                <Button 
-                  className="w-full bg-gradient-primary hover:opacity-90 transition-opacity"
-                  disabled={!product.available}
-                >
-                  {product.available ? (
-                    <>
-                      <ShoppingCart className="h-4 w-4 mr-2" />
-                      Add to Cart
-                    </>
+        {products.length === 0 ? (
+          <div className="text-center py-12">
+            <p className="text-muted-foreground text-lg">No merchandise available yet. Check back soon!</p>
+            <p className="text-sm text-muted-foreground mt-2">Admins can add merchandise from the Admin Panel.</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {products.map((product) => (
+              <Card key={product.id} className="group overflow-hidden bg-gradient-card border-border/50 hover:shadow-glow transition-all duration-300">
+                <div className="aspect-[2/3] overflow-hidden relative">
+                  {product.image_url ? (
+                    <img
+                      src={product.image_url}
+                      alt={product.title}
+                      className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-110"
+                    />
                   ) : (
-                    "Coming Soon"
+                    <div className="h-full w-full bg-secondary/20 flex items-center justify-center">
+                      <ShoppingCart className="h-16 w-16 text-muted-foreground" />
+                    </div>
                   )}
-                </Button>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+                </div>
+                <CardContent className="p-4">
+                  <h3 className="font-semibold text-lg mb-2 line-clamp-2">
+                    {product.title}
+                  </h3>
+                  {product.description && (
+                    <p className="text-sm text-muted-foreground mb-3 line-clamp-2">
+                      {product.description}
+                    </p>
+                  )}
+                  {product.price && (
+                    <p className="text-2xl font-bold text-primary mb-4">
+                      ${product.price.toFixed(2)}
+                    </p>
+                  )}
+                  {product.purchase_url ? (
+                    <Button 
+                      asChild
+                      className="w-full bg-gradient-primary hover:opacity-90 transition-opacity"
+                    >
+                      <a href={product.purchase_url} target="_blank" rel="noopener noreferrer">
+                        <ShoppingCart className="h-4 w-4 mr-2" />
+                        Buy Now
+                      </a>
+                    </Button>
+                  ) : (
+                    <Button 
+                      className="w-full"
+                      variant="outline"
+                      disabled
+                    >
+                      Link Coming Soon
+                    </Button>
+                  )}
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        )}
 
         <div className="mt-16 bg-secondary/30 rounded-lg p-8 text-center">
           <h2 className="text-2xl font-bold mb-4">Looking for something specific?</h2>
