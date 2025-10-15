@@ -1,8 +1,9 @@
 import { useParams, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight, Home, List } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { Badge } from "@/components/ui/badge";
 
 interface ChapterPage {
   id: string;
@@ -16,6 +17,8 @@ const Reader = () => {
   const [pages, setPages] = useState<ChapterPage[]>([]);
   const [chapterTitle, setChapterTitle] = useState("");
   const [loading, setLoading] = useState(true);
+  const [viewMode, setViewMode] = useState<"scroll" | "page">("scroll");
+  const pageRefs = useRef<{ [key: number]: HTMLDivElement | null }>({});
   
   const chapterNum = parseInt(chapterNumber || "1");
 
@@ -49,6 +52,27 @@ const Reader = () => {
       }
     }
     setLoading(false);
+  };
+
+  const goToPage = (pageNum: number) => {
+    if (pageNum >= 1 && pageNum <= pages.length) {
+      setCurrentPage(pageNum);
+      if (viewMode === "page") {
+        pageRefs.current[pageNum]?.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+    }
+  };
+
+  const handleNextPage = () => {
+    if (currentPage < pages.length) {
+      goToPage(currentPage + 1);
+    }
+  };
+
+  const handlePrevPage = () => {
+    if (currentPage > 1) {
+      goToPage(currentPage - 1);
+    }
   };
   
   const goToPrevChapter = () => {
@@ -121,9 +145,47 @@ const Reader = () => {
             <div className="text-center">
               <p className="font-semibold">Chapter {chapterNumber}{chapterTitle && `: ${chapterTitle}`}</p>
               <p className="text-sm text-muted-foreground">Page {currentPage} of {pages.length}</p>
+              <div className="flex gap-2 justify-center mt-1">
+                <Badge 
+                  variant={viewMode === "scroll" ? "default" : "outline"} 
+                  className="cursor-pointer"
+                  onClick={() => setViewMode("scroll")}
+                >
+                  Scroll
+                </Badge>
+                <Badge 
+                  variant={viewMode === "page" ? "default" : "outline"}
+                  className="cursor-pointer"
+                  onClick={() => setViewMode("page")}
+                >
+                  Page-by-Page
+                </Badge>
+              </div>
             </div>
 
             <div className="flex items-center gap-2">
+              {viewMode === "page" && (
+                <>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handlePrevPage}
+                    disabled={currentPage === 1}
+                  >
+                    <ChevronLeft className="h-4 w-4" />
+                    Prev Page
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleNextPage}
+                    disabled={currentPage === pages.length}
+                  >
+                    Next Page
+                    <ChevronRight className="h-4 w-4" />
+                  </Button>
+                </>
+              )}
               <Button
                 variant="outline"
                 size="sm"
@@ -146,24 +208,64 @@ const Reader = () => {
         </div>
       </div>
 
-      {/* Reader Content - Scroll-based */}
+      {/* Reader Content */}
       <div className="container mx-auto px-4 py-8 max-w-4xl">
-        <div className="space-y-2">
-          {pages.map((page) => (
-            <div
-              key={page.id}
-              className="rounded-lg overflow-hidden shadow-card"
-              onMouseEnter={() => setCurrentPage(page.page_number)}
-            >
-              <img
-                src={page.image_url}
-                alt={`Page ${page.page_number}`}
-                className="w-full h-auto"
-                loading="lazy"
-              />
+        {viewMode === "scroll" ? (
+          <div className="space-y-2">
+            {pages.map((page) => (
+              <div
+                key={page.id}
+                ref={(el) => (pageRefs.current[page.page_number] = el)}
+                className="rounded-lg overflow-hidden shadow-card"
+                onMouseEnter={() => setCurrentPage(page.page_number)}
+              >
+                <img
+                  src={page.image_url}
+                  alt={`Page ${page.page_number}`}
+                  className="w-full h-auto"
+                  loading="lazy"
+                />
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="flex flex-col items-center">
+            {pages.filter(p => p.page_number === currentPage).map((page) => (
+              <div
+                key={page.id}
+                ref={(el) => (pageRefs.current[page.page_number] = el)}
+                className="rounded-lg overflow-hidden shadow-card max-w-full"
+              >
+                <img
+                  src={page.image_url}
+                  alt={`Page ${page.page_number}`}
+                  className="w-full h-auto"
+                />
+              </div>
+            ))}
+            <div className="flex items-center gap-4 mt-6">
+              <Button
+                variant="outline"
+                onClick={handlePrevPage}
+                disabled={currentPage === 1}
+              >
+                <ChevronLeft className="h-4 w-4 mr-2" />
+                Previous Page
+              </Button>
+              <span className="text-muted-foreground">
+                Page {currentPage} of {pages.length}
+              </span>
+              <Button
+                variant="outline"
+                onClick={handleNextPage}
+                disabled={currentPage === pages.length}
+              >
+                Next Page
+                <ChevronRight className="h-4 w-4 ml-2" />
+              </Button>
             </div>
-          ))}
-        </div>
+          </div>
+        )}
 
         {/* Navigation Footer */}
         <div className="flex items-center justify-between mt-8 py-6 border-t border-border">
