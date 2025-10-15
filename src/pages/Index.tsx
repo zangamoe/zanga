@@ -1,27 +1,23 @@
 import { useEffect, useState } from "react";
-import { ArrowRight, Sparkles } from "lucide-react";
+import { ArrowRight, Sparkles, ChevronLeft, ChevronRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import SeriesCard from "@/components/SeriesCard";
 import Navigation from "@/components/Navigation";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
 
 interface SiteSetting {
   key: string;
   value: any;
   type: string;
-}
-
-interface HomepageBlock {
-  id: string;
-  title: string;
-  subtitle: string | null;
-  image_url: string | null;
-  link_url: string | null;
-  excerpt: string | null;
-  enabled: boolean;
-  order_index: number;
 }
 
 interface Series {
@@ -32,9 +28,16 @@ interface Series {
   status: string;
 }
 
+interface HeroSliderItem {
+  id: string;
+  series_id: string;
+  enabled: boolean;
+  series: Series;
+}
+
 const Index = () => {
   const [settings, setSettings] = useState<Record<string, string>>({});
-  const [featuredBlocks, setFeaturedBlocks] = useState<HomepageBlock[]>([]);
+  const [heroSlider, setHeroSlider] = useState<HeroSliderItem[]>([]);
   const [latestSeries, setLatestSeries] = useState<Series[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -64,15 +67,24 @@ const Index = () => {
       });
       setSettings(settingsMap);
 
-      // Fetch homepage blocks
-      const { data: blocksData, error: blocksError } = await supabase
-        .from("homepage_blocks")
-        .select("*")
+      // Fetch hero slider series
+      const { data: sliderData, error: sliderError } = await supabase
+        .from("hero_slider_series")
+        .select(`
+          *,
+          series:series_id (
+            id,
+            title,
+            cover_image_url,
+            synopsis,
+            status
+          )
+        `)
         .eq("enabled", true)
         .order("order_index");
 
-      if (blocksError) throw blocksError;
-      setFeaturedBlocks(blocksData || []);
+      if (sliderError) throw sliderError;
+      setHeroSlider((sliderData || []) as any);
 
       // Fetch latest series
       const { data: seriesData, error: seriesError } = await supabase
@@ -109,85 +121,93 @@ const Index = () => {
     <div className="min-h-screen bg-background">
       <Navigation />
       
-      {/* Hero Section - FULLY EDITABLE IN ADMIN */}
-      <section className="relative h-[60vh] overflow-hidden">
-        <div className="absolute inset-0">
-          {settings.home_hero_image && (
-            <>
-              <img
-                src={settings.home_hero_image}
-                alt="Hero Banner"
-                className="h-full w-full object-cover"
-              />
-              <div className="absolute inset-0 bg-gradient-to-r from-background via-background/80 to-transparent" />
-            </>
-          )}
-          {!settings.home_hero_image && (
-            <div className="h-full w-full bg-gradient-to-r from-primary/20 to-secondary/20" />
-          )}
-        </div>
-        
-        <div className="container relative mx-auto px-4 h-full flex items-center">
-          <div className="max-w-2xl animate-fade-in">
-            <div className="flex items-center gap-2 mb-4">
-              <Sparkles className="h-6 w-6 text-primary" />
-              <span className="text-primary font-semibold">
-                {settings.home_hero_badge || "Discover Amazing Stories"}
-              </span>
-            </div>
-            <h1 className="text-5xl md:text-6xl font-bold mb-6 bg-gradient-primary bg-clip-text text-transparent">
-              {settings.home_hero_title || "Welcome to Manga Reader"}
-            </h1>
-            <p className="text-xl text-muted-foreground mb-8">
-              {settings.home_hero_subtitle || "Read the latest manga chapters"}
-            </p>
-            <Button asChild size="lg" className="bg-gradient-primary hover:opacity-90 transition-opacity">
-              <Link to="/series" className="flex items-center gap-2">
-                {settings.home_hero_button_text || "Browse Series"}
-                <ArrowRight className="h-5 w-5" />
-              </Link>
-            </Button>
-          </div>
-        </div>
-      </section>
-
-      {/* Featured Blocks - MANAGED IN HOMEPAGE TAB */}
-      {featuredBlocks.length > 0 && (
-        <section className="container mx-auto px-4 py-16">
-          <h2 className="text-3xl font-bold mb-8">
-            {settings.featured_section_title || "Featured"}
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {featuredBlocks.map((block) => (
-              <div
-                key={block.id}
-                className="bg-gradient-card border border-border/50 rounded-lg overflow-hidden hover:shadow-elegant transition-all animate-fade-in"
-              >
-                {block.image_url && (
-                  <div className="aspect-video overflow-hidden">
-                    <img
-                      src={block.image_url}
-                      alt={block.title}
-                      className="w-full h-full object-cover hover:scale-105 transition-transform"
-                    />
+      {/* Hero Slider - Interactive Series Showcase */}
+      {heroSlider.length > 0 && (
+        <section className="relative overflow-hidden">
+          <Carousel className="w-full" opts={{ loop: true }}>
+            <CarouselContent>
+              {heroSlider.map((item) => (
+                <CarouselItem key={item.id}>
+                  <div className="relative h-[70vh] overflow-hidden">
+                    <div className="absolute inset-0">
+                      <img
+                        src={item.series.cover_image_url}
+                        alt={item.series.title}
+                        className="h-full w-full object-cover"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-r from-background via-background/80 to-transparent" />
+                    </div>
+                    
+                    <div className="container relative mx-auto px-4 h-full flex items-center">
+                      <div className="max-w-2xl animate-fade-in">
+                        <div className="flex items-center gap-2 mb-4">
+                          <Sparkles className="h-6 w-6 text-primary" />
+                          <span className="text-primary font-semibold">Featured Series</span>
+                        </div>
+                        <h1 className="text-5xl md:text-6xl font-bold mb-6 bg-gradient-primary bg-clip-text text-transparent">
+                          {item.series.title}
+                        </h1>
+                        <p className="text-xl text-muted-foreground mb-8 line-clamp-3">
+                          {item.series.synopsis}
+                        </p>
+                        <Button asChild size="lg" className="bg-gradient-primary hover:opacity-90 transition-opacity">
+                          <Link to={`/series/${item.series.id}`} className="flex items-center gap-2">
+                            Read Now
+                            <ArrowRight className="h-5 w-5" />
+                          </Link>
+                        </Button>
+                      </div>
+                    </div>
                   </div>
-                )}
-                <div className="p-6">
-                  <h3 className="text-xl font-bold mb-2">{block.title}</h3>
-                  {block.subtitle && (
-                    <p className="text-sm text-muted-foreground mb-2">{block.subtitle}</p>
-                  )}
-                  {block.excerpt && (
-                    <p className="text-muted-foreground mb-4">{block.excerpt}</p>
-                  )}
-                  {block.link_url && (
-                    <Button asChild variant="outline" size="sm">
-                      <Link to={block.link_url}>Learn More</Link>
-                    </Button>
-                  )}
-                </div>
+                </CarouselItem>
+              ))}
+            </CarouselContent>
+            <CarouselPrevious className="left-4" />
+            <CarouselNext className="right-4" />
+          </Carousel>
+        </section>
+      )}
+
+      {/* Default Hero if No Slider */}
+      {heroSlider.length === 0 && (
+        <section className="relative h-[60vh] overflow-hidden">
+          <div className="absolute inset-0">
+            {settings.home_hero_image && (
+              <>
+                <img
+                  src={settings.home_hero_image}
+                  alt="Hero Banner"
+                  className="h-full w-full object-cover"
+                />
+                <div className="absolute inset-0 bg-gradient-to-r from-background via-background/80 to-transparent" />
+              </>
+            )}
+            {!settings.home_hero_image && (
+              <div className="h-full w-full bg-gradient-to-r from-primary/20 to-secondary/20" />
+            )}
+          </div>
+          
+          <div className="container relative mx-auto px-4 h-full flex items-center">
+            <div className="max-w-2xl animate-fade-in">
+              <div className="flex items-center gap-2 mb-4">
+                <Sparkles className="h-6 w-6 text-primary" />
+                <span className="text-primary font-semibold">
+                  {settings.home_hero_badge || "Discover Amazing Stories"}
+                </span>
               </div>
-            ))}
+              <h1 className="text-5xl md:text-6xl font-bold mb-6 bg-gradient-primary bg-clip-text text-transparent">
+                {settings.home_hero_title || "Welcome to Manga Reader"}
+              </h1>
+              <p className="text-xl text-muted-foreground mb-8">
+                {settings.home_hero_subtitle || "Read the latest manga chapters"}
+              </p>
+              <Button asChild size="lg" className="bg-gradient-primary hover:opacity-90 transition-opacity">
+                <Link to="/series" className="flex items-center gap-2">
+                  {settings.home_hero_button_text || "Browse Series"}
+                  <ArrowRight className="h-5 w-5" />
+                </Link>
+              </Button>
+            </div>
           </div>
         </section>
       )}

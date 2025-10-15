@@ -138,6 +138,41 @@ export type Database = {
         }
         Relationships: []
       }
+      hero_slider_series: {
+        Row: {
+          created_at: string
+          enabled: boolean
+          id: string
+          order_index: number
+          series_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          enabled?: boolean
+          id?: string
+          order_index?: number
+          series_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          enabled?: boolean
+          id?: string
+          order_index?: number
+          series_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "hero_slider_series_series_id_fkey"
+            columns: ["series_id"]
+            isOneToOne: false
+            referencedRelation: "series"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       homepage_blocks: {
         Row: {
           created_at: string

@@ -15,6 +15,8 @@ import AdminGuide from "@/components/admin/AdminGuide";
 import SeriesPageContent from "@/components/admin/SeriesPageContent";
 import AuthorsPageContent from "@/components/admin/AuthorsPageContent";
 import MerchandisePageContent from "@/components/admin/MerchandisePageContent";
+import HomepagePageContent from "@/components/admin/HomepagePageContent";
+import HeroSliderManagement from "@/components/admin/HeroSliderManagement";
 
 const Admin = () => {
   const { user, loading, isAdmin, signOut } = useAuth();
@@ -118,7 +120,18 @@ const Admin = () => {
           </TabsContent>
 
           <TabsContent value="homepage">
-            <HomepageBlocksManagement />
+            <Tabs defaultValue="content" className="space-y-6">
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="content">Page Content</TabsTrigger>
+                <TabsTrigger value="slider">Hero Slider</TabsTrigger>
+              </TabsList>
+              <TabsContent value="content">
+                <HomepagePageContent />
+              </TabsContent>
+              <TabsContent value="slider">
+                <HeroSliderManagement />
+              </TabsContent>
+            </Tabs>
           </TabsContent>
 
           <TabsContent value="series">
