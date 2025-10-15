@@ -11,7 +11,6 @@ interface SeriesRatingProps {
 const SeriesRating = ({ seriesId, ratingsEnabled = true, showCount = false }: SeriesRatingProps) => {
   const [avgRating, setAvgRating] = useState(0);
   const [totalRatings, setTotalRatings] = useState(0);
-  const [chapterAvg, setChapterAvg] = useState(0);
 
   useEffect(() => {
     if (ratingsEnabled) {
@@ -32,7 +31,10 @@ const SeriesRating = ({ seriesId, ratingsEnabled = true, showCount = false }: Se
       .select("id")
       .eq("series_id", seriesId);
 
-    if (chapters) {
+    let chapterAvgCalc = 0;
+    let chapterRatingsCount = 0;
+
+    if (chapters && chapters.length > 0) {
       const chapterIds = chapters.map(c => c.id);
       const { data: chapterRatings } = await supabase
         .from("chapter_ratings")
@@ -41,24 +43,32 @@ const SeriesRating = ({ seriesId, ratingsEnabled = true, showCount = false }: Se
 
       // Calculate chapter average
       if (chapterRatings && chapterRatings.length > 0) {
-        const chapterAvgCalc = chapterRatings.reduce((sum, r) => sum + r.rating, 0) / chapterRatings.length;
-        setChapterAvg(chapterAvgCalc);
+        chapterAvgCalc = chapterRatings.reduce((sum, r) => sum + r.rating, 0) / chapterRatings.length;
+        chapterRatingsCount = chapterRatings.length;
       }
     }
 
-    // Calculate combined rating (70% series ratings, 30% chapter ratings)
-    if (seriesRatings && seriesRatings.length > 0) {
-      const seriesAvg = seriesRatings.reduce((sum, r) => sum + r.rating, 0) / seriesRatings.length;
-      const combined = chapterAvg > 0 
-        ? (seriesAvg * 0.7 + chapterAvg * 0.3)
-        : seriesAvg;
-      
-      setAvgRating(Math.round(combined * 10) / 10);
-      setTotalRatings(seriesRatings.length);
-    } else if (chapterAvg > 0) {
-      setAvgRating(Math.round(chapterAvg * 10) / 10);
-      setTotalRatings(0);
+    const seriesAvgCalc = seriesRatings && seriesRatings.length > 0
+      ? seriesRatings.reduce((sum, r) => sum + r.rating, 0) / seriesRatings.length
+      : 0;
+
+    const seriesRatingsCount = seriesRatings?.length || 0;
+
+    // Calculate weighted combined rating
+    let finalRating = 0;
+    if (seriesRatingsCount > 0 && chapterRatingsCount > 0) {
+      // Both exist: 70% series, 30% chapter
+      finalRating = (seriesAvgCalc * 0.7) + (chapterAvgCalc * 0.3);
+    } else if (seriesRatingsCount > 0) {
+      // Only series ratings
+      finalRating = seriesAvgCalc;
+    } else if (chapterRatingsCount > 0) {
+      // Only chapter ratings
+      finalRating = chapterAvgCalc;
     }
+
+    setAvgRating(Math.round(finalRating * 10) / 10);
+    setTotalRatings(seriesRatingsCount + chapterRatingsCount);
   };
 
   if (!ratingsEnabled || (avgRating === 0 && totalRatings === 0)) {

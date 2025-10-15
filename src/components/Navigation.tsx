@@ -34,7 +34,7 @@ const Navigation = () => {
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
 
   useEffect(() => {
-    if (siteName && siteName !== "MangaVerse") {
+    if (siteName) {
       document.title = siteName;
     }
   }, [siteName]);
@@ -50,14 +50,10 @@ const Navigation = () => {
     if (siteNameData) {
       try {
         const parsed = JSON.parse(String(siteNameData.value));
-        const newSiteName = String(parsed);
-        setSiteName(newSiteName);
+        setSiteName(String(parsed));
       } catch {
-        const newSiteName = String(siteNameData.value);
-        setSiteName(newSiteName);
+        setSiteName(String(siteNameData.value));
       }
-    } else {
-      setSiteName("MangaVerse");
     }
 
     // Fetch menu items
@@ -81,9 +77,11 @@ const Navigation = () => {
       <div className="container mx-auto px-4">
         <div className="flex h-16 items-center justify-between">
           <Link to="/" className="flex items-center space-x-2">
-            <div className="bg-gradient-primary bg-clip-text text-2xl font-bold text-transparent">
-              {siteName || "MangaVerse"}
-            </div>
+            {siteName && (
+              <div className="bg-gradient-primary bg-clip-text text-2xl font-bold text-transparent">
+                {siteName}
+              </div>
+            )}
           </Link>
 
           <div className="flex items-center gap-1">
