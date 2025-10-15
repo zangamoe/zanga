@@ -3,11 +3,10 @@ import { Navigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { LogOut, BookOpen, Users, ShoppingBag, Settings, Layout, Info, Menu, LayoutGrid } from "lucide-react";
+import { LogOut, BookOpen, Users, ShoppingBag, Settings, Layout, Info, Menu } from "lucide-react";
 import Navigation from "@/components/Navigation";
 import AuthorManagement from "@/components/admin/AuthorManagement";
 import SeriesManagement from "@/components/admin/SeriesManagement";
-
 import MerchandiseManagement from "@/components/admin/MerchandiseManagement";
 import SiteContentManagement from "@/components/admin/SiteContentManagement";
 import HomepageBlocksManagement from "@/components/admin/HomepageBlocksManagement";
@@ -18,7 +17,6 @@ import MerchandisePageContent from "@/components/admin/MerchandisePageContent";
 import HomepagePageContent from "@/components/admin/HomepagePageContent";
 import HeroSliderManagement from "@/components/admin/HeroSliderManagement";
 import MenuManagement from "@/components/admin/MenuManagement";
-import PageBuilder from "@/components/admin/PageBuilder";
 
 const Admin = () => {
   const { user, loading, isAdmin, signOut } = useAuth();
@@ -82,7 +80,7 @@ const Admin = () => {
         </div>
 
         <Tabs defaultValue="guide" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4 lg:grid-cols-8 bg-secondary/50">
+          <TabsList className="grid w-full grid-cols-4 lg:grid-cols-7 bg-secondary/50">
             <TabsTrigger value="guide" className="flex items-center gap-2">
               <Info className="h-4 w-4" />
               Guide
@@ -110,10 +108,6 @@ const Admin = () => {
             <TabsTrigger value="menu" className="flex items-center gap-2">
               <Menu className="h-4 w-4" />
               Menu
-            </TabsTrigger>
-            <TabsTrigger value="builder" className="flex items-center gap-2">
-              <LayoutGrid className="h-4 w-4" />
-              Builder
             </TabsTrigger>
           </TabsList>
 
@@ -171,20 +165,6 @@ const Admin = () => {
               </CardHeader>
               <CardContent>
                 <MenuManagement />
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="builder">
-            <Card className="bg-gradient-card border-border/50">
-              <CardHeader>
-                <CardTitle>Page Builder</CardTitle>
-                <CardDescription>
-                  Create and manage custom page sections
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <PageBuilder />
               </CardContent>
             </Card>
           </TabsContent>

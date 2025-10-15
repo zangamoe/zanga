@@ -78,6 +78,7 @@ const Index = () => {
       const { data: seriesData, error: seriesError } = await supabase
         .from("series")
         .select("*")
+        .eq("published", true)
         .order("created_at", { ascending: false })
         .limit(3);
 

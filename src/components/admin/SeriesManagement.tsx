@@ -5,10 +5,11 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, Pencil, Trash2, BookOpen, ExternalLink } from "lucide-react";
+import { Plus, Pencil, Trash2, BookOpen, ExternalLink, Eye, EyeOff } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Switch } from "@/components/ui/switch";
 import { useNavigate } from "react-router-dom";
 
 interface Series {
@@ -17,6 +18,7 @@ interface Series {
   cover_image_url: string;
   synopsis: string;
   status: string;
+  published: boolean;
 }
 
 interface Author {
@@ -45,6 +47,7 @@ const SeriesManagement = () => {
     cover_image_url: "",
     synopsis: "",
     status: "ongoing" as "ongoing" | "completed" | "hiatus",
+    published: true,
   });
 
   const [selectedAuthors, setSelectedAuthors] = useState<string[]>([]);
@@ -161,6 +164,7 @@ const SeriesManagement = () => {
       cover_image_url: series.cover_image_url,
       synopsis: series.synopsis,
       status: series.status as any,
+      published: series.published,
     });
 
     // Fetch related authors and genres
@@ -197,6 +201,7 @@ const SeriesManagement = () => {
       cover_image_url: "",
       synopsis: "",
       status: "ongoing",
+      published: true,
     });
     setSelectedAuthors([]);
     setSelectedGenres([]);
@@ -333,6 +338,21 @@ const SeriesManagement = () => {
                 </div>
               </div>
 
+              <div className="flex items-center justify-between">
+                <label className="text-sm font-medium">Published (Visible on website)</label>
+                <div className="flex items-center gap-2">
+                  <Switch
+                    checked={formData.published}
+                    onCheckedChange={(checked) => setFormData({ ...formData, published: checked })}
+                  />
+                  {formData.published ? (
+                    <Eye className="h-4 w-4 text-green-500" />
+                  ) : (
+                    <EyeOff className="h-4 w-4 text-muted-foreground" />
+                  )}
+                </div>
+              </div>
+
               <div className="flex gap-2">
                 <Button type="submit" className="bg-gradient-primary flex-1" disabled={uploading}>
                   {editingSeries ? "Update" : "Create"} Series
@@ -348,7 +368,7 @@ const SeriesManagement = () => {
 
       <div className="space-y-4">
         {series.map((item) => (
-          <Card key={item.id} className="bg-gradient-card border-border/50 overflow-hidden">
+          <Card key={item.id} className={`bg-gradient-card border-border/50 overflow-hidden ${!item.published ? 'opacity-60' : ''}`}>
             <div className="flex gap-4 p-4">
               <img
                 src={item.cover_image_url}
@@ -356,7 +376,28 @@ const SeriesManagement = () => {
                 className="w-24 h-32 object-cover rounded"
               />
               <div className="flex-1">
-                <h3 className="font-semibold text-lg mb-2">{item.title}</h3>
+                <div className="flex items-start justify-between mb-2">
+                  <h3 className="font-semibold text-lg">{item.title}</h3>
+                  <div className="flex items-center gap-2">
+                    <Switch
+                      checked={item.published}
+                      onCheckedChange={async (checked) => {
+                        const { error } = await supabase
+                          .from("series")
+                          .update({ published: checked })
+                          .eq("id", item.id);
+                        if (!error) {
+                          fetchData();
+                          toast({
+                            title: "Success",
+                            description: `Series ${checked ? 'published' : 'hidden'}`,
+                          });
+                        }
+                      }}
+                    />
+                    {item.published ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
+                  </div>
+                </div>
                 <p className="text-sm text-muted-foreground mb-4 line-clamp-2">{item.synopsis}</p>
                 <div className="flex gap-2">
                   <Button

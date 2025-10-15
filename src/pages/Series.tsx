@@ -51,6 +51,7 @@ const Series = () => {
         *,
         chapters(chapter_number)
       `)
+      .eq("published", true)
       .order("title");
 
     if (seriesData) {

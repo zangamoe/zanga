@@ -322,6 +322,7 @@ export type Database = {
           cover_image_url: string
           created_at: string
           id: string
+          published: boolean
           status: string
           synopsis: string
           title: string
@@ -331,6 +332,7 @@ export type Database = {
           cover_image_url: string
           created_at?: string
           id?: string
+          published?: boolean
           status: string
           synopsis: string
           title: string
@@ -340,6 +342,7 @@ export type Database = {
           cover_image_url?: string
           created_at?: string
           id?: string
+          published?: boolean
           status?: string
           synopsis?: string
           title?: string
