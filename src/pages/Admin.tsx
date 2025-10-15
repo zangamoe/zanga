@@ -12,6 +12,9 @@ import MerchandiseManagement from "@/components/admin/MerchandiseManagement";
 import SiteContentManagement from "@/components/admin/SiteContentManagement";
 import HomepageBlocksManagement from "@/components/admin/HomepageBlocksManagement";
 import AdminGuide from "@/components/admin/AdminGuide";
+import SeriesPageContent from "@/components/admin/SeriesPageContent";
+import AuthorsPageContent from "@/components/admin/AuthorsPageContent";
+import MerchandisePageContent from "@/components/admin/MerchandisePageContent";
 
 const Admin = () => {
   const { user, loading, isAdmin, signOut } = useAuth();
@@ -119,11 +122,17 @@ const Admin = () => {
           </TabsContent>
 
           <TabsContent value="series">
-            <SeriesManagement />
+            <SeriesPageContent />
+            <div className="mt-6">
+              <SeriesManagement />
+            </div>
           </TabsContent>
 
           <TabsContent value="authors">
-            <AuthorManagement />
+            <AuthorsPageContent />
+            <div className="mt-6">
+              <AuthorManagement />
+            </div>
           </TabsContent>
 
           <TabsContent value="chapters">
@@ -131,7 +140,10 @@ const Admin = () => {
           </TabsContent>
 
           <TabsContent value="merchandise">
-            <MerchandiseManagement />
+            <MerchandisePageContent />
+            <div className="mt-6">
+              <MerchandiseManagement />
+            </div>
           </TabsContent>
         </Tabs>
       </div>

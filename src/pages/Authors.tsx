@@ -12,10 +12,42 @@ const Authors = () => {
   const [authors, setAuthors] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedAuthor, setSelectedAuthor] = useState<any>(null);
+  const [pageContent, setPageContent] = useState({
+    title: "Our Authors",
+    subtitle: "Meet the talented Japanese manga artists we're proud to work with. Each brings their unique vision and storytelling prowess to create unforgettable narratives.",
+    singleSubtitle: "Explore this talented artist's works and connect with them.",
+    loadingText: "Loading authors...",
+    emptyText: "No authors available yet. Check back soon!",
+    noBio: "No bio available.",
+    worksLabel: "Works:",
+  });
 
   useEffect(() => {
     fetchAuthors();
+    fetchPageContent();
   }, [id]);
+
+  const fetchPageContent = async () => {
+    const { data } = await supabase
+      .from("site_settings")
+      .select("key, value")
+      .in("key", ["authors_page_title", "authors_page_subtitle", "authors_single_subtitle", "authors_loading_text", "authors_empty_text", "authors_no_bio", "authors_works_label"]);
+
+    if (data) {
+      const newContent = { ...pageContent };
+      data.forEach((item) => {
+        const value = String(item.value);
+        if (item.key === "authors_page_title") newContent.title = value;
+        if (item.key === "authors_page_subtitle") newContent.subtitle = value;
+        if (item.key === "authors_single_subtitle") newContent.singleSubtitle = value;
+        if (item.key === "authors_loading_text") newContent.loadingText = value;
+        if (item.key === "authors_empty_text") newContent.emptyText = value;
+        if (item.key === "authors_no_bio") newContent.noBio = value;
+        if (item.key === "authors_works_label") newContent.worksLabel = value;
+      });
+      setPageContent(newContent);
+    }
+  };
 
   const fetchAuthors = async () => {
     let query = supabase
@@ -65,7 +97,7 @@ const Authors = () => {
       <div className="min-h-screen bg-background">
         <Navigation />
         <div className="container mx-auto px-4 py-12 text-center">
-          <p className="text-muted-foreground">Loading authors...</p>
+          <p className="text-muted-foreground">{pageContent.loadingText}</p>
         </div>
       </div>
     );
@@ -78,19 +110,19 @@ const Authors = () => {
       <div className="container mx-auto px-4 py-12">
         <div className="mb-8">
           <h1 className="text-4xl font-bold mb-4 bg-gradient-primary bg-clip-text text-transparent">
-            {selectedAuthor ? selectedAuthor.name : "Our Authors"}
+            {selectedAuthor ? selectedAuthor.name : pageContent.title}
           </h1>
           <p className="text-muted-foreground text-lg max-w-3xl">
             {selectedAuthor 
-              ? "Explore this talented artist's works and connect with them."
-              : "Meet the talented Japanese manga artists we're proud to work with. Each brings their unique vision and storytelling prowess to create unforgettable narratives."}
+              ? pageContent.singleSubtitle
+              : pageContent.subtitle}
           </p>
         </div>
 
         {authors.length === 0 ? (
           <div className="text-center py-12">
             <p className="text-muted-foreground text-lg">
-              No authors available yet. Check back soon!
+              {pageContent.emptyText}
             </p>
           </div>
         ) : (
@@ -113,12 +145,12 @@ const Authors = () => {
                   </h2>
                   
                   <p className="text-muted-foreground mb-4 leading-relaxed">
-                    {author.bio || "No bio available."}
+                    {author.bio || pageContent.noBio}
                   </p>
 
                   {author.series.length > 0 && (
                     <div className="mb-4">
-                      <h3 className="font-semibold mb-2">Works:</h3>
+                      <h3 className="font-semibold mb-2">{pageContent.worksLabel}</h3>
                       <ul className="space-y-1">
                         {author.seriesData.map((series: any) => (
                           <li key={series.id}>

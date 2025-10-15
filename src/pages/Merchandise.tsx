@@ -17,10 +17,46 @@ interface Merchandise {
 const Merchandise = () => {
   const [products, setProducts] = useState<Merchandise[]>([]);
   const [loading, setLoading] = useState(true);
+  const [pageContent, setPageContent] = useState({
+    title: "Merchandise",
+    subtitle: "Support our authors by purchasing official merchandise. From manga volumes to art books and apparel, every purchase helps these talented artists continue their creative journey.",
+    emptyText: "No merchandise available yet. Check back soon!",
+    emptySubtitle: "Admins can add merchandise from the Admin Panel.",
+    ctaTitle: "Looking for something specific?",
+    ctaText: "We're always expanding our merchandise collection. If you have suggestions for products you'd like to see, reach out to us!",
+    ctaButton: "Contact Us",
+    buyButton: "Buy Now",
+    comingSoon: "Link Coming Soon",
+  });
 
   useEffect(() => {
     fetchMerchandise();
+    fetchPageContent();
   }, []);
+
+  const fetchPageContent = async () => {
+    const { data } = await supabase
+      .from("site_settings")
+      .select("key, value")
+      .in("key", ["merch_page_title", "merch_page_subtitle", "merch_empty_text", "merch_empty_subtitle", "merch_cta_title", "merch_cta_text", "merch_cta_button", "merch_buy_button", "merch_coming_soon"]);
+
+    if (data) {
+      const newContent = { ...pageContent };
+      data.forEach((item) => {
+        const value = String(item.value);
+        if (item.key === "merch_page_title") newContent.title = value;
+        if (item.key === "merch_page_subtitle") newContent.subtitle = value;
+        if (item.key === "merch_empty_text") newContent.emptyText = value;
+        if (item.key === "merch_empty_subtitle") newContent.emptySubtitle = value;
+        if (item.key === "merch_cta_title") newContent.ctaTitle = value;
+        if (item.key === "merch_cta_text") newContent.ctaText = value;
+        if (item.key === "merch_cta_button") newContent.ctaButton = value;
+        if (item.key === "merch_buy_button") newContent.buyButton = value;
+        if (item.key === "merch_coming_soon") newContent.comingSoon = value;
+      });
+      setPageContent(newContent);
+    }
+  };
 
   const fetchMerchandise = async () => {
     const { data } = await supabase
@@ -52,17 +88,17 @@ const Merchandise = () => {
       <div className="container mx-auto px-4 py-12">
         <div className="mb-8">
           <h1 className="text-4xl font-bold mb-4 bg-gradient-primary bg-clip-text text-transparent">
-            Merchandise
+            {pageContent.title}
           </h1>
           <p className="text-muted-foreground text-lg max-w-3xl">
-            Support our authors by purchasing official merchandise. From manga volumes to art books and apparel, every purchase helps these talented artists continue their creative journey.
+            {pageContent.subtitle}
           </p>
         </div>
 
         {products.length === 0 ? (
           <div className="text-center py-12">
-            <p className="text-muted-foreground text-lg">No merchandise available yet. Check back soon!</p>
-            <p className="text-sm text-muted-foreground mt-2">Admins can add merchandise from the Admin Panel.</p>
+            <p className="text-muted-foreground text-lg">{pageContent.emptyText}</p>
+            <p className="text-sm text-muted-foreground mt-2">{pageContent.emptySubtitle}</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
@@ -102,7 +138,7 @@ const Merchandise = () => {
                     >
                       <a href={product.purchase_url} target="_blank" rel="noopener noreferrer">
                         <ShoppingCart className="h-4 w-4 mr-2" />
-                        Buy Now
+                        {pageContent.buyButton}
                       </a>
                     </Button>
                   ) : (
@@ -111,7 +147,7 @@ const Merchandise = () => {
                       variant="outline"
                       disabled
                     >
-                      Link Coming Soon
+                      {pageContent.comingSoon}
                     </Button>
                   )}
                 </CardContent>
@@ -121,13 +157,13 @@ const Merchandise = () => {
         )}
 
         <div className="mt-16 bg-secondary/30 rounded-lg p-8 text-center">
-          <h2 className="text-2xl font-bold mb-4">Looking for something specific?</h2>
+          <h2 className="text-2xl font-bold mb-4">{pageContent.ctaTitle}</h2>
           <p className="text-muted-foreground mb-6 max-w-2xl mx-auto">
-            We're always expanding our merchandise collection. If you have suggestions for products you'd like to see, reach out to us!
+            {pageContent.ctaText}
           </p>
           <Button variant="outline" className="border-primary text-primary hover:bg-primary hover:text-primary-foreground">
             <ExternalLink className="h-4 w-4 mr-2" />
-            Contact Us
+            {pageContent.ctaButton}
           </Button>
         </div>
       </div>
