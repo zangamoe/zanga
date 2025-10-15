@@ -113,7 +113,7 @@ const Index = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background opacity-0 animate-fade-in">
+    <div className="min-h-screen bg-background">
       <Navigation />
       
       {/* Hero Banner */}

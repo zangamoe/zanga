@@ -83,7 +83,7 @@ const About = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background opacity-0 animate-fade-in">
+    <div className="min-h-screen bg-background">
       <Navigation />
       
       <div className="container mx-auto px-4 py-12">
