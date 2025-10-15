@@ -5,11 +5,11 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, Pencil, Trash2, BookOpen, ChevronDown, ChevronUp } from "lucide-react";
+import { Plus, Pencil, Trash2, BookOpen, ExternalLink } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
-import ChapterManagement from "./ChapterManagement";
+import { useNavigate } from "react-router-dom";
 
 interface Series {
   id: string;
@@ -30,6 +30,7 @@ interface Genre {
 }
 
 const SeriesManagement = () => {
+  const navigate = useNavigate();
   const [series, setSeries] = useState<Series[]>([]);
   const [authors, setAuthors] = useState<Author[]>([]);
   const [genres, setGenres] = useState<Genre[]>([]);
@@ -37,7 +38,6 @@ const SeriesManagement = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingSeries, setEditingSeries] = useState<Series | null>(null);
   const [uploading, setUploading] = useState(false);
-  const [expandedSeries, setExpandedSeries] = useState<string | null>(null);
   const { toast } = useToast();
 
   const [formData, setFormData] = useState({
@@ -370,15 +370,11 @@ const SeriesManagement = () => {
                   <Button
                     size="sm"
                     variant="outline"
-                    onClick={() => setExpandedSeries(expandedSeries === item.id ? null : item.id)}
+                    onClick={() => navigate(`/admin/series/${item.id}/chapters`)}
                   >
                     <BookOpen className="h-4 w-4 mr-2" />
                     Manage Chapters
-                    {expandedSeries === item.id ? (
-                      <ChevronUp className="h-4 w-4 ml-2" />
-                    ) : (
-                      <ChevronDown className="h-4 w-4 ml-2" />
-                    )}
+                    <ExternalLink className="h-4 w-4 ml-2" />
                   </Button>
                   <Button
                     size="sm"
@@ -390,15 +386,6 @@ const SeriesManagement = () => {
                 </div>
               </div>
             </div>
-            
-            {expandedSeries === item.id && (
-              <div className="border-t border-border/50 p-4 bg-background/50">
-                <CardHeader className="px-0 pt-0">
-                  <CardTitle className="text-lg">Chapters for {item.title}</CardTitle>
-                </CardHeader>
-                <ChapterManagement seriesId={item.id} />
-              </div>
-            )}
           </Card>
         ))}
       </div>

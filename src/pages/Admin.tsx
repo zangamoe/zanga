@@ -3,7 +3,7 @@ import { Navigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { LogOut, BookOpen, Users, ShoppingBag, Image, Settings, Layout, Info } from "lucide-react";
+import { LogOut, BookOpen, Users, ShoppingBag, Settings, Layout, Info, Menu, LayoutGrid } from "lucide-react";
 import Navigation from "@/components/Navigation";
 import AuthorManagement from "@/components/admin/AuthorManagement";
 import SeriesManagement from "@/components/admin/SeriesManagement";
@@ -17,6 +17,8 @@ import AuthorsPageContent from "@/components/admin/AuthorsPageContent";
 import MerchandisePageContent from "@/components/admin/MerchandisePageContent";
 import HomepagePageContent from "@/components/admin/HomepagePageContent";
 import HeroSliderManagement from "@/components/admin/HeroSliderManagement";
+import MenuManagement from "@/components/admin/MenuManagement";
+import PageBuilder from "@/components/admin/PageBuilder";
 
 const Admin = () => {
   const { user, loading, isAdmin, signOut } = useAuth();
@@ -80,14 +82,14 @@ const Admin = () => {
         </div>
 
         <Tabs defaultValue="guide" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-6 bg-secondary/50">
+          <TabsList className="grid w-full grid-cols-4 lg:grid-cols-8 bg-secondary/50">
             <TabsTrigger value="guide" className="flex items-center gap-2">
               <Info className="h-4 w-4" />
               Guide
             </TabsTrigger>
             <TabsTrigger value="site-content" className="flex items-center gap-2">
               <Settings className="h-4 w-4" />
-              Site Content
+              Site
             </TabsTrigger>
             <TabsTrigger value="homepage" className="flex items-center gap-2">
               <Layout className="h-4 w-4" />
@@ -95,7 +97,7 @@ const Admin = () => {
             </TabsTrigger>
             <TabsTrigger value="series" className="flex items-center gap-2">
               <BookOpen className="h-4 w-4" />
-              Series & Chapters
+              Series
             </TabsTrigger>
             <TabsTrigger value="authors" className="flex items-center gap-2">
               <Users className="h-4 w-4" />
@@ -103,7 +105,15 @@ const Admin = () => {
             </TabsTrigger>
             <TabsTrigger value="merchandise" className="flex items-center gap-2">
               <ShoppingBag className="h-4 w-4" />
-              Merchandise
+              Merch
+            </TabsTrigger>
+            <TabsTrigger value="menu" className="flex items-center gap-2">
+              <Menu className="h-4 w-4" />
+              Menu
+            </TabsTrigger>
+            <TabsTrigger value="builder" className="flex items-center gap-2">
+              <LayoutGrid className="h-4 w-4" />
+              Builder
             </TabsTrigger>
           </TabsList>
 
@@ -149,6 +159,34 @@ const Admin = () => {
             <div className="mt-6">
               <MerchandiseManagement />
             </div>
+          </TabsContent>
+
+          <TabsContent value="menu">
+            <Card className="bg-gradient-card border-border/50">
+              <CardHeader>
+                <CardTitle>Menu Management</CardTitle>
+                <CardDescription>
+                  Manage navigation menu items and their order
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <MenuManagement />
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="builder">
+            <Card className="bg-gradient-card border-border/50">
+              <CardHeader>
+                <CardTitle>Page Builder</CardTitle>
+                <CardDescription>
+                  Create and manage custom page sections
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <PageBuilder />
+              </CardContent>
+            </Card>
           </TabsContent>
         </Tabs>
       </div>

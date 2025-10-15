@@ -7,8 +7,8 @@ import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "@/hooks/use-toast";
-import { Pencil, Trash2, FileImage } from "lucide-react";
-import ChapterPageEditor from "./ChapterPageEditor";
+import { Pencil, Trash2, FileImage, ExternalLink } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 interface Chapter {
   id: string;
@@ -28,13 +28,13 @@ interface ChapterManagementProps {
 }
 
 const ChapterManagement = ({ seriesId }: ChapterManagementProps) => {
+  const navigate = useNavigate();
   const [chapters, setChapters] = useState<Chapter[]>([]);
   const [series, setSeries] = useState<Series[]>([]);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingChapter, setEditingChapter] = useState<Chapter | null>(null);
   const [selectedSeriesFilter, setSelectedSeriesFilter] = useState<string>("all");
-  const [editingChapterPages, setEditingChapterPages] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     series_id: "",
     chapter_number: "",
@@ -233,14 +233,6 @@ const ChapterManagement = ({ seriesId }: ChapterManagementProps) => {
     return <div className="text-center py-8">Loading...</div>;
   }
 
-  if (editingChapterPages) {
-    return (
-      <ChapterPageEditor
-        chapterId={editingChapterPages}
-        onClose={() => setEditingChapterPages(null)}
-      />
-    );
-  }
 
   return (
     <div className="space-y-6">
@@ -393,10 +385,11 @@ const ChapterManagement = ({ seriesId }: ChapterManagementProps) => {
                         <Button
                           variant="outline"
                           size="sm"
-                          onClick={() => setEditingChapterPages(chapter.id)}
+                          onClick={() => navigate(`/admin/chapter/${chapter.id}`)}
                         >
                           <FileImage className="h-4 w-4 mr-2" />
-                          Pages
+                          Manage Pages
+                          <ExternalLink className="h-4 w-4 ml-2" />
                         </Button>
                         <Button
                           variant="outline"

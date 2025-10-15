@@ -13,6 +13,7 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
+import Autoplay from "embla-carousel-autoplay";
 
 interface SiteSetting {
   key: string;
@@ -124,7 +125,16 @@ const Index = () => {
       {/* Hero Slider - Interactive Series Showcase */}
       {heroSlider.length > 0 && (
         <section className="relative overflow-hidden">
-          <Carousel className="w-full" opts={{ loop: true }}>
+          <Carousel 
+            className="w-full" 
+            opts={{ loop: true }}
+            plugins={[
+              Autoplay({
+                delay: 5000,
+                stopOnInteraction: true,
+              })
+            ]}
+          >
             <CarouselContent>
               {heroSlider.map((item) => (
                 <CarouselItem key={item.id}>

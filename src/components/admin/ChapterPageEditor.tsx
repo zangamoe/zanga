@@ -148,24 +148,43 @@ const ChapterPageEditor = ({ chapterId, onClose }: ChapterPageEditorProps) => {
 
   const handleDrop = async (e: React.DragEvent, targetPage: ChapterPage) => {
     e.preventDefault();
-    if (!draggedPage || draggedPage === targetPage.id) return;
+    e.stopPropagation();
+    
+    if (!draggedPage || draggedPage === targetPage.id) {
+      setDraggedPage(null);
+      return;
+    }
 
     const draggedIndex = pages.findIndex(p => p.id === draggedPage);
     const targetIndex = pages.findIndex(p => p.id === targetPage.id);
     
-    if (draggedIndex === -1 || targetIndex === -1) return;
+    if (draggedIndex === -1 || targetIndex === -1) {
+      setDraggedPage(null);
+      return;
+    }
 
-    // Swap page numbers
-    const updates = [
-      { id: draggedPage, page_number: targetPage.page_number },
-      { id: targetPage.id, page_number: pages[draggedIndex].page_number }
-    ];
+    const draggedPageNumber = pages[draggedIndex].page_number;
+    const targetPageNumber = targetPage.page_number;
 
-    for (const update of updates) {
-      await supabase
-        .from("chapter_pages")
-        .update({ page_number: update.page_number })
-        .eq("id", update.id);
+    // Update both pages
+    const { error: error1 } = await supabase
+      .from("chapter_pages")
+      .update({ page_number: targetPageNumber })
+      .eq("id", draggedPage);
+
+    const { error: error2 } = await supabase
+      .from("chapter_pages")
+      .update({ page_number: draggedPageNumber })
+      .eq("id", targetPage.id);
+
+    if (error1 || error2) {
+      toast({
+        variant: "destructive",
+        title: "Error reordering pages",
+        description: error1?.message || error2?.message,
+      });
+    } else {
+      toast({ title: "Pages reordered successfully" });
     }
 
     setDraggedPage(null);
@@ -205,11 +224,14 @@ const ChapterPageEditor = ({ chapterId, onClose }: ChapterPageEditorProps) => {
         {pages.map((page) => (
           <Card 
             key={page.id} 
-            className="bg-gradient-card border-border/50 cursor-move transition-transform hover:scale-105"
-            draggable
+            className={`bg-gradient-card border-border/50 cursor-move transition-all hover:shadow-lg ${
+              draggedPage === page.id ? 'opacity-50 scale-95' : 'opacity-100'
+            }`}
+            draggable="true"
             onDragStart={(e) => handleDragStart(e, page.id)}
             onDragOver={handleDragOver}
             onDrop={(e) => handleDrop(e, page)}
+            onDragEnd={() => setDraggedPage(null)}
           >
             <CardHeader className="p-3">
               <div className="flex justify-between items-center">

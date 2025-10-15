@@ -221,6 +221,36 @@ export type Database = {
         }
         Relationships: []
       }
+      menu_items: {
+        Row: {
+          created_at: string
+          enabled: boolean
+          id: string
+          label: string
+          order_index: number
+          path: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          enabled?: boolean
+          id?: string
+          label: string
+          order_index?: number
+          path: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          enabled?: boolean
+          id?: string
+          label?: string
+          order_index?: number
+          path?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       merchandise: {
         Row: {
           created_at: string
@@ -249,6 +279,39 @@ export type Database = {
           image_url?: string | null
           price?: number | null
           purchase_url?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      page_sections: {
+        Row: {
+          content: string
+          created_at: string
+          enabled: boolean
+          id: string
+          order_index: number
+          section_type: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          enabled?: boolean
+          id?: string
+          order_index?: number
+          section_type: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          enabled?: boolean
+          id?: string
+          order_index?: number
+          section_type?: string
           title?: string
           updated_at?: string
         }
