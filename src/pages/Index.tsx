@@ -1,71 +1,149 @@
+import { useEffect, useState } from "react";
 import { ArrowRight, Sparkles } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import SeriesCard from "@/components/SeriesCard";
 import Navigation from "@/components/Navigation";
-import heroBanner from "@/assets/hero-banner.jpg";
-import mangaCover1 from "@/assets/manga-cover-1.jpg";
-import mangaCover2 from "@/assets/manga-cover-2.jpg";
-import mangaCover3 from "@/assets/manga-cover-3.jpg";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "@/hooks/use-toast";
+
+interface SiteSetting {
+  key: string;
+  value: any;
+  type: string;
+}
+
+interface HomepageBlock {
+  id: string;
+  title: string;
+  subtitle: string | null;
+  image_url: string | null;
+  link_url: string | null;
+  excerpt: string | null;
+  enabled: boolean;
+  order_index: number;
+}
+
+interface Series {
+  id: string;
+  title: string;
+  cover_image_url: string;
+  synopsis: string;
+  status: string;
+}
 
 const Index = () => {
-  const latestReleases = [
-    {
-      id: "1",
-      title: "Chronicles of the Azure Sky",
-      cover: mangaCover1,
-      status: "ongoing" as const,
-      latestChapter: "Chapter 12",
-      description: "An epic adventure following a young warrior's journey to save their world from an ancient evil.",
-    },
-    {
-      id: "2",
-      title: "Moonlit Memories",
-      cover: mangaCover2,
-      status: "ongoing" as const,
-      latestChapter: "Chapter 8",
-      description: "A heartwarming romance story about rediscovering love under the moonlight.",
-    },
-    {
-      id: "3",
-      title: "Neon Requiem",
-      cover: mangaCover3,
-      status: "ongoing" as const,
-      latestChapter: "Chapter 15",
-      description: "A cyberpunk thriller set in a dystopian future where technology and humanity collide.",
-    },
-  ];
+  const [settings, setSettings] = useState<Record<string, string>>({});
+  const [featuredBlocks, setFeaturedBlocks] = useState<HomepageBlock[]>([]);
+  const [latestSeries, setLatestSeries] = useState<Series[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchAllContent();
+  }, []);
+
+  const fetchAllContent = async () => {
+    try {
+      // Fetch site settings
+      const { data: settingsData, error: settingsError } = await supabase
+        .from("site_settings")
+        .select("*");
+
+      if (settingsError) throw settingsError;
+
+      // Convert settings array to object
+      const settingsMap: Record<string, string> = {};
+      settingsData?.forEach((setting: SiteSetting) => {
+        try {
+          settingsMap[setting.key] = setting.type === 'text' || setting.type === 'html' || setting.type === 'image'
+            ? JSON.parse(setting.value)
+            : setting.value;
+        } catch {
+          settingsMap[setting.key] = setting.value;
+        }
+      });
+      setSettings(settingsMap);
+
+      // Fetch homepage blocks
+      const { data: blocksData, error: blocksError } = await supabase
+        .from("homepage_blocks")
+        .select("*")
+        .eq("enabled", true)
+        .order("order_index");
+
+      if (blocksError) throw blocksError;
+      setFeaturedBlocks(blocksData || []);
+
+      // Fetch latest series
+      const { data: seriesData, error: seriesError } = await supabase
+        .from("series")
+        .select("*")
+        .order("created_at", { ascending: false })
+        .limit(3);
+
+      if (seriesError) throw seriesError;
+      setLatestSeries(seriesData || []);
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Error loading content",
+        description: error.message,
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Navigation />
+        <div className="container mx-auto px-4 py-16 text-center">
+          <p className="text-muted-foreground">Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background">
       <Navigation />
       
-      {/* Hero Section */}
+      {/* Hero Section - FULLY EDITABLE IN ADMIN */}
       <section className="relative h-[60vh] overflow-hidden">
         <div className="absolute inset-0">
-          <img
-            src={heroBanner}
-            alt="Hero Banner"
-            className="h-full w-full object-cover"
-          />
-          <div className="absolute inset-0 bg-gradient-to-r from-background via-background/80 to-transparent" />
+          {settings.home_hero_image && (
+            <>
+              <img
+                src={settings.home_hero_image}
+                alt="Hero Banner"
+                className="h-full w-full object-cover"
+              />
+              <div className="absolute inset-0 bg-gradient-to-r from-background via-background/80 to-transparent" />
+            </>
+          )}
+          {!settings.home_hero_image && (
+            <div className="h-full w-full bg-gradient-to-r from-primary/20 to-secondary/20" />
+          )}
         </div>
         
         <div className="container relative mx-auto px-4 h-full flex items-center">
           <div className="max-w-2xl animate-fade-in">
             <div className="flex items-center gap-2 mb-4">
               <Sparkles className="h-6 w-6 text-primary" />
-              <span className="text-primary font-semibold">Discover Amazing Stories</span>
+              <span className="text-primary font-semibold">
+                {settings.home_hero_badge || "Discover Amazing Stories"}
+              </span>
             </div>
             <h1 className="text-5xl md:text-6xl font-bold mb-6 bg-gradient-primary bg-clip-text text-transparent">
-              Where Japanese Manga Meets English Readers
+              {settings.home_hero_title || "Welcome to Manga Reader"}
             </h1>
             <p className="text-xl text-muted-foreground mb-8">
-              Experience professionally localized manga from talented aspiring Japanese authors. New chapters released regularly.
+              {settings.home_hero_subtitle || "Read the latest manga chapters"}
             </p>
             <Button asChild size="lg" className="bg-gradient-primary hover:opacity-90 transition-opacity">
               <Link to="/series" className="flex items-center gap-2">
-                Browse Series
+                {settings.home_hero_button_text || "Browse Series"}
                 <ArrowRight className="h-5 w-5" />
               </Link>
             </Button>
@@ -73,37 +151,93 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Latest Releases */}
-      <section className="container mx-auto px-4 py-16">
-        <div className="flex items-center justify-between mb-8">
-          <h2 className="text-3xl font-bold">Latest Releases</h2>
-          <Button asChild variant="ghost">
-            <Link to="/series" className="flex items-center gap-2">
-              View All
-              <ArrowRight className="h-4 w-4" />
-            </Link>
-          </Button>
-        </div>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {latestReleases.map((series) => (
-            <div key={series.id} className="animate-fade-in">
-              <SeriesCard {...series} />
-            </div>
-          ))}
-        </div>
-      </section>
+      {/* Featured Blocks - MANAGED IN HOMEPAGE TAB */}
+      {featuredBlocks.length > 0 && (
+        <section className="container mx-auto px-4 py-16">
+          <h2 className="text-3xl font-bold mb-8">
+            {settings.featured_section_title || "Featured"}
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {featuredBlocks.map((block) => (
+              <div
+                key={block.id}
+                className="bg-gradient-card border border-border/50 rounded-lg overflow-hidden hover:shadow-elegant transition-all animate-fade-in"
+              >
+                {block.image_url && (
+                  <div className="aspect-video overflow-hidden">
+                    <img
+                      src={block.image_url}
+                      alt={block.title}
+                      className="w-full h-full object-cover hover:scale-105 transition-transform"
+                    />
+                  </div>
+                )}
+                <div className="p-6">
+                  <h3 className="text-xl font-bold mb-2">{block.title}</h3>
+                  {block.subtitle && (
+                    <p className="text-sm text-muted-foreground mb-2">{block.subtitle}</p>
+                  )}
+                  {block.excerpt && (
+                    <p className="text-muted-foreground mb-4">{block.excerpt}</p>
+                  )}
+                  {block.link_url && (
+                    <Button asChild variant="outline" size="sm">
+                      <Link to={block.link_url}>Learn More</Link>
+                    </Button>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
 
-      {/* Featured Section */}
+      {/* Latest Releases - AUTO-POPULATED FROM SERIES */}
+      {latestSeries.length > 0 && (
+        <section className="container mx-auto px-4 py-16">
+          <div className="flex items-center justify-between mb-8">
+            <h2 className="text-3xl font-bold">
+              {settings.latest_releases_title || "Latest Releases"}
+            </h2>
+            <Button asChild variant="ghost">
+              <Link to="/series" className="flex items-center gap-2">
+                View All
+                <ArrowRight className="h-4 w-4" />
+              </Link>
+            </Button>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {latestSeries.map((series) => (
+              <div key={series.id} className="animate-fade-in">
+                <SeriesCard
+                  id={series.id}
+                  title={series.title}
+                  cover={series.cover_image_url}
+                  status={series.status as "ongoing" | "completed"}
+                  description={series.synopsis}
+                  latestChapter="View Chapters"
+                />
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* About Section - EDITABLE IN SITE CONTENT */}
       <section className="bg-secondary/30 py-16">
         <div className="container mx-auto px-4">
           <div className="max-w-3xl mx-auto text-center">
-            <h2 className="text-3xl font-bold mb-4">Supporting Aspiring Artists</h2>
+            <h2 className="text-3xl font-bold mb-4">
+              {settings.home_about_title || "Supporting Aspiring Artists"}
+            </h2>
             <p className="text-lg text-muted-foreground mb-8">
-              We're dedicated to bringing exceptional manga from talented Japanese artists to English-speaking audiences. Every read helps support these creators in their journey.
+              {settings.home_about_text || "We're dedicated to bringing exceptional manga from talented Japanese artists to English-speaking audiences."}
             </p>
             <Button asChild size="lg" variant="outline" className="border-primary text-primary hover:bg-primary hover:text-primary-foreground">
-              <Link to="/about">Learn Our Story</Link>
+              <Link to="/about">
+                {settings.home_about_button_text || "Learn Our Story"}
+              </Link>
             </Button>
           </div>
         </div>
