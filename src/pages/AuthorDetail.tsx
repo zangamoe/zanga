@@ -33,7 +33,8 @@ const AuthorDetail = () => {
         )
       `)
       .eq("id", id)
-      .single();
+      .eq("published", true)
+      .maybeSingle();
 
     if (data) {
       setAuthor({

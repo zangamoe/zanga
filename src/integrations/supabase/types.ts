@@ -22,6 +22,7 @@ export type Database = {
           instagram_url: string | null
           name: string
           profile_picture_url: string | null
+          published: boolean
           twitter_url: string | null
           updated_at: string
           website_url: string | null
@@ -33,6 +34,7 @@ export type Database = {
           instagram_url?: string | null
           name: string
           profile_picture_url?: string | null
+          published?: boolean
           twitter_url?: string | null
           updated_at?: string
           website_url?: string | null
@@ -44,6 +46,7 @@ export type Database = {
           instagram_url?: string | null
           name?: string
           profile_picture_url?: string | null
+          published?: boolean
           twitter_url?: string | null
           updated_at?: string
           website_url?: string | null

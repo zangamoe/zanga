@@ -5,8 +5,9 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, Pencil, Trash2, Upload } from "lucide-react";
+import { Plus, Pencil, Trash2, Upload, Eye, EyeOff } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Switch } from "@/components/ui/switch";
 
 interface Author {
   id: string;
@@ -16,6 +17,7 @@ interface Author {
   twitter_url: string | null;
   instagram_url: string | null;
   website_url: string | null;
+  published: boolean;
 }
 
 const AuthorManagement = () => {
@@ -33,6 +35,7 @@ const AuthorManagement = () => {
     twitter_url: "",
     instagram_url: "",
     website_url: "",
+    published: true,
   });
 
   useEffect(() => {
@@ -136,6 +139,7 @@ const AuthorManagement = () => {
       twitter_url: author.twitter_url || "",
       instagram_url: author.instagram_url || "",
       website_url: author.website_url || "",
+      published: author.published,
     });
     setDialogOpen(true);
   };
@@ -165,6 +169,7 @@ const AuthorManagement = () => {
       twitter_url: "",
       instagram_url: "",
       website_url: "",
+      published: true,
     });
     setEditingAuthor(null);
     setDialogOpen(false);
@@ -263,6 +268,21 @@ const AuthorManagement = () => {
                 />
               </div>
 
+              <div className="flex items-center justify-between">
+                <label className="text-sm font-medium">Published (Visible on website)</label>
+                <div className="flex items-center gap-2">
+                  <Switch
+                    checked={formData.published}
+                    onCheckedChange={(checked) => setFormData({ ...formData, published: checked })}
+                  />
+                  {formData.published ? (
+                    <Eye className="h-4 w-4 text-green-500" />
+                  ) : (
+                    <EyeOff className="h-4 w-4 text-muted-foreground" />
+                  )}
+                </div>
+              </div>
+
               <div className="flex gap-2">
                 <Button type="submit" className="bg-gradient-primary flex-1" disabled={uploading}>
                   {editingAuthor ? "Update" : "Create"} Author
@@ -278,7 +298,7 @@ const AuthorManagement = () => {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {authors.map((author) => (
-          <Card key={author.id} className="bg-gradient-card border-border/50">
+          <Card key={author.id} className={`bg-gradient-card border-border/50 ${!author.published ? 'opacity-60' : ''}`}>
             <CardContent className="p-6">
               {author.profile_picture_url && (
                 <img
@@ -287,7 +307,28 @@ const AuthorManagement = () => {
                   className="w-24 h-24 rounded-full object-cover mb-4 mx-auto"
                 />
               )}
-              <h3 className="font-semibold text-lg mb-2 text-center">{author.name}</h3>
+              <div className="flex items-center justify-between mb-2">
+                <h3 className="font-semibold text-lg text-center flex-1">{author.name}</h3>
+                <div className="flex items-center gap-2">
+                  <Switch
+                    checked={author.published}
+                    onCheckedChange={async (checked) => {
+                      const { error } = await supabase
+                        .from("authors")
+                        .update({ published: checked })
+                        .eq("id", author.id);
+                      if (!error) {
+                        fetchAuthors();
+                        toast({
+                          title: "Success",
+                          description: `Author ${checked ? 'published' : 'hidden'}`,
+                        });
+                      }
+                    }}
+                  />
+                  {author.published ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
+                </div>
+              </div>
               {author.bio && (
                 <p className="text-sm text-muted-foreground mb-4 line-clamp-3">{author.bio}</p>
               )}

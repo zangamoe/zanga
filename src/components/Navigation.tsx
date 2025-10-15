@@ -1,4 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
+import { BookOpen, Users, ShoppingBag, Info } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -10,6 +11,22 @@ interface MenuItem {
   order_index: number;
   enabled: boolean;
 }
+
+// Map paths to icons
+const getIconForPath = (path: string) => {
+  switch (path) {
+    case '/series':
+      return BookOpen;
+    case '/authors':
+      return Users;
+    case '/merchandise':
+      return ShoppingBag;
+    case '/about':
+      return Info;
+    default:
+      return null;
+  }
+};
 
 const Navigation = () => {
   const location = useLocation();
@@ -59,37 +76,25 @@ const Navigation = () => {
             </div>
           </Link>
 
-          <div className="hidden md:flex items-center gap-6">
+          <div className="flex items-center gap-1">
             {menuItems.map((item) => {
+              const Icon = getIconForPath(item.path);
               const isActive = location.pathname === item.path;
               
               return (
-                <Link
+                <Button
                   key={item.id}
-                  to={item.path}
-                  className={`text-sm font-medium transition-colors hover:text-primary ${
-                    isActive 
-                      ? "text-primary" 
-                      : "text-foreground/60"
-                  }`}
+                  asChild
+                  variant={isActive ? "default" : "ghost"}
+                  className={isActive ? "bg-gradient-primary" : ""}
                 >
-                  {item.label}
-                </Link>
+                  <Link to={item.path} className="flex items-center gap-2">
+                    {Icon && <Icon className="h-4 w-4" />}
+                    <span>{item.label}</span>
+                  </Link>
+                </Button>
               );
             })}
-          </div>
-
-          {/* Mobile menu - simplified */}
-          <div className="md:hidden flex items-center gap-2">
-            {menuItems.slice(0, 3).map((item) => (
-              <Link
-                key={item.id}
-                to={item.path}
-                className="text-sm text-foreground/60 hover:text-primary"
-              >
-                {item.label}
-              </Link>
-            ))}
           </div>
         </div>
       </div>

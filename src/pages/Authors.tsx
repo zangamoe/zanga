@@ -61,6 +61,7 @@ const Authors = () => {
           )
         )
       `)
+      .eq("published", true)
       .order("name");
 
     if (id) {

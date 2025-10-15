@@ -64,14 +64,18 @@ const Index = () => {
             title,
             cover_image_url,
             synopsis,
-            status
+            status,
+            published
           )
         `)
         .eq("enabled", true)
         .order("order_index");
 
       if (sliderError) throw sliderError;
-      const popularSeriesData = (sliderData || []).map((item: any) => item.series);
+      // Filter only published series
+      const popularSeriesData = (sliderData || [])
+        .map((item: any) => item.series)
+        .filter((series: any) => series.published);
       setPopularSeries(popularSeriesData);
 
       // Fetch latest series
