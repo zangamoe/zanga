@@ -1,19 +1,11 @@
 import { useEffect, useState } from "react";
-import { ArrowRight, Sparkles, ChevronLeft, ChevronRight } from "lucide-react";
+import { ArrowRight, Sparkles } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import SeriesCard from "@/components/SeriesCard";
 import Navigation from "@/components/Navigation";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
-} from "@/components/ui/carousel";
-import Autoplay from "embla-carousel-autoplay";
 
 interface SiteSetting {
   key: string;
@@ -29,16 +21,10 @@ interface Series {
   status: string;
 }
 
-interface HeroSliderItem {
-  id: string;
-  series_id: string;
-  enabled: boolean;
-  series: Series;
-}
 
 const Index = () => {
   const [settings, setSettings] = useState<Record<string, string>>({});
-  const [heroSlider, setHeroSlider] = useState<HeroSliderItem[]>([]);
+  const [popularSeries, setPopularSeries] = useState<Series[]>([]);
   const [latestSeries, setLatestSeries] = useState<Series[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -68,7 +54,7 @@ const Index = () => {
       });
       setSettings(settingsMap);
 
-      // Fetch hero slider series
+      // Fetch popular series from hero slider
       const { data: sliderData, error: sliderError } = await supabase
         .from("hero_slider_series")
         .select(`
@@ -85,7 +71,8 @@ const Index = () => {
         .order("order_index");
 
       if (sliderError) throw sliderError;
-      setHeroSlider((sliderData || []) as any);
+      const popularSeriesData = (sliderData || []).map((item: any) => item.series);
+      setPopularSeries(popularSeriesData);
 
       // Fetch latest series
       const { data: seriesData, error: seriesError } = await supabase
@@ -122,102 +109,74 @@ const Index = () => {
     <div className="min-h-screen bg-background">
       <Navigation />
       
-      {/* Hero Slider - Interactive Series Showcase */}
-      {heroSlider.length > 0 && (
-        <section className="relative overflow-hidden">
-          <Carousel 
-            className="w-full" 
-            opts={{ loop: true }}
-            plugins={[
-              Autoplay({
-                delay: 5000,
-                stopOnInteraction: true,
-              })
-            ]}
-          >
-            <CarouselContent>
-              {heroSlider.map((item) => (
-                <CarouselItem key={item.id}>
-                  <div className="relative h-[70vh] overflow-hidden">
-                    <div className="absolute inset-0">
-                      <img
-                        src={item.series.cover_image_url}
-                        alt={item.series.title}
-                        className="h-full w-full object-cover"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-r from-background via-background/80 to-transparent" />
-                    </div>
-                    
-                    <div className="container relative mx-auto px-4 h-full flex items-center">
-                      <div className="max-w-2xl animate-fade-in">
-                        <div className="flex items-center gap-2 mb-4">
-                          <Sparkles className="h-6 w-6 text-primary" />
-                          <span className="text-primary font-semibold">Featured Series</span>
-                        </div>
-                        <h1 className="text-5xl md:text-6xl font-bold mb-6 bg-gradient-primary bg-clip-text text-transparent">
-                          {item.series.title}
-                        </h1>
-                        <p className="text-xl text-muted-foreground mb-8 line-clamp-3">
-                          {item.series.synopsis}
-                        </p>
-                        <Button asChild size="lg" className="bg-gradient-primary hover:opacity-90 transition-opacity">
-                          <Link to={`/series/${item.series.id}`} className="flex items-center gap-2">
-                            Read Now
-                            <ArrowRight className="h-5 w-5" />
-                          </Link>
-                        </Button>
-                      </div>
-                    </div>
-                  </div>
-                </CarouselItem>
-              ))}
-            </CarouselContent>
-            <CarouselPrevious className="left-4" />
-            <CarouselNext className="right-4" />
-          </Carousel>
-        </section>
-      )}
+      {/* Hero Banner */}
+      <section className="relative h-[60vh] overflow-hidden">
+        <div className="absolute inset-0">
+          {settings.home_hero_image && (
+            <>
+              <img
+                src={settings.home_hero_image}
+                alt="Hero Banner"
+                className="h-full w-full object-cover"
+              />
+              <div className="absolute inset-0 bg-gradient-to-r from-background via-background/80 to-transparent" />
+            </>
+          )}
+          {!settings.home_hero_image && (
+            <div className="h-full w-full bg-gradient-to-r from-primary/20 to-secondary/20" />
+          )}
+        </div>
+        
+        <div className="container relative mx-auto px-4 h-full flex items-center">
+          <div className="max-w-2xl animate-fade-in">
+            <div className="flex items-center gap-2 mb-4">
+              <Sparkles className="h-6 w-6 text-primary" />
+              <span className="text-primary font-semibold">
+                {settings.home_hero_badge || "Discover Amazing Stories"}
+              </span>
+            </div>
+            <h1 className="text-5xl md:text-6xl font-bold mb-6 bg-gradient-primary bg-clip-text text-transparent">
+              {settings.home_hero_title || "Welcome to Manga Reader"}
+            </h1>
+            <p className="text-xl text-muted-foreground mb-8">
+              {settings.home_hero_subtitle || "Read the latest manga chapters"}
+            </p>
+            <Button asChild size="lg" className="bg-gradient-primary hover:opacity-90 transition-opacity">
+              <Link to="/series" className="flex items-center gap-2">
+                {settings.home_hero_button_text || "Browse Series"}
+                <ArrowRight className="h-5 w-5" />
+              </Link>
+            </Button>
+          </div>
+        </div>
+      </section>
 
-      {/* Default Hero if No Slider */}
-      {heroSlider.length === 0 && (
-        <section className="relative h-[60vh] overflow-hidden">
-          <div className="absolute inset-0">
-            {settings.home_hero_image && (
-              <>
-                <img
-                  src={settings.home_hero_image}
-                  alt="Hero Banner"
-                  className="h-full w-full object-cover"
-                />
-                <div className="absolute inset-0 bg-gradient-to-r from-background via-background/80 to-transparent" />
-              </>
-            )}
-            {!settings.home_hero_image && (
-              <div className="h-full w-full bg-gradient-to-r from-primary/20 to-secondary/20" />
-            )}
+      {/* Popular Releases */}
+      {popularSeries.length > 0 && (
+        <section className="container mx-auto px-4 py-16">
+          <div className="flex items-center justify-between mb-8">
+            <h2 className="text-3xl font-bold">Popular Releases</h2>
+            <Button asChild variant="ghost">
+              <Link to="/series" className="flex items-center gap-2">
+                View All
+                <ArrowRight className="h-4 w-4" />
+              </Link>
+            </Button>
           </div>
           
-          <div className="container relative mx-auto px-4 h-full flex items-center">
-            <div className="max-w-2xl animate-fade-in">
-              <div className="flex items-center gap-2 mb-4">
-                <Sparkles className="h-6 w-6 text-primary" />
-                <span className="text-primary font-semibold">
-                  {settings.home_hero_badge || "Discover Amazing Stories"}
-                </span>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {popularSeries.map((series) => (
+              <div key={series.id} className="animate-fade-in">
+                <SeriesCard
+                  id={series.id}
+                  title={series.title}
+                  cover={series.cover_image_url}
+                  status={series.status as "ongoing" | "completed"}
+                  description={series.synopsis}
+                  latestChapter="View Chapters"
+                />
               </div>
-              <h1 className="text-5xl md:text-6xl font-bold mb-6 bg-gradient-primary bg-clip-text text-transparent">
-                {settings.home_hero_title || "Welcome to Manga Reader"}
-              </h1>
-              <p className="text-xl text-muted-foreground mb-8">
-                {settings.home_hero_subtitle || "Read the latest manga chapters"}
-              </p>
-              <Button asChild size="lg" className="bg-gradient-primary hover:opacity-90 transition-opacity">
-                <Link to="/series" className="flex items-center gap-2">
-                  {settings.home_hero_button_text || "Browse Series"}
-                  <ArrowRight className="h-5 w-5" />
-                </Link>
-              </Button>
-            </div>
+            ))}
           </div>
         </section>
       )}

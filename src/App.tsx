@@ -8,6 +8,7 @@ import Series from "./pages/Series";
 import SeriesDetail from "./pages/SeriesDetail";
 import Reader from "./pages/Reader";
 import Authors from "./pages/Authors";
+import AuthorDetail from "./pages/AuthorDetail";
 import Merchandise from "./pages/Merchandise";
 import About from "./pages/About";
 import Auth from "./pages/Auth";
@@ -30,6 +31,7 @@ const App = () => (
           <Route path="/series/:id" element={<SeriesDetail />} />
           <Route path="/read/:seriesId/:chapterNumber" element={<Reader />} />
           <Route path="/authors" element={<Authors />} />
+          <Route path="/authors/:id" element={<AuthorDetail />} />
           <Route path="/authors/:id" element={<Authors />} />
           <Route path="/merchandise" element={<Merchandise />} />
           <Route path="/about" element={<About />} />

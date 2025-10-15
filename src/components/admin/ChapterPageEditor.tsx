@@ -166,22 +166,53 @@ const ChapterPageEditor = ({ chapterId, onClose }: ChapterPageEditorProps) => {
     const draggedPageNumber = pages[draggedIndex].page_number;
     const targetPageNumber = targetPage.page_number;
 
-    // Update both pages
+    // Use a temporary high number to avoid unique constraint violation
+    const tempNumber = 9999;
+
+    // Step 1: Move dragged page to temporary number
     const { error: error1 } = await supabase
       .from("chapter_pages")
-      .update({ page_number: targetPageNumber })
+      .update({ page_number: tempNumber })
       .eq("id", draggedPage);
 
+    if (error1) {
+      toast({
+        variant: "destructive",
+        title: "Error reordering pages",
+        description: error1.message,
+      });
+      setDraggedPage(null);
+      return;
+    }
+
+    // Step 2: Move target page to dragged page's old number
     const { error: error2 } = await supabase
       .from("chapter_pages")
       .update({ page_number: draggedPageNumber })
       .eq("id", targetPage.id);
 
-    if (error1 || error2) {
+    if (error2) {
       toast({
         variant: "destructive",
         title: "Error reordering pages",
-        description: error1?.message || error2?.message,
+        description: error2.message,
+      });
+      setDraggedPage(null);
+      fetchPages();
+      return;
+    }
+
+    // Step 3: Move dragged page to target page's number
+    const { error: error3 } = await supabase
+      .from("chapter_pages")
+      .update({ page_number: targetPageNumber })
+      .eq("id", draggedPage);
+
+    if (error3) {
+      toast({
+        variant: "destructive",
+        title: "Error reordering pages",
+        description: error3.message,
       });
     } else {
       toast({ title: "Pages reordered successfully" });

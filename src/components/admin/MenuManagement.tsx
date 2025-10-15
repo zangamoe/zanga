@@ -20,6 +20,7 @@ const MenuManagement = () => {
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [newItem, setNewItem] = useState({ label: "", path: "" });
+  const [editingItem, setEditingItem] = useState<{ [key: string]: MenuItem }>({});
 
   useEffect(() => {
     fetchMenuItems();
@@ -39,6 +40,12 @@ const MenuManagement = () => {
       });
     } else {
       setMenuItems(data || []);
+      // Initialize editing state
+      const editState: { [key: string]: MenuItem } = {};
+      data?.forEach(item => {
+        editState[item.id] = { ...item };
+      });
+      setEditingItem(editState);
     }
     setLoading(false);
   };
@@ -87,8 +94,21 @@ const MenuManagement = () => {
         description: error.message,
       });
     } else {
+      toast({ title: "Menu item updated" });
       fetchMenuItems();
     }
+  };
+
+  const handleInputChange = (id: string, field: keyof MenuItem, value: string | boolean) => {
+    setEditingItem(prev => ({
+      ...prev,
+      [id]: { ...prev[id], [field]: value }
+    }));
+  };
+
+  const handleSave = async (id: string) => {
+    const item = editingItem[id];
+    await handleUpdate(id, { label: item.label, path: item.path });
   };
 
   const handleDelete = async (id: string) => {
@@ -154,13 +174,15 @@ const MenuManagement = () => {
                 <GripVertical className="h-5 w-5 text-muted-foreground cursor-move" />
                 <div className="flex-1 grid grid-cols-2 gap-4">
                   <Input
-                    value={item.label}
-                    onChange={(e) => handleUpdate(item.id, { label: e.target.value })}
+                    value={editingItem[item.id]?.label || ''}
+                    onChange={(e) => handleInputChange(item.id, 'label', e.target.value)}
+                    onBlur={() => handleSave(item.id)}
                     placeholder="Label"
                   />
                   <Input
-                    value={item.path}
-                    onChange={(e) => handleUpdate(item.id, { path: e.target.value })}
+                    value={editingItem[item.id]?.path || ''}
+                    onChange={(e) => handleInputChange(item.id, 'path', e.target.value)}
+                    onBlur={() => handleSave(item.id)}
                     placeholder="Path"
                   />
                 </div>
