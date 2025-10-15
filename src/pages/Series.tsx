@@ -76,7 +76,7 @@ const Series = () => {
   );
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background opacity-0 animate-fade-in">
       <Navigation />
       
       <div className="container mx-auto px-4 py-12">
@@ -108,7 +108,7 @@ const Series = () => {
           <>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {filteredSeries.map((series) => (
-                <div key={series.id} className="animate-fade-in">
+                <div key={series.id}>
                   <SeriesCard {...series} />
                 </div>
               ))}

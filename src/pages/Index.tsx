@@ -113,7 +113,7 @@ const Index = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background opacity-0 animate-fade-in">
       <Navigation />
       
       {/* Hero Banner */}
@@ -135,7 +135,7 @@ const Index = () => {
         </div>
         
         <div className="container relative mx-auto px-4 h-full flex items-center">
-          <div className="max-w-2xl animate-fade-in">
+          <div className="max-w-2xl">
             <div className="flex items-center gap-2 mb-4">
               <Sparkles className="h-6 w-6 text-primary" />
               <span className="text-primary font-semibold">
@@ -173,7 +173,7 @@ const Index = () => {
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {popularSeries.map((series) => (
-              <div key={series.id} className="animate-fade-in">
+              <div key={series.id}>
                 <SeriesCard
                   id={series.id}
                   title={series.title}
@@ -206,7 +206,7 @@ const Index = () => {
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {latestSeries.map((series: any) => (
-              <div key={series.id} className="animate-fade-in">
+              <div key={series.id}>
                 <SeriesCard
                   id={series.id}
                   title={series.title}
