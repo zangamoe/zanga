@@ -3,7 +3,7 @@ import { Navigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { LogOut, BookOpen, Users, ShoppingBag, Image, Settings, Layout } from "lucide-react";
+import { LogOut, BookOpen, Users, ShoppingBag, Image, Settings, Layout, Info } from "lucide-react";
 import Navigation from "@/components/Navigation";
 import AuthorManagement from "@/components/admin/AuthorManagement";
 import SeriesManagement from "@/components/admin/SeriesManagement";
@@ -11,6 +11,7 @@ import ChapterManagement from "@/components/admin/ChapterManagement";
 import MerchandiseManagement from "@/components/admin/MerchandiseManagement";
 import SiteContentManagement from "@/components/admin/SiteContentManagement";
 import HomepageBlocksManagement from "@/components/admin/HomepageBlocksManagement";
+import AdminGuide from "@/components/admin/AdminGuide";
 
 const Admin = () => {
   const { user, loading, isAdmin, signOut } = useAuth();
@@ -73,8 +74,12 @@ const Admin = () => {
           </Button>
         </div>
 
-        <Tabs defaultValue="site-content" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-6 bg-secondary/50">
+        <Tabs defaultValue="guide" className="space-y-6">
+          <TabsList className="grid w-full grid-cols-7 bg-secondary/50">
+            <TabsTrigger value="guide" className="flex items-center gap-2">
+              <Info className="h-4 w-4" />
+              Guide
+            </TabsTrigger>
             <TabsTrigger value="site-content" className="flex items-center gap-2">
               <Settings className="h-4 w-4" />
               Site Content
@@ -100,6 +105,10 @@ const Admin = () => {
               Merchandise
             </TabsTrigger>
           </TabsList>
+
+          <TabsContent value="guide">
+            <AdminGuide />
+          </TabsContent>
 
           <TabsContent value="site-content">
             <SiteContentManagement />
