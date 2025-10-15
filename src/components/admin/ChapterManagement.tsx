@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -23,7 +23,11 @@ interface Series {
   title: string;
 }
 
-const ChapterManagement = () => {
+interface ChapterManagementProps {
+  seriesId?: string;
+}
+
+const ChapterManagement = ({ seriesId }: ChapterManagementProps) => {
   const [chapters, setChapters] = useState<Chapter[]>([]);
   const [series, setSeries] = useState<Series[]>([]);
   const [loading, setLoading] = useState(true);
@@ -44,11 +48,17 @@ const ChapterManagement = () => {
   }, []);
 
   const fetchData = async () => {
-    const { data: chaptersData, error: chaptersError } = await supabase
+    const query = supabase
       .from("chapters")
       .select("*")
       .order("series_id")
       .order("chapter_number", { ascending: false });
+    
+    if (seriesId) {
+      query.eq("series_id", seriesId);
+    }
+
+    const { data: chaptersData, error: chaptersError } = await query;
 
     if (chaptersError) {
       toast({
@@ -193,7 +203,7 @@ const ChapterManagement = () => {
 
   const resetForm = () => {
     setFormData({
-      series_id: "",
+      series_id: seriesId || "",
       chapter_number: "",
       title: "",
       published_date: new Date().toISOString().split('T')[0],
@@ -234,23 +244,28 @@ const ChapterManagement = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center gap-4">
-        <div className="flex-1">
-          <Label>Filter by Series</Label>
-          <Select value={selectedSeriesFilter} onValueChange={setSelectedSeriesFilter}>
-            <SelectTrigger className="max-w-xs">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Series</SelectItem>
-              {series.map((s) => (
-                <SelectItem key={s.id} value={s.id}>
-                  {s.title}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+      {!seriesId && (
+        <div className="flex justify-between items-center gap-4">
+          <div className="flex-1">
+            <Label>Filter by Series</Label>
+            <Select value={selectedSeriesFilter} onValueChange={setSelectedSeriesFilter}>
+              <SelectTrigger className="max-w-xs">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Series</SelectItem>
+                {series.map((s) => (
+                  <SelectItem key={s.id} value={s.id}>
+                    {s.title}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
         </div>
+      )}
+      
+      <div className="flex justify-end">
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
           <DialogTrigger asChild>
             <Button onClick={() => resetForm()}>Add Chapter</Button>
@@ -262,25 +277,27 @@ const ChapterManagement = () => {
               </DialogTitle>
             </DialogHeader>
             <form onSubmit={handleSubmit} className="space-y-4">
-              <div>
-                <Label htmlFor="series">Series</Label>
-                <Select
-                  value={formData.series_id}
-                  onValueChange={(value) => setFormData({ ...formData, series_id: value })}
-                  disabled={!!editingChapter}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select a series" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {series.map((s) => (
-                      <SelectItem key={s.id} value={s.id}>
-                        {s.title}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
+              {!seriesId && (
+                <div>
+                  <Label htmlFor="series">Series</Label>
+                  <Select
+                    value={formData.series_id}
+                    onValueChange={(value) => setFormData({ ...formData, series_id: value })}
+                    disabled={!!editingChapter}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select a series" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {series.map((s) => (
+                        <SelectItem key={s.id} value={s.id}>
+                          {s.title}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
 
               <div>
                 <Label htmlFor="chapter_number">Chapter Number</Label>

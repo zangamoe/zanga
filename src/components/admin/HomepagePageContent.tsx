@@ -126,7 +126,7 @@ const HomepagePageContent = () => {
     <div className="space-y-6">
       <Card className="bg-gradient-card border-border/50">
         <CardHeader>
-          <CardTitle>Hero Section</CardTitle>
+          <CardTitle>Banner Section</CardTitle>
           <CardDescription>Main banner at the top of the homepage</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">

@@ -23,6 +23,7 @@ const ChapterPageEditor = ({ chapterId, onClose }: ChapterPageEditorProps) => {
   const [pages, setPages] = useState<ChapterPage[]>([]);
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
+  const [draggedPage, setDraggedPage] = useState<string | null>(null);
 
   useEffect(() => {
     fetchPages();
@@ -135,6 +136,42 @@ const ChapterPageEditor = ({ chapterId, onClose }: ChapterPageEditorProps) => {
     }
   };
 
+  const handleDragStart = (e: React.DragEvent, pageId: string) => {
+    setDraggedPage(pageId);
+    e.dataTransfer.effectAllowed = "move";
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "move";
+  };
+
+  const handleDrop = async (e: React.DragEvent, targetPage: ChapterPage) => {
+    e.preventDefault();
+    if (!draggedPage || draggedPage === targetPage.id) return;
+
+    const draggedIndex = pages.findIndex(p => p.id === draggedPage);
+    const targetIndex = pages.findIndex(p => p.id === targetPage.id);
+    
+    if (draggedIndex === -1 || targetIndex === -1) return;
+
+    // Swap page numbers
+    const updates = [
+      { id: draggedPage, page_number: targetPage.page_number },
+      { id: targetPage.id, page_number: pages[draggedIndex].page_number }
+    ];
+
+    for (const update of updates) {
+      await supabase
+        .from("chapter_pages")
+        .update({ page_number: update.page_number })
+        .eq("id", update.id);
+    }
+
+    setDraggedPage(null);
+    fetchPages();
+  };
+
   if (loading) return <div className="text-center py-8">Loading pages...</div>;
 
   return (
@@ -166,12 +203,19 @@ const ChapterPageEditor = ({ chapterId, onClose }: ChapterPageEditorProps) => {
 
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
         {pages.map((page) => (
-          <Card key={page.id} className="bg-gradient-card border-border/50">
+          <Card 
+            key={page.id} 
+            className="bg-gradient-card border-border/50 cursor-move transition-transform hover:scale-105"
+            draggable
+            onDragStart={(e) => handleDragStart(e, page.id)}
+            onDragOver={handleDragOver}
+            onDrop={(e) => handleDrop(e, page)}
+          >
             <CardHeader className="p-3">
               <div className="flex justify-between items-center">
                 <span className="text-sm font-medium">Page {page.page_number}</span>
                 <div className="flex gap-1">
-                  <GripVertical className="h-4 w-4 text-muted-foreground cursor-move" />
+                  <GripVertical className="h-4 w-4 text-muted-foreground" />
                   <Button
                     variant="destructive"
                     size="sm"

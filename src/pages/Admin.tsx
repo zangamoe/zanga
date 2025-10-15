@@ -7,7 +7,7 @@ import { LogOut, BookOpen, Users, ShoppingBag, Image, Settings, Layout, Info } f
 import Navigation from "@/components/Navigation";
 import AuthorManagement from "@/components/admin/AuthorManagement";
 import SeriesManagement from "@/components/admin/SeriesManagement";
-import ChapterManagement from "@/components/admin/ChapterManagement";
+
 import MerchandiseManagement from "@/components/admin/MerchandiseManagement";
 import SiteContentManagement from "@/components/admin/SiteContentManagement";
 import HomepageBlocksManagement from "@/components/admin/HomepageBlocksManagement";
@@ -80,7 +80,7 @@ const Admin = () => {
         </div>
 
         <Tabs defaultValue="guide" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-7 bg-secondary/50">
+          <TabsList className="grid w-full grid-cols-6 bg-secondary/50">
             <TabsTrigger value="guide" className="flex items-center gap-2">
               <Info className="h-4 w-4" />
               Guide
@@ -95,15 +95,11 @@ const Admin = () => {
             </TabsTrigger>
             <TabsTrigger value="series" className="flex items-center gap-2">
               <BookOpen className="h-4 w-4" />
-              Series
+              Series & Chapters
             </TabsTrigger>
             <TabsTrigger value="authors" className="flex items-center gap-2">
               <Users className="h-4 w-4" />
               Authors
-            </TabsTrigger>
-            <TabsTrigger value="chapters" className="flex items-center gap-2">
-              <Image className="h-4 w-4" />
-              Chapters
             </TabsTrigger>
             <TabsTrigger value="merchandise" className="flex items-center gap-2">
               <ShoppingBag className="h-4 w-4" />
@@ -146,10 +142,6 @@ const Admin = () => {
             <div className="mt-6">
               <AuthorManagement />
             </div>
-          </TabsContent>
-
-          <TabsContent value="chapters">
-            <ChapterManagement />
           </TabsContent>
 
           <TabsContent value="merchandise">

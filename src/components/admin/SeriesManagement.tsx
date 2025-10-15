@@ -3,12 +3,13 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, Pencil, Trash2 } from "lucide-react";
+import { Plus, Pencil, Trash2, BookOpen, ChevronDown, ChevronUp } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
+import ChapterManagement from "./ChapterManagement";
 
 interface Series {
   id: string;
@@ -36,6 +37,7 @@ const SeriesManagement = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingSeries, setEditingSeries] = useState<Series | null>(null);
   const [uploading, setUploading] = useState(false);
+  const [expandedSeries, setExpandedSeries] = useState<string | null>(null);
   const { toast } = useToast();
 
   const [formData, setFormData] = useState({
@@ -344,36 +346,59 @@ const SeriesManagement = () => {
         </Dialog>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="space-y-4">
         {series.map((item) => (
           <Card key={item.id} className="bg-gradient-card border-border/50 overflow-hidden">
-            <img
-              src={item.cover_image_url}
-              alt={item.title}
-              className="w-full h-64 object-cover"
-            />
-            <CardContent className="p-4">
-              <h3 className="font-semibold text-lg mb-2">{item.title}</h3>
-              <p className="text-sm text-muted-foreground mb-4 line-clamp-2">{item.synopsis}</p>
-              <div className="flex gap-2">
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={() => handleEdit(item)}
-                  className="flex-1"
-                >
-                  <Pencil className="h-4 w-4 mr-2" />
-                  Edit
-                </Button>
-                <Button
-                  size="sm"
-                  variant="destructive"
-                  onClick={() => handleDelete(item.id)}
-                >
-                  <Trash2 className="h-4 w-4" />
-                </Button>
+            <div className="flex gap-4 p-4">
+              <img
+                src={item.cover_image_url}
+                alt={item.title}
+                className="w-24 h-32 object-cover rounded"
+              />
+              <div className="flex-1">
+                <h3 className="font-semibold text-lg mb-2">{item.title}</h3>
+                <p className="text-sm text-muted-foreground mb-4 line-clamp-2">{item.synopsis}</p>
+                <div className="flex gap-2">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => handleEdit(item)}
+                  >
+                    <Pencil className="h-4 w-4 mr-2" />
+                    Edit Series
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => setExpandedSeries(expandedSeries === item.id ? null : item.id)}
+                  >
+                    <BookOpen className="h-4 w-4 mr-2" />
+                    Manage Chapters
+                    {expandedSeries === item.id ? (
+                      <ChevronUp className="h-4 w-4 ml-2" />
+                    ) : (
+                      <ChevronDown className="h-4 w-4 ml-2" />
+                    )}
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="destructive"
+                    onClick={() => handleDelete(item.id)}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </div>
               </div>
-            </CardContent>
+            </div>
+            
+            {expandedSeries === item.id && (
+              <div className="border-t border-border/50 p-4 bg-background/50">
+                <CardHeader className="px-0 pt-0">
+                  <CardTitle className="text-lg">Chapters for {item.title}</CardTitle>
+                </CardHeader>
+                <ChapterManagement seriesId={item.id} />
+              </div>
+            )}
           </Card>
         ))}
       </div>
