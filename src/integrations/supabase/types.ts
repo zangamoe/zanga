@@ -53,6 +53,38 @@ export type Database = {
         }
         Relationships: []
       }
+      chapter_comments: {
+        Row: {
+          chapter_id: string
+          comment: string
+          created_at: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          chapter_id: string
+          comment: string
+          created_at?: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          chapter_id?: string
+          comment?: string
+          created_at?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chapter_comments_chapter_id_fkey"
+            columns: ["chapter_id"]
+            isOneToOne: false
+            referencedRelation: "chapters"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       chapter_pages: {
         Row: {
           chapter_id: string
@@ -85,12 +117,77 @@ export type Database = {
           },
         ]
       }
+      chapter_ratings: {
+        Row: {
+          chapter_id: string
+          created_at: string
+          id: string
+          rating: number
+          user_id: string
+        }
+        Insert: {
+          chapter_id: string
+          created_at?: string
+          id?: string
+          rating: number
+          user_id: string
+        }
+        Update: {
+          chapter_id?: string
+          created_at?: string
+          id?: string
+          rating?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chapter_ratings_chapter_id_fkey"
+            columns: ["chapter_id"]
+            isOneToOne: false
+            referencedRelation: "chapters"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      chapter_reactions: {
+        Row: {
+          chapter_id: string
+          created_at: string
+          emoji: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          chapter_id: string
+          created_at?: string
+          emoji: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          chapter_id?: string
+          created_at?: string
+          emoji?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chapter_reactions_chapter_id_fkey"
+            columns: ["chapter_id"]
+            isOneToOne: false
+            referencedRelation: "chapters"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       chapters: {
         Row: {
           chapter_number: number
           created_at: string
           id: string
           published_date: string
+          reading_direction: string
           series_id: string
           title: string
           updated_at: string
@@ -100,6 +197,7 @@ export type Database = {
           created_at?: string
           id?: string
           published_date?: string
+          reading_direction?: string
           series_id: string
           title: string
           updated_at?: string
@@ -109,6 +207,7 @@ export type Database = {
           created_at?: string
           id?: string
           published_date?: string
+          reading_direction?: string
           series_id?: string
           title?: string
           updated_at?: string
@@ -326,6 +425,7 @@ export type Database = {
           created_at: string
           id: string
           published: boolean
+          ratings_enabled: boolean
           status: string
           synopsis: string
           title: string
@@ -336,6 +436,7 @@ export type Database = {
           created_at?: string
           id?: string
           published?: boolean
+          ratings_enabled?: boolean
           status: string
           synopsis: string
           title: string
@@ -346,6 +447,7 @@ export type Database = {
           created_at?: string
           id?: string
           published?: boolean
+          ratings_enabled?: boolean
           status?: string
           synopsis?: string
           title?: string
@@ -406,6 +508,38 @@ export type Database = {
           },
           {
             foreignKeyName: "series_genres_series_id_fkey"
+            columns: ["series_id"]
+            isOneToOne: false
+            referencedRelation: "series"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      series_ratings: {
+        Row: {
+          created_at: string
+          id: string
+          rating: number
+          series_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          rating: number
+          series_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          rating?: number
+          series_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "series_ratings_series_id_fkey"
             columns: ["series_id"]
             isOneToOne: false
             referencedRelation: "series"

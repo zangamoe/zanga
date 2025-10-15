@@ -19,6 +19,7 @@ interface Series {
   cover_image_url: string;
   synopsis: string;
   status: string;
+  ratings_enabled?: boolean;
 }
 
 
@@ -65,7 +66,8 @@ const Index = () => {
             cover_image_url,
             synopsis,
             status,
-            published
+            published,
+            ratings_enabled
           )
         `)
         .eq("enabled", true)
@@ -179,6 +181,7 @@ const Index = () => {
                   status={series.status as "ongoing" | "completed"}
                   description={series.synopsis}
                   latestChapter="View Chapters"
+                  ratingsEnabled={series.ratings_enabled}
                 />
               </div>
             ))}
@@ -202,7 +205,7 @@ const Index = () => {
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {latestSeries.map((series) => (
+            {latestSeries.map((series: any) => (
               <div key={series.id} className="animate-fade-in">
                 <SeriesCard
                   id={series.id}
@@ -211,6 +214,7 @@ const Index = () => {
                   status={series.status as "ongoing" | "completed"}
                   description={series.synopsis}
                   latestChapter="View Chapters"
+                  ratingsEnabled={series.ratings_enabled}
                 />
               </div>
             ))}

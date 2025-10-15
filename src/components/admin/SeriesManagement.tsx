@@ -19,6 +19,7 @@ interface Series {
   synopsis: string;
   status: string;
   published: boolean;
+  ratings_enabled: boolean;
 }
 
 interface Author {
@@ -48,6 +49,7 @@ const SeriesManagement = () => {
     synopsis: "",
     status: "ongoing" as "ongoing" | "completed" | "hiatus",
     published: true,
+    ratings_enabled: true,
   });
 
   const [selectedAuthors, setSelectedAuthors] = useState<string[]>([]);
@@ -165,6 +167,7 @@ const SeriesManagement = () => {
       synopsis: series.synopsis,
       status: series.status as any,
       published: series.published,
+      ratings_enabled: series.ratings_enabled ?? true,
     });
 
     // Fetch related authors and genres
@@ -202,6 +205,7 @@ const SeriesManagement = () => {
       synopsis: "",
       status: "ongoing",
       published: true,
+      ratings_enabled: true,
     });
     setSelectedAuthors([]);
     setSelectedGenres([]);
@@ -351,6 +355,14 @@ const SeriesManagement = () => {
                     <EyeOff className="h-4 w-4 text-muted-foreground" />
                   )}
                 </div>
+              </div>
+
+              <div className="flex items-center justify-between">
+                <label className="text-sm font-medium">Enable Star Ratings</label>
+                <Switch
+                  checked={formData.ratings_enabled}
+                  onCheckedChange={(checked) => setFormData({ ...formData, ratings_enabled: checked })}
+                />
               </div>
 
               <div className="flex gap-2">

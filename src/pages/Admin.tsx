@@ -12,6 +12,7 @@ import SiteContentManagement from "@/components/admin/SiteContentManagement";
 import AdminGuide from "@/components/admin/AdminGuide";
 import HeroSliderManagement from "@/components/admin/HeroSliderManagement";
 import MenuManagement from "@/components/admin/MenuManagement";
+import CommentsManagement from "@/components/admin/CommentsManagement";
 
 const Admin = () => {
   const { user, loading, isAdmin, signOut } = useAuth();
@@ -75,7 +76,7 @@ const Admin = () => {
         </div>
 
         <Tabs defaultValue="guide" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-3 lg:grid-cols-6 bg-secondary/50">
+          <TabsList className="grid w-full grid-cols-3 lg:grid-cols-7 bg-secondary/50">
             <TabsTrigger value="guide" className="flex items-center gap-2">
               <Info className="h-4 w-4" />
               Guide
@@ -99,6 +100,10 @@ const Admin = () => {
             <TabsTrigger value="merchandise" className="flex items-center gap-2">
               <ShoppingBag className="h-4 w-4" />
               Merch
+            </TabsTrigger>
+            <TabsTrigger value="comments" className="flex items-center gap-2">
+              <Menu className="h-4 w-4" />
+              Comments
             </TabsTrigger>
           </TabsList>
 
@@ -145,6 +150,10 @@ const Admin = () => {
 
           <TabsContent value="merchandise">
             <MerchandiseManagement />
+          </TabsContent>
+
+          <TabsContent value="comments">
+            <CommentsManagement />
           </TabsContent>
         </Tabs>
       </div>

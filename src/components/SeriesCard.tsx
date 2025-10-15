@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import SeriesRating from "./SeriesRating";
 
 interface SeriesCardProps {
   id: string;
@@ -9,9 +10,10 @@ interface SeriesCardProps {
   status: "ongoing" | "completed" | "hiatus";
   latestChapter?: string;
   description: string;
+  ratingsEnabled?: boolean;
 }
 
-const SeriesCard = ({ id, title, cover, status, latestChapter, description }: SeriesCardProps) => {
+const SeriesCard = ({ id, title, cover, status, latestChapter, description, ratingsEnabled = true }: SeriesCardProps) => {
   const statusColors = {
     ongoing: "bg-green-500/20 text-green-400 border-green-500/50",
     completed: "bg-blue-500/20 text-blue-400 border-blue-500/50",
@@ -36,9 +38,12 @@ const SeriesCard = ({ id, title, cover, status, latestChapter, description }: Se
               {status}
             </Badge>
           </div>
-          {latestChapter && (
-            <p className="text-sm text-muted-foreground mb-2">Latest: {latestChapter}</p>
-          )}
+          <div className="flex items-center justify-between mb-2">
+            <SeriesRating seriesId={id} ratingsEnabled={ratingsEnabled} showCount />
+            {latestChapter && (
+              <p className="text-sm text-muted-foreground">Latest: {latestChapter}</p>
+            )}
+          </div>
           <p className="text-sm text-muted-foreground line-clamp-2">{description}</p>
         </CardContent>
       </Card>

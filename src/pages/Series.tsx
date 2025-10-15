@@ -64,6 +64,7 @@ const Series = () => {
           ? `Chapter ${Math.max(...series.chapters.map((c: any) => c.chapter_number))}`
           : undefined,
         description: series.synopsis,
+        ratingsEnabled: series.ratings_enabled,
       }));
       setAllSeries(formattedSeries);
     }

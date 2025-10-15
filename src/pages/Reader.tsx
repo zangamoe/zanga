@@ -4,6 +4,8 @@ import { ChevronLeft, ChevronRight, Home, List } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Badge } from "@/components/ui/badge";
+import ChapterComments from "@/components/reader/ChapterComments";
+import ChapterRating from "@/components/reader/ChapterRating";
 
 interface ChapterPage {
   id: string;
@@ -16,8 +18,10 @@ const Reader = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [pages, setPages] = useState<ChapterPage[]>([]);
   const [chapterTitle, setChapterTitle] = useState("");
+  const [chapterId, setChapterId] = useState("");
   const [loading, setLoading] = useState(true);
-  const [viewMode, setViewMode] = useState<"scroll" | "page">("scroll");
+  const [viewMode, setViewMode] = useState<"scroll" | "page">("page");
+  const [readingDirection, setReadingDirection] = useState<"ltr" | "rtl">("rtl");
   const pageRefs = useRef<{ [key: number]: HTMLDivElement | null }>({});
   
   const chapterNum = parseInt(chapterNumber || "1");
@@ -32,13 +36,15 @@ const Reader = () => {
     // First get the chapter ID
     const { data: chapterData } = await supabase
       .from("chapters")
-      .select("id, title")
+      .select("id, title, reading_direction")
       .eq("series_id", seriesId)
       .eq("chapter_number", chapterNum)
       .single();
 
     if (chapterData) {
       setChapterTitle(chapterData.title);
+      setChapterId(chapterData.id);
+      setReadingDirection((chapterData.reading_direction as "ltr" | "rtl") || "rtl");
       
       // Then get the pages for this chapter
       const { data: pagesData } = await supabase
@@ -54,6 +60,24 @@ const Reader = () => {
     setLoading(false);
   };
 
+  // Keyboard navigation
+  useEffect(() => {
+    const handleKeyPress = (e: KeyboardEvent) => {
+      if (viewMode !== "page") return;
+      
+      if (readingDirection === "rtl") {
+        if (e.key === "ArrowLeft") handleNextPage();
+        if (e.key === "ArrowRight") handlePrevPage();
+      } else {
+        if (e.key === "ArrowLeft") handlePrevPage();
+        if (e.key === "ArrowRight") handleNextPage();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyPress);
+    return () => window.removeEventListener("keydown", handleKeyPress);
+  }, [currentPage, pages.length, viewMode, readingDirection]);
+
   const goToPage = (pageNum: number) => {
     if (pageNum >= 1 && pageNum <= pages.length) {
       setCurrentPage(pageNum);
@@ -64,14 +88,26 @@ const Reader = () => {
   };
 
   const handleNextPage = () => {
-    if (currentPage < pages.length) {
-      goToPage(currentPage + 1);
+    if (readingDirection === "rtl") {
+      if (currentPage < pages.length) {
+        goToPage(currentPage + 1);
+      }
+    } else {
+      if (currentPage < pages.length) {
+        goToPage(currentPage + 1);
+      }
     }
   };
 
   const handlePrevPage = () => {
-    if (currentPage > 1) {
-      goToPage(currentPage - 1);
+    if (readingDirection === "rtl") {
+      if (currentPage > 1) {
+        goToPage(currentPage - 1);
+      }
+    } else {
+      if (currentPage > 1) {
+        goToPage(currentPage - 1);
+      }
     }
   };
   
@@ -160,6 +196,20 @@ const Reader = () => {
                 >
                   Page-by-Page
                 </Badge>
+                <Badge 
+                  variant={readingDirection === "rtl" ? "default" : "outline"}
+                  className="cursor-pointer"
+                  onClick={() => setReadingDirection("rtl")}
+                >
+                  RTL ←
+                </Badge>
+                <Badge 
+                  variant={readingDirection === "ltr" ? "default" : "outline"}
+                  className="cursor-pointer"
+                  onClick={() => setReadingDirection("ltr")}
+                >
+                  LTR →
+                </Badge>
               </div>
             </div>
 
@@ -169,19 +219,19 @@ const Reader = () => {
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={handlePrevPage}
+                    onClick={readingDirection === "rtl" ? handlePrevPage : handlePrevPage}
                     disabled={currentPage === 1}
                   >
                     <ChevronLeft className="h-4 w-4" />
-                    Prev Page
+                    {readingDirection === "rtl" ? "Next" : "Prev"}
                   </Button>
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={handleNextPage}
+                    onClick={readingDirection === "rtl" ? handleNextPage : handleNextPage}
                     disabled={currentPage === pages.length}
                   >
-                    Next Page
+                    {readingDirection === "rtl" ? "Prev" : "Next"}
                     <ChevronRight className="h-4 w-4" />
                   </Button>
                 </>
@@ -264,6 +314,14 @@ const Reader = () => {
                 <ChevronRight className="h-4 w-4 ml-2" />
               </Button>
             </div>
+          </div>
+        )}
+
+        {/* Comments and Ratings Section */}
+        {chapterId && (
+          <div className="mt-12 space-y-8">
+            <ChapterRating chapterId={chapterId} seriesId={seriesId!} />
+            <ChapterComments chapterId={chapterId} />
           </div>
         )}
 
