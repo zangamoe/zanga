@@ -63,7 +63,7 @@ const ChapterComments = ({ chapterId }: { chapterId: string }) => {
 
     // Validate comment with security checks
     const validation = validateInput(commentSchema, { comment: newComment });
-    if (!validation.success) {
+    if (validation.success === false) {
       toast.error(validation.error);
       return;
     }
