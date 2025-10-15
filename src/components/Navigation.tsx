@@ -37,6 +37,12 @@ const Navigation = () => {
     fetchNavigationData();
   }, []);
 
+  useEffect(() => {
+    if (siteName && siteName !== "MangaVerse") {
+      document.title = siteName;
+    }
+  }, [siteName]);
+
   const fetchNavigationData = async () => {
     // Fetch site name
     const { data: siteNameData } = await supabase
@@ -48,9 +54,18 @@ const Navigation = () => {
     if (siteNameData) {
       try {
         const parsed = JSON.parse(String(siteNameData.value));
-        setSiteName(String(parsed));
+        const newSiteName = String(parsed);
+        setSiteName(newSiteName);
+        // Set document title immediately
+        if (newSiteName && newSiteName !== "MangaVerse") {
+          document.title = newSiteName;
+        }
       } catch {
-        setSiteName(String(siteNameData.value));
+        const newSiteName = String(siteNameData.value);
+        setSiteName(newSiteName);
+        if (newSiteName && newSiteName !== "MangaVerse") {
+          document.title = newSiteName;
+        }
       }
     }
 

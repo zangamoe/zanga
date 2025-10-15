@@ -8,6 +8,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Plus, Pencil, Trash2, Upload, Eye, EyeOff } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Switch } from "@/components/ui/switch";
+import ImageCropper from "./ImageCropper";
 
 interface Author {
   id: string;
@@ -27,6 +28,8 @@ const AuthorManagement = () => {
   const [editingAuthor, setEditingAuthor] = useState<Author | null>(null);
   const [uploading, setUploading] = useState(false);
   const { toast } = useToast();
+  const [showCropper, setShowCropper] = useState(false);
+  const [tempImageUrl, setTempImageUrl] = useState("");
 
   const [formData, setFormData] = useState({
     name: "",
@@ -64,14 +67,24 @@ const AuthorManagement = () => {
     const file = e.target.files?.[0];
     if (!file) return;
 
+    const reader = new FileReader();
+    reader.onload = () => {
+      setTempImageUrl(reader.result as string);
+      setShowCropper(true);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleCropComplete = async (croppedImageUrl: string) => {
     setUploading(true);
-    const fileExt = file.name.split(".").pop();
+    const blob = await fetch(croppedImageUrl).then(r => r.blob());
+    const fileExt = "jpg";
     const fileName = `${Math.random()}.${fileExt}`;
     const filePath = `authors/${fileName}`;
 
-    const { error: uploadError, data } = await supabase.storage
+    const { error: uploadError } = await supabase.storage
       .from("manga-images")
-      .upload(filePath, file);
+      .upload(filePath, blob);
 
     if (uploadError) {
       toast({
@@ -79,17 +92,21 @@ const AuthorManagement = () => {
         description: "Failed to upload image",
         variant: "destructive",
       });
-    } else {
-      const { data: { publicUrl } } = supabase.storage
-        .from("manga-images")
-        .getPublicUrl(filePath);
-
-      setFormData({ ...formData, profile_picture_url: publicUrl });
-      toast({
-        title: "Success",
-        description: "Image uploaded successfully",
-      });
+      setShowCropper(false);
+      setUploading(false);
+      return;
     }
+
+    const { data: { publicUrl } } = supabase.storage
+      .from("manga-images")
+      .getPublicUrl(filePath);
+
+    setFormData({ ...formData, profile_picture_url: publicUrl });
+    toast({
+      title: "Success",
+      description: "Image uploaded successfully",
+    });
+    setShowCropper(false);
     setUploading(false);
   };
 
@@ -354,6 +371,15 @@ const AuthorManagement = () => {
           </Card>
         ))}
       </div>
+
+      {showCropper && (
+        <ImageCropper
+          imageUrl={tempImageUrl}
+          onCropComplete={handleCropComplete}
+          onCancel={() => setShowCropper(false)}
+          aspectRatio={1}
+        />
+      )}
     </div>
   );
 };

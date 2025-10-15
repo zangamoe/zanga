@@ -6,6 +6,8 @@ import { Badge } from "@/components/ui/badge";
 import { BookOpen, ExternalLink } from "lucide-react";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import SeriesRating from "@/components/SeriesRating";
+import UserSeriesRating from "@/components/reader/SeriesRating";
 
 const SeriesDetail = () => {
   const { id } = useParams();
@@ -121,6 +123,10 @@ const SeriesDetail = () => {
                 ))}
               </div>
 
+              <div className="mb-6">
+                <SeriesRating seriesId={displaySeries.id} ratingsEnabled={displaySeries.ratings_enabled} showCount={true} />
+              </div>
+
               <div className="bg-secondary/30 p-6 rounded-lg mb-6">
                 <h2 className="text-xl font-semibold mb-3">Synopsis</h2>
                 <p className="text-muted-foreground leading-relaxed">
@@ -128,12 +134,20 @@ const SeriesDetail = () => {
                 </p>
               </div>
 
-              <Button asChild className="bg-gradient-primary hover:opacity-90 transition-opacity">
-                <Link to={`/read/${id}/1`} className="flex items-center gap-2">
-                  <BookOpen className="h-5 w-5" />
-                  Start Reading
-                </Link>
-              </Button>
+              <div className="flex flex-col gap-4">
+                <Button asChild className="bg-gradient-primary hover:opacity-90 transition-opacity">
+                  <Link to={`/read/${id}/1`} className="flex items-center gap-2">
+                    <BookOpen className="h-5 w-5" />
+                    Start Reading
+                  </Link>
+                </Button>
+
+                {displaySeries.ratings_enabled && (
+                  <div className="bg-secondary/30 p-6 rounded-lg">
+                    <UserSeriesRating seriesId={displaySeries.id} />
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </div>
