@@ -35,9 +35,9 @@ const Index = () => {
 
   const fetchAllContent = async () => {
     try {
-      // Fetch site settings
+      // Fetch site settings from secure public view
       const { data: settingsData, error: settingsError } = await supabase
-        .from("site_settings")
+        .from("public_site_settings")
         .select("*");
 
       if (settingsError) throw settingsError;

@@ -597,7 +597,130 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      chapter_ratings_summary: {
+        Row: {
+          average_rating: number | null
+          chapter_id: string | null
+          five_star: number | null
+          four_star: number | null
+          one_star: number | null
+          three_star: number | null
+          total_ratings: number | null
+          two_star: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chapter_ratings_chapter_id_fkey"
+            columns: ["chapter_id"]
+            isOneToOne: false
+            referencedRelation: "chapters"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      chapter_reactions_summary: {
+        Row: {
+          chapter_id: string | null
+          emoji: string | null
+          reaction_count: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chapter_reactions_chapter_id_fkey"
+            columns: ["chapter_id"]
+            isOneToOne: false
+            referencedRelation: "chapters"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      homepage_blocks_admin: {
+        Row: {
+          created_at: string | null
+          created_by: string | null
+          enabled: boolean | null
+          excerpt: string | null
+          id: string | null
+          image_url: string | null
+          link_url: string | null
+          order_index: number | null
+          origin: string | null
+          subtitle: string | null
+          title: string | null
+          updated_at: string | null
+          updated_by: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          created_by?: string | null
+          enabled?: boolean | null
+          excerpt?: string | null
+          id?: string | null
+          image_url?: string | null
+          link_url?: string | null
+          order_index?: number | null
+          origin?: string | null
+          subtitle?: string | null
+          title?: string | null
+          updated_at?: string | null
+          updated_by?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          created_by?: string | null
+          enabled?: boolean | null
+          excerpt?: string | null
+          id?: string | null
+          image_url?: string | null
+          link_url?: string | null
+          order_index?: number | null
+          origin?: string | null
+          subtitle?: string | null
+          title?: string | null
+          updated_at?: string | null
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
+      public_site_settings: {
+        Row: {
+          key: string | null
+          type: string | null
+          value: Json | null
+        }
+        Insert: {
+          key?: string | null
+          type?: string | null
+          value?: Json | null
+        }
+        Update: {
+          key?: string | null
+          type?: string | null
+          value?: Json | null
+        }
+        Relationships: []
+      }
+      series_ratings_summary: {
+        Row: {
+          average_rating: number | null
+          five_star: number | null
+          four_star: number | null
+          one_star: number | null
+          series_id: string | null
+          three_star: number | null
+          total_ratings: number | null
+          two_star: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "series_ratings_series_id_fkey"
+            columns: ["series_id"]
+            isOneToOne: false
+            referencedRelation: "series"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
       has_role: {
@@ -605,6 +728,10 @@ export type Database = {
           _role: Database["public"]["Enums"]["app_role"]
           _user_id: string
         }
+        Returns: boolean
+      }
+      is_comment_owner: {
+        Args: { comment_id: string }
         Returns: boolean
       }
     }

@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
 import { Trash2, MessageCircle } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
+import { commentSchema, validateInput } from "@/lib/validation";
 
 interface Comment {
   id: string;
@@ -60,8 +61,10 @@ const ChapterComments = ({ chapterId }: { chapterId: string }) => {
       return;
     }
 
-    if (!newComment.trim()) {
-      toast.error("Comment cannot be empty");
+    // Validate comment with security checks
+    const validation = validateInput(commentSchema, { comment: newComment });
+    if (!validation.success) {
+      toast.error(validation.error);
       return;
     }
 
@@ -71,7 +74,7 @@ const ChapterComments = ({ chapterId }: { chapterId: string }) => {
       .insert({
         chapter_id: chapterId,
         user_id: user.id,
-        comment: newComment.trim()
+        comment: validation.data.comment
       });
 
     if (error) {
@@ -159,11 +162,12 @@ const ChapterComments = ({ chapterId }: { chapterId: string }) => {
         {/* Comment Form */}
         <div className="space-y-3">
           <Textarea
-            placeholder={user ? "Share your thoughts..." : "Sign in to comment"}
+            placeholder={user ? "Share your thoughts... (max 1000 characters)" : "Sign in to comment"}
             value={newComment}
             onChange={(e) => setNewComment(e.target.value)}
             disabled={!user || loading}
             className="min-h-[100px]"
+            maxLength={1000}
           />
           <Button
             onClick={handleSubmitComment}

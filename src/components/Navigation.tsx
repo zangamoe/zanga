@@ -40,9 +40,9 @@ const Navigation = () => {
   }, [siteName]);
 
   const fetchNavigationData = async () => {
-    // Fetch site name
+    // Fetch site name from public view
     const { data: siteNameData } = await supabase
-      .from("site_settings")
+      .from("public_site_settings")
       .select("key, value")
       .eq("key", "nav_site_name")
       .maybeSingle();
