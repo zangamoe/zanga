@@ -43,11 +43,14 @@ const SeriesRating = ({ seriesId }: SeriesRatingProps) => {
 
     const { error } = await supabase
       .from("series_ratings")
-      .upsert({
-        series_id: seriesId,
-        user_id: user.id,
-        rating,
-      });
+      .upsert(
+        {
+          series_id: seriesId,
+          user_id: user.id,
+          rating,
+        },
+        { onConflict: "series_id,user_id" }
+      );
 
     if (error) {
       toast.error("Failed to save rating");

@@ -30,12 +30,8 @@ const getIconForPath = (path: string) => {
 
 const Navigation = () => {
   const location = useLocation();
-  const [siteName, setSiteName] = useState("MangaVerse");
+  const [siteName, setSiteName] = useState("");
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
-
-  useEffect(() => {
-    fetchNavigationData();
-  }, []);
 
   useEffect(() => {
     if (siteName && siteName !== "MangaVerse") {
@@ -56,17 +52,12 @@ const Navigation = () => {
         const parsed = JSON.parse(String(siteNameData.value));
         const newSiteName = String(parsed);
         setSiteName(newSiteName);
-        // Set document title immediately
-        if (newSiteName && newSiteName !== "MangaVerse") {
-          document.title = newSiteName;
-        }
       } catch {
         const newSiteName = String(siteNameData.value);
         setSiteName(newSiteName);
-        if (newSiteName && newSiteName !== "MangaVerse") {
-          document.title = newSiteName;
-        }
       }
+    } else {
+      setSiteName("MangaVerse");
     }
 
     // Fetch menu items
@@ -81,13 +72,17 @@ const Navigation = () => {
     }
   };
 
+  useEffect(() => {
+    fetchNavigationData();
+  }, []);
+
   return (
     <nav className="sticky top-0 z-50 w-full border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container mx-auto px-4">
         <div className="flex h-16 items-center justify-between">
           <Link to="/" className="flex items-center space-x-2">
             <div className="bg-gradient-primary bg-clip-text text-2xl font-bold text-transparent">
-              {siteName}
+              {siteName || "MangaVerse"}
             </div>
           </Link>
 
