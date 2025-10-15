@@ -13,6 +13,10 @@ import AdminGuide from "@/components/admin/AdminGuide";
 import HeroSliderManagement from "@/components/admin/HeroSliderManagement";
 import MenuManagement from "@/components/admin/MenuManagement";
 import CommentsManagement from "@/components/admin/CommentsManagement";
+import HomepagePageContent from "@/components/admin/HomepagePageContent";
+import SeriesPageContent from "@/components/admin/SeriesPageContent";
+import AuthorsPageContent from "@/components/admin/AuthorsPageContent";
+import MerchandisePageContent from "@/components/admin/MerchandisePageContent";
 
 const Admin = () => {
   const { user, loading, isAdmin, signOut } = useAuth();
@@ -137,19 +141,31 @@ const Admin = () => {
           </TabsContent>
 
           <TabsContent value="homepage">
-            <HeroSliderManagement />
+            <div className="space-y-6">
+              <HomepagePageContent />
+              <HeroSliderManagement />
+            </div>
           </TabsContent>
 
           <TabsContent value="series">
-            <SeriesManagement />
+            <div className="space-y-6">
+              <SeriesPageContent />
+              <SeriesManagement />
+            </div>
           </TabsContent>
 
           <TabsContent value="authors">
-            <AuthorManagement />
+            <div className="space-y-6">
+              <AuthorsPageContent />
+              <AuthorManagement />
+            </div>
           </TabsContent>
 
           <TabsContent value="merchandise">
-            <MerchandiseManagement />
+            <div className="space-y-6">
+              <MerchandisePageContent />
+              <MerchandiseManagement />
+            </div>
           </TabsContent>
 
           <TabsContent value="comments">
