@@ -634,54 +634,6 @@ export type Database = {
           },
         ]
       }
-      homepage_blocks_admin: {
-        Row: {
-          created_at: string | null
-          created_by: string | null
-          enabled: boolean | null
-          excerpt: string | null
-          id: string | null
-          image_url: string | null
-          link_url: string | null
-          order_index: number | null
-          origin: string | null
-          subtitle: string | null
-          title: string | null
-          updated_at: string | null
-          updated_by: string | null
-        }
-        Insert: {
-          created_at?: string | null
-          created_by?: string | null
-          enabled?: boolean | null
-          excerpt?: string | null
-          id?: string | null
-          image_url?: string | null
-          link_url?: string | null
-          order_index?: number | null
-          origin?: string | null
-          subtitle?: string | null
-          title?: string | null
-          updated_at?: string | null
-          updated_by?: string | null
-        }
-        Update: {
-          created_at?: string | null
-          created_by?: string | null
-          enabled?: boolean | null
-          excerpt?: string | null
-          id?: string | null
-          image_url?: string | null
-          link_url?: string | null
-          order_index?: number | null
-          origin?: string | null
-          subtitle?: string | null
-          title?: string | null
-          updated_at?: string | null
-          updated_by?: string | null
-        }
-        Relationships: []
-      }
       public_site_settings: {
         Row: {
           key: string | null
