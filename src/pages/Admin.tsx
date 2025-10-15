@@ -3,7 +3,7 @@ import { Navigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { LogOut, BookOpen, Users, ShoppingBag, Image, Settings } from "lucide-react";
+import { LogOut, BookOpen, Users, ShoppingBag, Image, Settings, Layout } from "lucide-react";
 import Navigation from "@/components/Navigation";
 import AuthorManagement from "@/components/admin/AuthorManagement";
 import SeriesManagement from "@/components/admin/SeriesManagement";
@@ -73,8 +73,16 @@ const Admin = () => {
           </Button>
         </div>
 
-        <Tabs defaultValue="series" className="space-y-6">
+        <Tabs defaultValue="site-content" className="space-y-6">
           <TabsList className="grid w-full grid-cols-6 bg-secondary/50">
+            <TabsTrigger value="site-content" className="flex items-center gap-2">
+              <Settings className="h-4 w-4" />
+              Site Content
+            </TabsTrigger>
+            <TabsTrigger value="homepage" className="flex items-center gap-2">
+              <Layout className="h-4 w-4" />
+              Homepage
+            </TabsTrigger>
             <TabsTrigger value="series" className="flex items-center gap-2">
               <BookOpen className="h-4 w-4" />
               Series
@@ -91,15 +99,15 @@ const Admin = () => {
               <ShoppingBag className="h-4 w-4" />
               Merchandise
             </TabsTrigger>
-            <TabsTrigger value="site-content" className="flex items-center gap-2">
-              <Settings className="h-4 w-4" />
-              Site Content
-            </TabsTrigger>
-            <TabsTrigger value="homepage" className="flex items-center gap-2">
-              <BookOpen className="h-4 w-4" />
-              Homepage
-            </TabsTrigger>
           </TabsList>
+
+          <TabsContent value="site-content">
+            <SiteContentManagement />
+          </TabsContent>
+
+          <TabsContent value="homepage">
+            <HomepageBlocksManagement />
+          </TabsContent>
 
           <TabsContent value="series">
             <SeriesManagement />
@@ -115,14 +123,6 @@ const Admin = () => {
 
           <TabsContent value="merchandise">
             <MerchandiseManagement />
-          </TabsContent>
-
-          <TabsContent value="site-content">
-            <SiteContentManagement />
-          </TabsContent>
-
-          <TabsContent value="homepage">
-            <HomepageBlocksManagement />
           </TabsContent>
         </Tabs>
       </div>
