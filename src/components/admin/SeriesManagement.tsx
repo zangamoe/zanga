@@ -52,6 +52,7 @@ const SeriesManagement = () => {
     status: "ongoing" as "ongoing" | "completed" | "hiatus",
     published: true,
     ratings_enabled: true,
+    is_new: false,
   });
 
   const [selectedAuthors, setSelectedAuthors] = useState<string[]>([]);
@@ -186,6 +187,7 @@ const SeriesManagement = () => {
       status: series.status as any,
       published: series.published,
       ratings_enabled: series.ratings_enabled ?? true,
+      is_new: (series as any).is_new ?? false,
     });
 
     // Fetch related authors and genres
@@ -224,6 +226,7 @@ const SeriesManagement = () => {
       status: "ongoing",
       published: true,
       ratings_enabled: true,
+      is_new: false,
     });
     setSelectedAuthors([]);
     setSelectedGenres([]);
@@ -380,6 +383,14 @@ const SeriesManagement = () => {
                 <Switch
                   checked={formData.ratings_enabled}
                   onCheckedChange={(checked) => setFormData({ ...formData, ratings_enabled: checked })}
+                />
+              </div>
+
+              <div className="flex items-center justify-between">
+                <label className="text-sm font-medium">Mark as NEW</label>
+                <Switch
+                  checked={formData.is_new}
+                  onCheckedChange={(checked) => setFormData({ ...formData, is_new: checked })}
                 />
               </div>
 

@@ -77,82 +77,124 @@ const SeriesDetail = () => {
     <div className="min-h-screen bg-background">
       <Navigation />
       
-      {/* Hero Section - MayoTune Style */}
+      {/* Hero Section - Redesigned */}
       <div className="container mx-auto px-4 py-8 md:py-12">
         <div className="bg-gradient-to-br from-card/80 to-card/40 rounded-2xl p-6 md:p-12 border border-border/50 shadow-glow mb-12">
-          <div className="grid grid-cols-1 lg:grid-cols-[2fr,1fr] gap-8 items-center">
-            {/* Left: Series Info */}
-            <div>
-              {/* Genre Tags */}
-              <div className="flex flex-wrap gap-2 mb-4">
-                {displaySeries.genres?.map((genre: string) => (
-                  <Badge key={genre} variant="secondary" className="text-xs uppercase">
-                    {genre}
+          <div className="grid grid-cols-1 lg:grid-cols-[300px,1fr] gap-8">
+            {/* Left: Cover Image */}
+            <div className="flex justify-center lg:justify-start">
+              <div className="relative">
+                <img
+                  src={displaySeries.cover_image_url || displaySeries.cover}
+                  alt={displaySeries.title}
+                  className="w-full max-w-[280px] lg:w-[280px] h-[420px] object-cover rounded-lg shadow-glow"
+                />
+                {displaySeries.is_new && (
+                  <Badge className="absolute -top-2 -right-2 bg-gradient-primary text-white font-bold px-4 py-2 shadow-glow animate-pulse text-sm">
+                    NEW
                   </Badge>
-                ))}
+                )}
+              </div>
+            </div>
+
+            {/* Right: Series Info */}
+            <div className="space-y-6">
+              {/* Title & Genres */}
+              <div>
+                <div className="flex flex-wrap gap-2 mb-3">
+                  {displaySeries.genres?.map((genre: string) => (
+                    <Badge key={genre} variant="secondary" className="text-xs uppercase font-semibold px-3 py-1">
+                      {genre}
+                    </Badge>
+                  ))}
+                  <Badge className={`${statusColors[displaySeries.status as keyof typeof statusColors]} text-xs uppercase font-semibold px-3 py-1`} variant="outline">
+                    {displaySeries.status}
+                  </Badge>
+                </div>
+                
+                <h1 className="text-3xl md:text-5xl font-bold mb-2">
+                  {displaySeries.title.split(' ').slice(0, -1).join(' ') && (
+                    <span className="text-foreground">{displaySeries.title.split(' ').slice(0, -1).join(' ')}</span>
+                  )}
+                  {displaySeries.title.split(' ').length > 1 && ' '}
+                  <span className="bg-gradient-primary bg-clip-text text-transparent">
+                    {displaySeries.title.split(' ').slice(-1)[0]}
+                  </span>
+                </h1>
+
+                {/* Author Info - More Prominent */}
+                <div className="flex items-center gap-2 text-lg text-muted-foreground mt-2">
+                  <span>by</span>
+                  {displaySeries.authors?.length > 0 ? (
+                    displaySeries.authors.map((author: any, index: number) => (
+                      <span key={author.id}>
+                        <Link to={`/authors/${author.id}`} className="text-primary hover:underline font-semibold">
+                          {author.name}
+                        </Link>
+                        {index < displaySeries.authors.length - 1 && ", "}
+                      </span>
+                    ))
+                  ) : (
+                    <span className="font-semibold">{displaySeries.author}</span>
+                  )}
+                </div>
               </div>
 
-              {/* Title */}
-              <h1 className="text-3xl md:text-5xl font-bold mb-2">
-                {displaySeries.title.split(' ').slice(0, -1).join(' ') && (
-                  <span className="text-foreground">{displaySeries.title.split(' ').slice(0, -1).join(' ')}</span>
-                )}
-                {displaySeries.title.split(' ').length > 1 && ' '}
-                <span className="bg-gradient-primary bg-clip-text text-transparent">
-                  {displaySeries.title.split(' ').slice(-1)[0]}
-                </span>
-              </h1>
-
               {/* Synopsis */}
-              <p className="text-muted-foreground mb-6 leading-relaxed max-w-2xl">
+              <p className="text-muted-foreground leading-relaxed text-base">
                 {displaySeries.synopsis}
               </p>
 
-              {/* Stats Row */}
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+              {/* Stats Grid - Larger & Better Spaced */}
+              <div className="grid grid-cols-3 gap-6 bg-card/50 rounded-lg p-6 border border-border/30">
                 <div className="text-center">
-                  <div className="text-2xl md:text-3xl font-bold text-foreground">{totalChapters}</div>
-                  <div className="text-xs text-muted-foreground">Chapters</div>
+                  <div className="text-3xl md:text-4xl font-bold text-primary">{totalChapters}</div>
+                  <div className="text-sm text-muted-foreground mt-1">Chapters</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-2xl md:text-3xl font-bold text-foreground">∞</div>
-                  <div className="text-xs text-muted-foreground">Reads</div>
+                  <div className="text-3xl md:text-4xl font-bold text-primary">∞</div>
+                  <div className="text-sm text-muted-foreground mt-1">Reads</div>
                 </div>
                 <div className="text-center">
-                  <SeriesRating seriesId={displaySeries.id} ratingsEnabled={displaySeries.ratings_enabled} showCount={false} />
-                  <div className="text-xs text-muted-foreground mt-1">Rating</div>
-                </div>
-                <div className="text-center">
-                  <Badge className={`${statusColors[displaySeries.status as keyof typeof statusColors]} text-lg px-3 py-1`} variant="outline">
-                    {displaySeries.status}
-                  </Badge>
-                  <div className="text-xs text-muted-foreground mt-1">Status</div>
+                  <div className="scale-125 origin-center mb-2">
+                    <SeriesRating seriesId={displaySeries.id} ratingsEnabled={displaySeries.ratings_enabled} showCount={false} />
+                  </div>
+                  <div className="text-sm text-muted-foreground">Rating</div>
                 </div>
               </div>
 
+              {/* Rating Section - User Rating Next to Overall */}
+              {displaySeries.ratings_enabled && (
+                <div className="bg-card/50 rounded-lg p-6 border border-border/30">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                      <h3 className="font-semibold text-lg mb-3">Series Rating</h3>
+                      <div className="scale-125 origin-left">
+                        <SeriesRating seriesId={displaySeries.id} ratingsEnabled={displaySeries.ratings_enabled} showCount={true} />
+                      </div>
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-lg mb-3">Your Rating</h3>
+                      <UserSeriesRating seriesId={displaySeries.id} />
+                    </div>
+                  </div>
+                </div>
+              )}
+
               {/* Action Buttons */}
-              <div className="flex flex-col sm:flex-row gap-3">
-                <Button asChild size="lg" className="bg-gradient-primary hover:opacity-90 transition-opacity">
+              <div className="flex flex-col sm:flex-row gap-4">
+                <Button asChild size="lg" className="bg-gradient-primary hover:opacity-90 transition-opacity text-lg py-6">
                   <Link to={`/read/${id}/1`} className="flex items-center gap-2">
-                    <BookOpen className="h-5 w-5" />
+                    <BookOpen className="h-6 w-6" />
                     Start Reading
                   </Link>
                 </Button>
-                <Button asChild size="lg" variant="outline">
+                <Button asChild size="lg" variant="outline" className="text-lg py-6">
                   <a href="#chapters" className="flex items-center gap-2">
                     All Chapters
                   </a>
                 </Button>
               </div>
-            </div>
-
-            {/* Right: Cover Image */}
-            <div className="flex justify-center lg:justify-end">
-              <img
-                src={displaySeries.cover_image_url || displaySeries.cover}
-                alt={displaySeries.title}
-                className="w-full max-w-[300px] lg:max-w-none lg:w-auto lg:h-[400px] object-cover rounded-lg shadow-glow"
-              />
             </div>
           </div>
         </div>
@@ -194,44 +236,6 @@ const SeriesDetail = () => {
           </div>
         </div>
 
-        {/* About Section */}
-        <div className="bg-card/30 rounded-2xl p-6 md:p-12 border border-border/50">
-          <h2 className="text-2xl md:text-3xl font-bold mb-6 text-center">
-            About {displaySeries.title}
-          </h2>
-          <div className="max-w-4xl mx-auto">
-            <p className="text-muted-foreground leading-relaxed text-center mb-6">
-              {displaySeries.synopsis}
-            </p>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
-              <div className="text-center">
-                <h3 className="font-semibold mb-2">Author{displaySeries.authors?.length > 1 ? 's' : ''}</h3>
-                <div className="text-muted-foreground">
-                  {displaySeries.authors?.length > 0 ? (
-                    displaySeries.authors.map((author: any, index: number) => (
-                      <span key={author.id}>
-                        <Link to={`/authors/${author.id}`} className="text-primary hover:underline">
-                          {author.name}
-                        </Link>
-                        {index < displaySeries.authors.length - 1 && ", "}
-                      </span>
-                    ))
-                  ) : (
-                    <span>{displaySeries.author}</span>
-                  )}
-                </div>
-              </div>
-              
-              {displaySeries.ratings_enabled && (
-                <div className="text-center">
-                  <h3 className="font-semibold mb-2">Your Rating</h3>
-                  <UserSeriesRating seriesId={displaySeries.id} />
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
 
         {/* All Chapters List */}
         {displaySeries.chapters?.length > 6 && (

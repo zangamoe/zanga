@@ -424,6 +424,7 @@ export type Database = {
           cover_image_url: string
           created_at: string
           id: string
+          is_new: boolean
           published: boolean
           ratings_enabled: boolean
           status: string
@@ -435,6 +436,7 @@ export type Database = {
           cover_image_url: string
           created_at?: string
           id?: string
+          is_new?: boolean
           published?: boolean
           ratings_enabled?: boolean
           status: string
@@ -446,6 +448,7 @@ export type Database = {
           cover_image_url?: string
           created_at?: string
           id?: string
+          is_new?: boolean
           published?: boolean
           ratings_enabled?: boolean
           status?: string

@@ -11,9 +11,10 @@ interface SeriesCardProps {
   latestChapter?: string;
   description: string;
   ratingsEnabled?: boolean;
+  isNew?: boolean;
 }
 
-const SeriesCard = ({ id, title, cover, status, latestChapter, description, ratingsEnabled = true }: SeriesCardProps) => {
+const SeriesCard = ({ id, title, cover, status, latestChapter, description, ratingsEnabled = true, isNew = false }: SeriesCardProps) => {
   const statusColors = {
     ongoing: "bg-green-500/20 text-green-400 border-green-500/50",
     completed: "bg-blue-500/20 text-blue-400 border-blue-500/50",
@@ -22,7 +23,12 @@ const SeriesCard = ({ id, title, cover, status, latestChapter, description, rati
 
   return (
     <Link to={`/series/${id}`} className="h-full">
-      <Card className="group overflow-hidden transition-all duration-300 hover:shadow-glow hover:scale-[1.02] bg-gradient-card border-border/50 h-full flex flex-col">
+      <Card className="group overflow-hidden transition-all duration-300 hover:shadow-glow hover:scale-[1.02] bg-gradient-card border-border/50 h-full flex flex-col relative">
+        {isNew && (
+          <Badge className="absolute top-3 left-3 z-10 bg-gradient-primary text-white font-bold px-3 py-1 shadow-glow animate-pulse">
+            NEW
+          </Badge>
+        )}
         <div className="relative aspect-[2/3] overflow-hidden">
           <img
             src={cover}

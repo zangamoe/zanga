@@ -65,6 +65,7 @@ const Series = () => {
           : undefined,
         description: series.synopsis,
         ratingsEnabled: series.ratings_enabled,
+        isNew: (series as any).is_new ?? false,
       }));
       setAllSeries(formattedSeries);
     }
