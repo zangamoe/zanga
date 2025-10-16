@@ -10,6 +10,7 @@ import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
 import { ArrowLeft, Upload } from "lucide-react";
 import ImageCropper from "./ImageCropper";
+import SeriesLinkManager from "./SeriesLinkManager";
 
 interface SpecificAuthorEditorProps {
   authorId: string;
@@ -141,9 +142,10 @@ const SpecificAuthorEditor = ({ authorId, onBack }: SpecificAuthorEditorProps) =
       </div>
 
       <Tabs defaultValue="basic" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-2">
+        <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="basic">Author Info</TabsTrigger>
           <TabsTrigger value="works">Works</TabsTrigger>
+          <TabsTrigger value="link-series">Link to Series</TabsTrigger>
         </TabsList>
 
         <TabsContent value="basic">
@@ -248,7 +250,7 @@ const SpecificAuthorEditor = ({ authorId, onBack }: SpecificAuthorEditorProps) =
             <CardHeader>
               <CardTitle>Author's Works</CardTitle>
               <CardDescription>
-                Series by this author (manage series assignments in the Series section)
+                Series by this author (manage series assignments in the "Link to Series" tab)
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -276,6 +278,18 @@ const SpecificAuthorEditor = ({ authorId, onBack }: SpecificAuthorEditorProps) =
                   ))}
                 </div>
               )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="link-series">
+          <Card className="bg-gradient-card border-border/50">
+            <CardHeader>
+              <CardTitle>Link Series to {author?.name}</CardTitle>
+              <CardDescription>Associate series with this author</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <SeriesLinkManager authorId={authorId} onUpdate={fetchAuthorSeries} />
             </CardContent>
           </Card>
         </TabsContent>

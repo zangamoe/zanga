@@ -19,6 +19,7 @@ import AuthorsPageContent from "@/components/admin/AuthorsPageContent";
 import MerchandisePageContent from "@/components/admin/MerchandisePageContent";
 import SpecificSeriesEditor from "@/components/admin/SpecificSeriesEditor";
 import SpecificAuthorEditor from "@/components/admin/SpecificAuthorEditor";
+import OurStoryManagement from "@/components/admin/OurStoryManagement";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -111,7 +112,7 @@ const Admin = () => {
         </div>
 
         <Tabs defaultValue="guide" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-3 lg:grid-cols-6 bg-secondary/50">
+          <TabsList className="grid w-full grid-cols-4 lg:grid-cols-7 bg-secondary/50">
             <TabsTrigger value="guide" className="flex items-center gap-2">
               <Info className="h-4 w-4" />
               Guide
@@ -119,6 +120,10 @@ const Admin = () => {
             <TabsTrigger value="site-content" className="flex items-center gap-2">
               <Settings className="h-4 w-4" />
               Site
+            </TabsTrigger>
+            <TabsTrigger value="our-story" className="flex items-center gap-2">
+              <Info className="h-4 w-4" />
+              Our Story
             </TabsTrigger>
             <TabsTrigger value="homepage" className="flex items-center gap-2">
               <Layout className="h-4 w-4" />
@@ -147,7 +152,7 @@ const Admin = () => {
               <CardHeader>
                 <CardTitle>Site Settings & Navigation</CardTitle>
                 <CardDescription>
-                  Manage site-wide settings including site name, navigation menu, and all page content
+                  Manage site-wide settings including site name, logo, and navigation menu
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -163,6 +168,20 @@ const Admin = () => {
                     <MenuManagement />
                   </TabsContent>
                 </Tabs>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="our-story">
+            <Card className="bg-gradient-card border-border/50">
+              <CardHeader>
+                <CardTitle>Our Story Page Content</CardTitle>
+                <CardDescription>
+                  Edit all content that appears on the "Our Story" (About) page
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <OurStoryManagement />
               </CardContent>
             </Card>
           </TabsContent>

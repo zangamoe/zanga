@@ -109,18 +109,13 @@ const AuthorDetail = () => {
                 </h1>
                 
                 <div className="flex flex-wrap justify-center gap-2 mb-6">
-                  {author.social.twitter && (
-                    <Button asChild variant="outline" size="sm">
-                      <a href={author.social.twitter} target="_blank" rel="noopener noreferrer">
-                        <FaTwitter className="h-4 w-4 mr-2" />
-                        Twitter
-                        <ExternalLink className="h-3 w-3 ml-2" />
-                      </a>
-                    </Button>
-                  )}
                   {author.social.instagram && (
                     <Button asChild variant="outline" size="sm">
-                      <a href={author.social.instagram} target="_blank" rel="noopener noreferrer">
+                      <a 
+                        href={author.social.instagram.startsWith('http') ? author.social.instagram : `https://${author.social.instagram}`} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                      >
                         <FaInstagram className="h-4 w-4 mr-2" />
                         Instagram
                         <ExternalLink className="h-3 w-3 ml-2" />
@@ -129,9 +124,26 @@ const AuthorDetail = () => {
                   )}
                   {author.social.website && (
                     <Button asChild variant="outline" size="sm">
-                      <a href={author.social.website} target="_blank" rel="noopener noreferrer">
+                      <a 
+                        href={author.social.website.startsWith('http') ? author.social.website : `https://${author.social.website}`} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                      >
                         <FaGlobe className="h-4 w-4 mr-2" />
                         Website
+                        <ExternalLink className="h-3 w-3 ml-2" />
+                      </a>
+                    </Button>
+                  )}
+                  {author.social.twitter && (
+                    <Button asChild variant="outline" size="sm">
+                      <a 
+                        href={author.social.twitter.startsWith('http') ? author.social.twitter : `https://${author.social.twitter}`} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                      >
+                        <FaTwitter className="h-4 w-4 mr-2" />
+                        Twitter
                         <ExternalLink className="h-3 w-3 ml-2" />
                       </a>
                     </Button>

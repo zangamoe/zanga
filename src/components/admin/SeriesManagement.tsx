@@ -126,10 +126,16 @@ const SeriesManagement = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    // Convert empty string to null for timestamp field
+    const submitData = {
+      ...formData,
+      next_chapter_release: formData.next_chapter_release || null,
+    };
+
     if (editingSeries) {
       const { error } = await supabase
         .from("series")
-        .update(formData)
+        .update(submitData)
         .eq("id", editingSeries.id);
 
       if (!error) {
@@ -145,7 +151,7 @@ const SeriesManagement = () => {
         });
       }
     } else {
-      const { data, error } = await supabase.from("series").insert([formData]).select().single();
+      const { data, error } = await supabase.from("series").insert([submitData]).select().single();
 
       if (!error && data) {
         await updateRelations(data.id);

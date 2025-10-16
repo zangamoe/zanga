@@ -212,18 +212,16 @@ const SeriesDetail = () => {
                 </div>
               </div>
 
-              {/* Condensed Rating Section */}
+              {/* Rating Section */}
               {displaySeries.ratings_enabled && (
-                <div className="bg-card/50 rounded-lg p-4 border border-border/30">
-                  <div className="flex flex-col items-center gap-3">
-                    <div className="text-center">
-                      <h3 className="font-semibold text-sm text-muted-foreground mb-2">{pageContent.ratingTitle}</h3>
-                      <SeriesRating seriesId={displaySeries.id} ratingsEnabled={displaySeries.ratings_enabled} showCount={true} />
-                    </div>
-                    <div className="w-full border-t border-border/30 pt-3 text-center">
-                      <h4 className="font-semibold text-sm text-muted-foreground mb-2">{pageContent.yourRatingTitle}</h4>
-                      <UserSeriesRating seriesId={displaySeries.id} />
-                    </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-card/50 rounded-lg p-6 border border-border/30">
+                  <div>
+                    <h3 className="font-semibold text-lg mb-4">{pageContent.ratingTitle}</h3>
+                    <SeriesRating seriesId={displaySeries.id} ratingsEnabled={displaySeries.ratings_enabled} showCount={true} />
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-lg mb-4">{pageContent.yourRatingTitle}</h4>
+                    <UserSeriesRating seriesId={displaySeries.id} />
                   </div>
                 </div>
               )}
