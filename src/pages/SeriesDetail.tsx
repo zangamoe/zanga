@@ -215,13 +215,13 @@ const SeriesDetail = () => {
               {/* Condensed Rating Section */}
               {displaySeries.ratings_enabled && (
                 <div className="bg-card/50 rounded-lg p-4 border border-border/30">
-                  <div className="flex items-center justify-between gap-4">
-                    <div>
-                      <h3 className="font-semibold text-sm text-muted-foreground mb-1">{pageContent.ratingTitle}</h3>
+                  <div className="flex flex-col items-center gap-3">
+                    <div className="text-center">
+                      <h3 className="font-semibold text-sm text-muted-foreground mb-2">{pageContent.ratingTitle}</h3>
                       <SeriesRating seriesId={displaySeries.id} ratingsEnabled={displaySeries.ratings_enabled} showCount={true} />
                     </div>
-                    <div className="border-l border-border/30 pl-4">
-                      <h4 className="font-semibold text-sm text-muted-foreground mb-1">{pageContent.yourRatingTitle}</h4>
+                    <div className="w-full border-t border-border/30 pt-3 text-center">
+                      <h4 className="font-semibold text-sm text-muted-foreground mb-2">{pageContent.yourRatingTitle}</h4>
                       <UserSeriesRating seriesId={displaySeries.id} />
                     </div>
                   </div>
@@ -315,9 +315,11 @@ const SeriesDetail = () => {
                   <p className="text-muted-foreground leading-relaxed text-base md:text-lg whitespace-pre-wrap mb-6 max-w-4xl mx-auto">
                     {displaySeries.detailed_synopsis}
                   </p>
-                  <p className="text-sm md:text-base text-muted-foreground/70 italic mb-6">
-                    {pageContent.aboutTagline}
-                  </p>
+                  {displaySeries.tagline && (
+                    <p className="text-sm md:text-base text-muted-foreground/70 italic mb-6">
+                      {displaySeries.tagline}
+                    </p>
+                  )}
                   {displaySeries.authors?.length > 0 && (
                     <Link 
                       to={`/authors/${displaySeries.authors[0].id}`}

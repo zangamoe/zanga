@@ -37,7 +37,7 @@ const SpecificSeriesEditor = ({ seriesId, onBack }: SpecificSeriesEditorProps) =
     if (data) {
       setSeries(data);
       setAboutSettings({
-        tagline: data.detailed_synopsis || "",
+        tagline: data.tagline || "",
         detailed_synopsis: data.detailed_synopsis || "",
       });
     }
@@ -48,6 +48,7 @@ const SpecificSeriesEditor = ({ seriesId, onBack }: SpecificSeriesEditorProps) =
     const { error } = await supabase
       .from("series")
       .update({
+        tagline: aboutSettings.tagline,
         detailed_synopsis: aboutSettings.detailed_synopsis,
       })
       .eq("id", seriesId);
@@ -186,6 +187,21 @@ const SpecificSeriesEditor = ({ seriesId, onBack }: SpecificSeriesEditorProps) =
                 />
                 <p className="text-xs text-muted-foreground mt-2">
                   If left empty, the section will show "No additional information available yet."
+                </p>
+              </div>
+
+              <div>
+                <Label htmlFor="tagline">Tagline (Optional)</Label>
+                <Textarea
+                  id="tagline"
+                  value={aboutSettings.tagline}
+                  onChange={(e) => setAboutSettings({ ...aboutSettings, tagline: e.target.value })}
+                  className="bg-secondary border-border"
+                  rows={2}
+                  placeholder="E.g., 'Experience every emotion, every whispered confession, and every heartbeat in this beautifully crafted tale.'"
+                />
+                <p className="text-xs text-muted-foreground mt-2">
+                  This appears in italics below the detailed synopsis in the About section.
                 </p>
               </div>
 

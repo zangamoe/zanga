@@ -431,6 +431,7 @@ export type Database = {
           ratings_enabled: boolean
           status: string
           synopsis: string
+          tagline: string | null
           title: string
           updated_at: string
         }
@@ -445,6 +446,7 @@ export type Database = {
           ratings_enabled?: boolean
           status: string
           synopsis: string
+          tagline?: string | null
           title: string
           updated_at?: string
         }
@@ -459,6 +461,7 @@ export type Database = {
           ratings_enabled?: boolean
           status?: string
           synopsis?: string
+          tagline?: string | null
           title?: string
           updated_at?: string
         }

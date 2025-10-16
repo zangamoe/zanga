@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { toast } from "@/hooks/use-toast";
-import { Trash2, Upload, GripVertical } from "lucide-react";
+import { Trash2, Upload, GripVertical, Download, ChevronUp, ChevronDown } from "lucide-react";
 import { Label } from "@/components/ui/label";
 
 interface ChapterPage {
@@ -134,6 +134,44 @@ const ChapterPageEditor = ({ chapterId, onClose }: ChapterPageEditorProps) => {
     } else {
       fetchPages();
     }
+  };
+
+  const handleMoveUp = async (page: ChapterPage) => {
+    const currentIndex = pages.findIndex(p => p.id === page.id);
+    if (currentIndex <= 0) return;
+    
+    const previousPage = pages[currentIndex - 1];
+    const tempNumber = 9999;
+
+    await supabase.from("chapter_pages").update({ page_number: tempNumber }).eq("id", page.id);
+    await supabase.from("chapter_pages").update({ page_number: page.page_number }).eq("id", previousPage.id);
+    await supabase.from("chapter_pages").update({ page_number: previousPage.page_number }).eq("id", page.id);
+    
+    fetchPages();
+  };
+
+  const handleMoveDown = async (page: ChapterPage) => {
+    const currentIndex = pages.findIndex(p => p.id === page.id);
+    if (currentIndex >= pages.length - 1) return;
+    
+    const nextPage = pages[currentIndex + 1];
+    const tempNumber = 9999;
+
+    await supabase.from("chapter_pages").update({ page_number: tempNumber }).eq("id", page.id);
+    await supabase.from("chapter_pages").update({ page_number: page.page_number }).eq("id", nextPage.id);
+    await supabase.from("chapter_pages").update({ page_number: nextPage.page_number }).eq("id", page.id);
+    
+    fetchPages();
+  };
+
+  const handleDownload = (page: ChapterPage) => {
+    const link = document.createElement('a');
+    link.href = page.image_url;
+    link.download = `page-${page.page_number}.jpg`;
+    link.target = '_blank';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   const handleDragStart = (e: React.DragEvent, pageId: string) => {
@@ -268,7 +306,32 @@ const ChapterPageEditor = ({ chapterId, onClose }: ChapterPageEditorProps) => {
               <div className="flex justify-between items-center">
                 <span className="text-sm font-medium">Page {page.page_number}</span>
                 <div className="flex gap-1">
-                  <GripVertical className="h-4 w-4 text-muted-foreground" />
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-6 w-6 p-0"
+                    onClick={() => handleMoveUp(page)}
+                    disabled={pages.findIndex(p => p.id === page.id) === 0}
+                  >
+                    <ChevronUp className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-6 w-6 p-0"
+                    onClick={() => handleMoveDown(page)}
+                    disabled={pages.findIndex(p => p.id === page.id) === pages.length - 1}
+                  >
+                    <ChevronDown className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="h-6 w-6 p-0"
+                    onClick={() => handleDownload(page)}
+                  >
+                    <Download className="h-3 w-3" />
+                  </Button>
                   <Button
                     variant="destructive"
                     size="sm"

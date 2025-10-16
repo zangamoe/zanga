@@ -1,14 +1,16 @@
 import Navigation from "@/components/Navigation";
 import HomeSeriesCard from "@/components/HomeSeriesCard";
 import { Input } from "@/components/ui/input";
-import { Search } from "lucide-react";
+import { Search, ArrowUpDown } from "lucide-react";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 const Series = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [allSeries, setAllSeries] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [sortBy, setSortBy] = useState("alphabetical");
   const [pageContent, setPageContent] = useState({
     title: "All Series",
     subtitle: "Explore our growing collection of localized manga from talented Japanese artists.",
@@ -71,9 +73,20 @@ const Series = () => {
     setLoading(false);
   };
 
-  const filteredSeries = allSeries.filter((series) =>
-    series.title.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredAndSortedSeries = allSeries
+    .filter((series) =>
+      series.title.toLowerCase().includes(searchQuery.toLowerCase())
+    )
+    .sort((a, b) => {
+      switch (sortBy) {
+        case "alphabetical":
+          return a.title.localeCompare(b.title);
+        case "newest":
+          return a.isNew === b.isNew ? 0 : a.isNew ? -1 : 1;
+        default:
+          return 0;
+      }
+    });
 
   return (
     <div className="min-h-screen bg-background">
@@ -88,15 +101,29 @@ const Series = () => {
             {pageContent.subtitle}
           </p>
           
-          <div className="relative max-w-md">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              type="text"
-              placeholder={pageContent.searchPlaceholder}
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10 bg-secondary border-border"
-            />
+          <div className="flex flex-col sm:flex-row gap-4">
+            <div className="relative flex-1 max-w-md">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                type="text"
+                placeholder={pageContent.searchPlaceholder}
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10 bg-secondary border-border"
+              />
+            </div>
+            <div className="flex items-center gap-2">
+              <ArrowUpDown className="h-4 w-4 text-muted-foreground" />
+              <Select value={sortBy} onValueChange={setSortBy}>
+                <SelectTrigger className="w-[180px] bg-secondary border-border">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="alphabetical">Alphabetical</SelectItem>
+                  <SelectItem value="newest">Newest First</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
         </div>
 
@@ -107,12 +134,12 @@ const Series = () => {
         ) : (
           <>
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 md:gap-6">
-              {filteredSeries.map((series) => (
+              {filteredAndSortedSeries.map((series) => (
                 <HomeSeriesCard key={series.id} {...series} />
               ))}
             </div>
 
-            {filteredSeries.length === 0 && (
+            {filteredAndSortedSeries.length === 0 && (
               <div className="text-center py-12">
                 <p className="text-muted-foreground text-lg">
                   {allSeries.length === 0 
