@@ -152,10 +152,10 @@ const AuthorDetail = () => {
           <div className="lg:col-span-2">
             <h2 className="text-2xl font-bold mb-6">Works</h2>
             
-            {author.seriesData.length === 0 ? (
+            {!author.seriesData || author.seriesData.length === 0 ? (
               <Card className="bg-gradient-card border-border/50">
                 <CardContent className="py-12 text-center text-muted-foreground">
-                  No series available yet.
+                  No works available yet.
                 </CardContent>
               </Card>
             ) : (

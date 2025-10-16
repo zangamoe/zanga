@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { ArrowRight, Sparkles, TrendingUp, Zap, Library, Flame } from "lucide-react";
+import { ArrowRight, Sparkles, TrendingUp, Library, Flame, BookOpen } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import HomeSeriesCard from "@/components/HomeSeriesCard";
@@ -172,7 +172,7 @@ const Index = () => {
             <div className="flex flex-col sm:flex-row gap-4">
               <Button asChild size="lg" className="bg-gradient-primary hover:opacity-90 transition-all hover:scale-105 text-lg px-8 py-6">
                 <Link to="/series" className="flex items-center gap-2">
-                  <Zap className="h-5 w-5" />
+                  <Library className="h-5 w-5" />
                   {settings.home_hero_button_text || "Browse Series"}
                   <ArrowRight className="h-5 w-5" />
                 </Link>

@@ -60,17 +60,29 @@ const Reader = () => {
     setLoading(false);
   };
 
-  // Keyboard navigation
+  // Keyboard navigation - disabled in scroll mode
   useEffect(() => {
     const handleKeyPress = (e: KeyboardEvent) => {
       if (viewMode !== "page") return;
       
       if (readingDirection === "rtl") {
-        if (e.key === "ArrowLeft") handleNextPage();
+        if (e.key === "ArrowLeft") {
+          if (currentPage === pages.length) {
+            goToNextChapter();
+          } else {
+            handleNextPage();
+          }
+        }
         if (e.key === "ArrowRight") handlePrevPage();
       } else {
         if (e.key === "ArrowLeft") handlePrevPage();
-        if (e.key === "ArrowRight") handleNextPage();
+        if (e.key === "ArrowRight") {
+          if (currentPage === pages.length) {
+            goToNextChapter();
+          } else {
+            handleNextPage();
+          }
+        }
       }
     };
 
@@ -196,20 +208,24 @@ const Reader = () => {
                 >
                   Page-by-Page
                 </Badge>
-                <Badge 
-                  variant={readingDirection === "rtl" ? "default" : "outline"}
-                  className="cursor-pointer"
-                  onClick={() => setReadingDirection("rtl")}
-                >
-                  RTL ←
-                </Badge>
-                <Badge 
-                  variant={readingDirection === "ltr" ? "default" : "outline"}
-                  className="cursor-pointer"
-                  onClick={() => setReadingDirection("ltr")}
-                >
-                  LTR →
-                </Badge>
+                {viewMode === "page" && (
+                  <>
+                    <Badge 
+                      variant={readingDirection === "rtl" ? "default" : "outline"}
+                      className="cursor-pointer"
+                      onClick={() => setReadingDirection("rtl")}
+                    >
+                      RTL ←
+                    </Badge>
+                    <Badge 
+                      variant={readingDirection === "ltr" ? "default" : "outline"}
+                      className="cursor-pointer"
+                      onClick={() => setReadingDirection("ltr")}
+                    >
+                      LTR →
+                    </Badge>
+                  </>
+                )}
               </div>
             </div>
 
@@ -261,23 +277,49 @@ const Reader = () => {
       {/* Reader Content */}
       <div className="container mx-auto px-4 py-8 max-w-4xl">
         {viewMode === "scroll" ? (
-          <div className="space-y-2">
-            {pages.map((page) => (
-              <div
-                key={page.id}
-                ref={(el) => (pageRefs.current[page.page_number] = el)}
-                className="rounded-lg overflow-hidden shadow-card"
-                onMouseEnter={() => setCurrentPage(page.page_number)}
+          <>
+            <div className="space-y-2">
+              {pages.map((page) => (
+                <div
+                  key={page.id}
+                  ref={(el) => (pageRefs.current[page.page_number] = el)}
+                  className="rounded-lg overflow-hidden shadow-card"
+                  onMouseEnter={() => setCurrentPage(page.page_number)}
+                >
+                  <img
+                    src={page.image_url}
+                    alt={`Page ${page.page_number}`}
+                    className="w-full h-auto"
+                    loading="lazy"
+                  />
+                </div>
+              ))}
+            </div>
+            {/* Scroll Mode Navigation */}
+            <div className="flex items-center justify-center gap-4 mt-8 py-6 border-t border-border">
+              <Button
+                variant="outline"
+                onClick={goToPrevChapter}
+                disabled={chapterNum <= 1}
               >
-                <img
-                  src={page.image_url}
-                  alt={`Page ${page.page_number}`}
-                  className="w-full h-auto"
-                  loading="lazy"
-                />
-              </div>
-            ))}
-          </div>
+                <ChevronLeft className="h-4 w-4 mr-2" />
+                Previous Chapter
+              </Button>
+              <Button asChild variant="outline">
+                <Link to={`/series/${seriesId}`}>
+                  All Chapters
+                </Link>
+              </Button>
+              <Button
+                variant="default"
+                onClick={goToNextChapter}
+                className="bg-gradient-primary hover:opacity-90"
+              >
+                Next Chapter
+                <ChevronRight className="h-4 w-4 ml-2" />
+              </Button>
+            </div>
+          </>
         ) : (
           <div className="flex flex-col items-center">
             {pages.filter(p => p.page_number === currentPage).map((page) => (

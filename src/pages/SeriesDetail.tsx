@@ -3,7 +3,7 @@ import Navigation from "@/components/Navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { BookOpen, ExternalLink } from "lucide-react";
+import { BookOpen, ExternalLink, ArrowRight } from "lucide-react";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import SeriesRating from "@/components/SeriesRating";
@@ -145,8 +145,8 @@ const SeriesDetail = () => {
                 {displaySeries.synopsis}
               </p>
 
-              {/* Stats Grid - Larger & Better Spaced */}
-              <div className="grid grid-cols-2 gap-6 bg-card/50 rounded-lg p-6 border border-border/30">
+              {/* Stats Grid - Reorganized with Rating */}
+              <div className="grid grid-cols-3 gap-6 bg-card/50 rounded-lg p-6 border border-border/30">
                 <div className="text-center">
                   <div className="text-3xl md:text-4xl font-bold text-primary">{totalChapters}</div>
                   <div className="text-sm text-muted-foreground mt-1">Chapters</div>
@@ -164,23 +164,19 @@ const SeriesDetail = () => {
                   </div>
                   <div className="text-sm text-muted-foreground mt-1">Next Release</div>
                 </div>
+                {displaySeries.ratings_enabled && (
+                  <div className="text-center">
+                    <SeriesRating seriesId={displaySeries.id} ratingsEnabled={displaySeries.ratings_enabled} showCount={false} />
+                    <div className="text-sm text-muted-foreground mt-1">Rating</div>
+                  </div>
+                )}
               </div>
 
-              {/* Rating Section - User Rating Next to Overall */}
+              {/* User Rating Section */}
               {displaySeries.ratings_enabled && (
                 <div className="bg-card/50 rounded-lg p-6 border border-border/30">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                      <h3 className="font-semibold text-lg mb-3">Series Rating</h3>
-                      <div className="scale-125 origin-left">
-                        <SeriesRating seriesId={displaySeries.id} ratingsEnabled={displaySeries.ratings_enabled} showCount={true} />
-                      </div>
-                    </div>
-                    <div>
-                      <h3 className="font-semibold text-lg mb-3">Your Rating</h3>
-                      <UserSeriesRating seriesId={displaySeries.id} />
-                    </div>
-                  </div>
+                  <h3 className="font-semibold text-lg mb-3">Your Rating</h3>
+                  <UserSeriesRating seriesId={displaySeries.id} />
                 </div>
               )}
 
@@ -228,18 +224,20 @@ const SeriesDetail = () => {
         {/* Latest Chapters Section */}
         <div id="chapters" className="mb-12">
           <div className="flex items-center justify-between mb-6">
-            <div>
-              <h2 className="text-2xl md:text-3xl font-bold">Latest Chapters</h2>
-              <p className="text-sm text-muted-foreground">Stay up to date with the newest releases</p>
+            <div className="flex items-center gap-3">
+              <BookOpen className="h-6 w-6 text-primary" />
+              <div>
+                <h2 className="text-2xl md:text-3xl font-bold">Latest Chapters</h2>
+                <p className="text-sm text-muted-foreground">Stay up to date with the newest releases</p>
+              </div>
             </div>
             {displaySeries.chapters?.length > 3 && (
-              <Link 
-                to={`/series/${id}/chapters`}
-                className="text-primary hover:underline flex items-center gap-2 font-semibold"
-              >
-                View All
-                <ExternalLink className="h-4 w-4" />
-              </Link>
+              <Button asChild variant="outline" size="sm">
+                <Link to={`/series/${id}/chapters`}>
+                  View All
+                  <ArrowRight className="h-4 w-4 ml-2" />
+                </Link>
+              </Button>
             )}
           </div>
           
