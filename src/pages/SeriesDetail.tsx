@@ -212,16 +212,18 @@ const SeriesDetail = () => {
                 </div>
               </div>
 
-              {/* Rating Section */}
+              {/* Condensed Rating Section */}
               {displaySeries.ratings_enabled && (
-                <div className="bg-card/50 rounded-lg p-6 border border-border/30">
-                  <h3 className="font-semibold text-lg mb-4">{pageContent.ratingTitle}</h3>
-                  <div className="flex items-center justify-between mb-4">
-                    <SeriesRating seriesId={displaySeries.id} ratingsEnabled={displaySeries.ratings_enabled} showCount={true} />
-                  </div>
-                  <div className="border-t border-border/30 pt-4">
-                    <h4 className="font-semibold mb-3">{pageContent.yourRatingTitle}</h4>
-                    <UserSeriesRating seriesId={displaySeries.id} />
+                <div className="bg-card/50 rounded-lg p-4 border border-border/30">
+                  <div className="flex items-center justify-between gap-4">
+                    <div>
+                      <h3 className="font-semibold text-sm text-muted-foreground mb-1">{pageContent.ratingTitle}</h3>
+                      <SeriesRating seriesId={displaySeries.id} ratingsEnabled={displaySeries.ratings_enabled} showCount={true} />
+                    </div>
+                    <div className="border-l border-border/30 pl-4">
+                      <h4 className="font-semibold text-sm text-muted-foreground mb-1">{pageContent.yourRatingTitle}</h4>
+                      <UserSeriesRating seriesId={displaySeries.id} />
+                    </div>
                   </div>
                 </div>
               )}
@@ -304,30 +306,36 @@ const SeriesDetail = () => {
         </div>
 
         {/* About this Series */}
-        {displaySeries.detailed_synopsis && (
-          <div className="mb-12">
-            <h2 className="text-2xl md:text-3xl font-bold mb-6 text-center">About {displaySeries.title}</h2>
-            <Card className="bg-card/50 border-border/50">
-              <CardContent className="p-8 text-center">
-                <p className="text-muted-foreground leading-relaxed whitespace-pre-wrap mb-6 max-w-4xl mx-auto">
-                  {displaySeries.detailed_synopsis}
+        <div className="mb-12">
+          <h2 className="text-2xl md:text-3xl font-bold mb-6 text-center">About {displaySeries.title}</h2>
+          <Card className="bg-card/50 border-border/50">
+            <CardContent className="p-8 md:p-12 text-center">
+              {displaySeries.detailed_synopsis ? (
+                <>
+                  <p className="text-muted-foreground leading-relaxed text-base md:text-lg whitespace-pre-wrap mb-6 max-w-4xl mx-auto">
+                    {displaySeries.detailed_synopsis}
+                  </p>
+                  <p className="text-sm md:text-base text-muted-foreground/70 italic mb-6">
+                    {pageContent.aboutTagline}
+                  </p>
+                  {displaySeries.authors?.length > 0 && (
+                    <Link 
+                      to={`/authors/${displaySeries.authors[0].id}`}
+                      className="inline-flex items-center gap-2 text-primary hover:underline font-semibold"
+                    >
+                      {pageContent.authorLinkText}
+                      <ArrowRight className="h-4 w-4" />
+                    </Link>
+                  )}
+                </>
+              ) : (
+                <p className="text-muted-foreground/70 italic">
+                  No additional information available yet.
                 </p>
-                <p className="text-sm text-muted-foreground/70 italic mb-6">
-                  {pageContent.aboutTagline}
-                </p>
-                {displaySeries.authors?.length > 0 && (
-                  <Link 
-                    to={`/authors/${displaySeries.authors[0].id}`}
-                    className="inline-flex items-center gap-2 text-primary hover:underline font-semibold"
-                  >
-                    {pageContent.authorLinkText}
-                    <ArrowRight className="h-4 w-4" />
-                  </Link>
-                )}
-              </CardContent>
-            </Card>
-          </div>
-        )}
+              )}
+            </CardContent>
+          </Card>
+        </div>
 
       </div>
     </div>

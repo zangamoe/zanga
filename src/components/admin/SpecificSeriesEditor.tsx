@@ -170,7 +170,7 @@ const SpecificSeriesEditor = ({ seriesId, onBack }: SpecificSeriesEditorProps) =
             <CardHeader>
               <CardTitle>About This Series Section</CardTitle>
               <CardDescription>
-                This content appears in the "About this series" section on the series detail page
+                Edit the detailed description that appears in the "About {series.title}" section below Latest Chapters. The tagline and link text are edited in Series → General Settings.
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -181,11 +181,11 @@ const SpecificSeriesEditor = ({ seriesId, onBack }: SpecificSeriesEditorProps) =
                   value={aboutSettings.detailed_synopsis}
                   onChange={(e) => setAboutSettings({ ...aboutSettings, detailed_synopsis: e.target.value })}
                   className="bg-secondary border-border"
-                  rows={8}
-                  placeholder="Enter a detailed description of this series..."
+                  rows={10}
+                  placeholder="Enter a detailed description of this series... This will appear in the About section on the series detail page."
                 />
                 <p className="text-xs text-muted-foreground mt-2">
-                  This will be displayed in the "About this series" section. If left empty, the section will show "No additional information available yet."
+                  If left empty, the section will show "No additional information available yet."
                 </p>
               </div>
 
