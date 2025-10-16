@@ -15,6 +15,7 @@ import MenuManagement from "@/components/admin/MenuManagement";
 import CommentsManagement from "@/components/admin/CommentsManagement";
 import HomepagePageContent from "@/components/admin/HomepagePageContent";
 import SeriesPageContent from "@/components/admin/SeriesPageContent";
+import SeriesDetailPageContent from "@/components/admin/SeriesDetailPageContent";
 import AuthorsPageContent from "@/components/admin/AuthorsPageContent";
 import MerchandisePageContent from "@/components/admin/MerchandisePageContent";
 
@@ -150,6 +151,7 @@ const Admin = () => {
           <TabsContent value="series">
             <div className="space-y-6">
               <SeriesPageContent />
+              <SeriesDetailPageContent />
               <SeriesManagement />
             </div>
           </TabsContent>

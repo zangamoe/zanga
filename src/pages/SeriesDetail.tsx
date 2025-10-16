@@ -13,10 +13,57 @@ const SeriesDetail = () => {
   const { id } = useParams();
   const [series, setSeries] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [pageContent, setPageContent] = useState({
+    latestChaptersTitle: "Latest Chapters",
+    latestChaptersSubtitle: "Stay up to date with the newest releases",
+    viewAllText: "View All",
+    aboutTagline: "Experience every emotion, every whispered confession, and every heartbeat in this beautifully crafted tale.",
+    authorLinkText: "Check out the author",
+    chaptersLabel: "Chapters",
+    nextReleaseLabel: "Next Release",
+    ratingTitle: "Rating",
+    yourRatingTitle: "Your Rating",
+  });
 
   useEffect(() => {
-    if (id) fetchSeries();
+    if (id) {
+      fetchSeries();
+      fetchPageContent();
+    }
   }, [id]);
+
+  const fetchPageContent = async () => {
+    const { data } = await supabase
+      .from("site_settings")
+      .select("key, value")
+      .in("key", [
+        "series_detail_latest_chapters_title",
+        "series_detail_latest_chapters_subtitle",
+        "series_detail_view_all_text",
+        "series_detail_about_tagline",
+        "series_detail_author_link_text",
+        "series_detail_stats_chapters_label",
+        "series_detail_stats_next_release_label",
+        "series_detail_rating_title",
+        "series_detail_your_rating_title",
+      ]);
+
+    if (data) {
+      const newContent = { ...pageContent };
+      data.forEach((item) => {
+        if (item.key === "series_detail_latest_chapters_title") newContent.latestChaptersTitle = String(item.value);
+        if (item.key === "series_detail_latest_chapters_subtitle") newContent.latestChaptersSubtitle = String(item.value);
+        if (item.key === "series_detail_view_all_text") newContent.viewAllText = String(item.value);
+        if (item.key === "series_detail_about_tagline") newContent.aboutTagline = String(item.value);
+        if (item.key === "series_detail_author_link_text") newContent.authorLinkText = String(item.value);
+        if (item.key === "series_detail_stats_chapters_label") newContent.chaptersLabel = String(item.value);
+        if (item.key === "series_detail_stats_next_release_label") newContent.nextReleaseLabel = String(item.value);
+        if (item.key === "series_detail_rating_title") newContent.ratingTitle = String(item.value);
+        if (item.key === "series_detail_your_rating_title") newContent.yourRatingTitle = String(item.value);
+      });
+      setPageContent(newContent);
+    }
+  };
 
   const fetchSeries = async () => {
     const { data } = await supabase
@@ -145,38 +192,37 @@ const SeriesDetail = () => {
                 {displaySeries.synopsis}
               </p>
 
-              {/* Stats Grid - Reorganized with Rating */}
-              <div className="grid grid-cols-3 gap-6 bg-card/50 rounded-lg p-6 border border-border/30">
+              {/* Stats Grid */}
+              <div className="grid grid-cols-2 gap-6 bg-card/50 rounded-lg p-6 border border-border/30">
                 <div className="text-center">
                   <div className="text-3xl md:text-4xl font-bold text-primary">{totalChapters}</div>
-                  <div className="text-sm text-muted-foreground mt-1">Chapters</div>
+                  <div className="text-sm text-muted-foreground mt-1">{pageContent.chaptersLabel}</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-3xl md:text-4xl font-bold text-primary">
+                  <div className="text-2xl md:text-3xl font-bold text-primary">
                     {displaySeries.next_chapter_release 
                       ? new Date(displaySeries.next_chapter_release).toLocaleDateString("en-US", {
                           month: "short",
                           day: "numeric",
-                          year: "numeric",
                         })
                       : "Undetermined"
                     }
                   </div>
-                  <div className="text-sm text-muted-foreground mt-1">Next Release</div>
+                  <div className="text-sm text-muted-foreground mt-1">{pageContent.nextReleaseLabel}</div>
                 </div>
-                {displaySeries.ratings_enabled && (
-                  <div className="text-center">
-                    <SeriesRating seriesId={displaySeries.id} ratingsEnabled={displaySeries.ratings_enabled} showCount={false} />
-                    <div className="text-sm text-muted-foreground mt-1">Rating</div>
-                  </div>
-                )}
               </div>
 
-              {/* User Rating Section */}
+              {/* Rating Section */}
               {displaySeries.ratings_enabled && (
                 <div className="bg-card/50 rounded-lg p-6 border border-border/30">
-                  <h3 className="font-semibold text-lg mb-3">Your Rating</h3>
-                  <UserSeriesRating seriesId={displaySeries.id} />
+                  <h3 className="font-semibold text-lg mb-4">{pageContent.ratingTitle}</h3>
+                  <div className="flex items-center justify-between mb-4">
+                    <SeriesRating seriesId={displaySeries.id} ratingsEnabled={displaySeries.ratings_enabled} showCount={true} />
+                  </div>
+                  <div className="border-t border-border/30 pt-4">
+                    <h4 className="font-semibold mb-3">{pageContent.yourRatingTitle}</h4>
+                    <UserSeriesRating seriesId={displaySeries.id} />
+                  </div>
                 </div>
               )}
 
@@ -198,43 +244,20 @@ const SeriesDetail = () => {
           </div>
         </div>
 
-        {/* About this Series */}
-        {displaySeries.detailed_synopsis && (
-          <div className="mb-12">
-            <h2 className="text-2xl md:text-3xl font-bold mb-6">About {displaySeries.title}</h2>
-            <Card className="bg-card/50 border-border/50">
-              <CardContent className="p-8">
-                <p className="text-muted-foreground leading-relaxed whitespace-pre-wrap mb-6">
-                  {displaySeries.detailed_synopsis}
-                </p>
-                {displaySeries.authors?.length > 0 && (
-                  <Link 
-                    to={`/authors/${displaySeries.authors[0].id}`}
-                    className="inline-flex items-center gap-2 text-primary hover:underline font-semibold"
-                  >
-                    Check out the author
-                    <ExternalLink className="h-4 w-4" />
-                  </Link>
-                )}
-              </CardContent>
-            </Card>
-          </div>
-        )}
-
         {/* Latest Chapters Section */}
         <div id="chapters" className="mb-12">
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-3">
               <BookOpen className="h-6 w-6 text-primary" />
               <div>
-                <h2 className="text-2xl md:text-3xl font-bold">Latest Chapters</h2>
-                <p className="text-sm text-muted-foreground">Stay up to date with the newest releases</p>
+                <h2 className="text-2xl md:text-3xl font-bold">{pageContent.latestChaptersTitle}</h2>
+                <p className="text-sm text-muted-foreground">{pageContent.latestChaptersSubtitle}</p>
               </div>
             </div>
             {displaySeries.chapters?.length > 3 && (
               <Button asChild variant="outline" size="sm">
                 <Link to={`/series/${id}/chapters`}>
-                  View All
+                  {pageContent.viewAllText}
                   <ArrowRight className="h-4 w-4 ml-2" />
                 </Link>
               </Button>
@@ -243,32 +266,68 @@ const SeriesDetail = () => {
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {displaySeries.chapters?.slice(0, 3).map((chapter: any, index: number) => (
-              <Card key={chapter.id} className="hover:shadow-glow transition-all duration-300 bg-card/50 border-border/50 group relative overflow-hidden">
-                {index === 0 && (
-                  <Badge className="absolute top-3 right-3 bg-gradient-primary z-10">NEW</Badge>
-                )}
-                <CardContent className="p-6">
-                  <Link to={`/read/${id}/${chapter.chapter_number}`}>
-                    <div className="mb-2">
-                      <div className="text-4xl font-bold text-muted-foreground/30 mb-2">{chapter.chapter_number}</div>
-                      <h3 className="font-semibold text-lg group-hover:text-primary transition-colors line-clamp-2">
-                        {chapter.title}
-                      </h3>
+              <Link key={chapter.id} to={`/read/${id}/${chapter.chapter_number}`}>
+                <Card className="hover:shadow-glow transition-all duration-300 bg-card/50 border-border/50 group relative overflow-hidden h-full">
+                  {index === 0 && (
+                    <Badge className="absolute top-3 right-3 bg-gradient-primary z-10 text-xs px-2 py-1">NEW</Badge>
+                  )}
+                  <CardContent className="p-6 relative">
+                    <div className="absolute top-4 right-6 text-8xl font-bold text-muted-foreground/10 pointer-events-none">
+                      {chapter.chapter_number}
                     </div>
-                    <p className="text-sm text-muted-foreground mt-4">
-                      {new Date(chapter.published_date).toLocaleDateString("en-US", {
-                        month: "short",
-                        day: "numeric",
-                        year: "numeric",
-                      })}
-                    </p>
-                  </Link>
-                </CardContent>
-              </Card>
+                    <div className="relative z-10">
+                      <h3 className="text-xl font-bold mb-1 group-hover:text-primary transition-colors">
+                        Chapter {chapter.chapter_number}
+                      </h3>
+                      <h4 className="text-base font-semibold text-muted-foreground mb-2 line-clamp-2">
+                        {chapter.title}
+                      </h4>
+                      <p className="text-sm text-muted-foreground/70 mb-3">
+                        20 pages
+                      </p>
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                        {new Date(chapter.published_date).toLocaleDateString("en-US", {
+                          month: "numeric",
+                          day: "numeric",
+                          year: "numeric",
+                        })}
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </Link>
             ))}
           </div>
         </div>
 
+        {/* About this Series */}
+        {displaySeries.detailed_synopsis && (
+          <div className="mb-12">
+            <h2 className="text-2xl md:text-3xl font-bold mb-6 text-center">About {displaySeries.title}</h2>
+            <Card className="bg-card/50 border-border/50">
+              <CardContent className="p-8 text-center">
+                <p className="text-muted-foreground leading-relaxed whitespace-pre-wrap mb-6 max-w-4xl mx-auto">
+                  {displaySeries.detailed_synopsis}
+                </p>
+                <p className="text-sm text-muted-foreground/70 italic mb-6">
+                  {pageContent.aboutTagline}
+                </p>
+                {displaySeries.authors?.length > 0 && (
+                  <Link 
+                    to={`/authors/${displaySeries.authors[0].id}`}
+                    className="inline-flex items-center gap-2 text-primary hover:underline font-semibold"
+                  >
+                    {pageContent.authorLinkText}
+                    <ArrowRight className="h-4 w-4" />
+                  </Link>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+        )}
 
       </div>
     </div>

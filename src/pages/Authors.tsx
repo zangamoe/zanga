@@ -150,7 +150,7 @@ const Authors = () => {
                       {author.bio ? (author.bio.length > 150 ? `${author.bio.substring(0, 150)}...` : author.bio) : pageContent.noBio}
                     </p>
 
-                    {author.series.length > 0 && (
+                    {author.series.length > 0 ? (
                       <div className="mb-4">
                         <h3 className="font-semibold mb-2">{pageContent.worksLabel}</h3>
                         <div className="flex flex-wrap gap-2">
@@ -163,6 +163,10 @@ const Authors = () => {
                             </span>
                           ))}
                         </div>
+                      </div>
+                    ) : (
+                      <div className="mb-4">
+                        <p className="text-muted-foreground text-sm">No works available yet.</p>
                       </div>
                     )}
 

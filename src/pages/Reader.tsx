@@ -232,43 +232,68 @@ const Reader = () => {
             <div className="flex items-center gap-2">
               {viewMode === "page" && (
                 <>
+                  {readingDirection === "rtl" ? (
+                    <>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={handleNextPage}
+                        disabled={currentPage === pages.length}
+                      >
+                        <ChevronLeft className="h-4 w-4" />
+                        Next
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={handlePrevPage}
+                        disabled={currentPage === 1}
+                      >
+                        Prev
+                        <ChevronRight className="h-4 w-4" />
+                      </Button>
+                    </>
+                  ) : (
+                    <>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={handlePrevPage}
+                        disabled={currentPage === 1}
+                      >
+                        <ChevronLeft className="h-4 w-4" />
+                        Prev
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={handleNextPage}
+                        disabled={currentPage === pages.length}
+                      >
+                        Next
+                        <ChevronRight className="h-4 w-4" />
+                      </Button>
+                    </>
+                  )}
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={readingDirection === "rtl" ? handlePrevPage : handlePrevPage}
-                    disabled={currentPage === 1}
+                    onClick={goToPrevChapter}
+                    disabled={chapterNum <= 1}
                   >
                     <ChevronLeft className="h-4 w-4" />
-                    {readingDirection === "rtl" ? "Next" : "Prev"}
+                    Prev Chapter
                   </Button>
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={readingDirection === "rtl" ? handleNextPage : handleNextPage}
-                    disabled={currentPage === pages.length}
+                    onClick={goToNextChapter}
                   >
-                    {readingDirection === "rtl" ? "Prev" : "Next"}
+                    Next Chapter
                     <ChevronRight className="h-4 w-4" />
                   </Button>
                 </>
               )}
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={goToPrevChapter}
-                disabled={chapterNum <= 1}
-              >
-                <ChevronLeft className="h-4 w-4" />
-                Prev Chapter
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={goToNextChapter}
-              >
-                Next Chapter
-                <ChevronRight className="h-4 w-4" />
-              </Button>
             </div>
           </div>
         </div>
