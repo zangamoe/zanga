@@ -99,17 +99,17 @@ const SeriesDetail = () => {
 
             {/* Right: Series Info */}
             <div className="space-y-6">
-              {/* Title & Genres */}
+              {/* Title & Status/Genres */}
               <div>
                 <div className="flex flex-wrap gap-2 mb-3">
+                  <Badge className={`${statusColors[displaySeries.status as keyof typeof statusColors]} text-xs uppercase font-semibold px-3 py-1`} variant="outline">
+                    {displaySeries.status}
+                  </Badge>
                   {displaySeries.genres?.map((genre: string) => (
                     <Badge key={genre} variant="secondary" className="text-xs uppercase font-semibold px-3 py-1">
                       {genre}
                     </Badge>
                   ))}
-                  <Badge className={`${statusColors[displaySeries.status as keyof typeof statusColors]} text-xs uppercase font-semibold px-3 py-1`} variant="outline">
-                    {displaySeries.status}
-                  </Badge>
                 </div>
                 
                 <h1 className="text-3xl md:text-5xl font-bold mb-2">
@@ -146,20 +146,23 @@ const SeriesDetail = () => {
               </p>
 
               {/* Stats Grid - Larger & Better Spaced */}
-              <div className="grid grid-cols-3 gap-6 bg-card/50 rounded-lg p-6 border border-border/30">
+              <div className="grid grid-cols-2 gap-6 bg-card/50 rounded-lg p-6 border border-border/30">
                 <div className="text-center">
                   <div className="text-3xl md:text-4xl font-bold text-primary">{totalChapters}</div>
                   <div className="text-sm text-muted-foreground mt-1">Chapters</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-3xl md:text-4xl font-bold text-primary">∞</div>
-                  <div className="text-sm text-muted-foreground mt-1">Reads</div>
-                </div>
-                <div className="text-center">
-                  <div className="scale-125 origin-center mb-2">
-                    <SeriesRating seriesId={displaySeries.id} ratingsEnabled={displaySeries.ratings_enabled} showCount={false} />
+                  <div className="text-3xl md:text-4xl font-bold text-primary">
+                    {displaySeries.next_chapter_release 
+                      ? new Date(displaySeries.next_chapter_release).toLocaleDateString("en-US", {
+                          month: "short",
+                          day: "numeric",
+                          year: "numeric",
+                        })
+                      : "Undetermined"
+                    }
                   </div>
-                  <div className="text-sm text-muted-foreground">Rating</div>
+                  <div className="text-sm text-muted-foreground mt-1">Next Release</div>
                 </div>
               </div>
 

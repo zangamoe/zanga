@@ -53,11 +53,6 @@ const HomeSeriesCard = ({
             className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent" />
-          
-          {/* Status Badge */}
-          <Badge className={`${statusColors[status]} absolute top-3 right-3 z-10`} variant="outline">
-            {status}
-          </Badge>
         </div>
 
         {/* Content */}
@@ -79,25 +74,26 @@ const HomeSeriesCard = ({
             </div>
           )}
 
-          {/* Genres */}
-          {genres.length > 0 && (
-            <div className="flex flex-wrap gap-1">
-              {genres.slice(0, 3).map((genre) => (
-                <Badge 
-                  key={genre} 
-                  variant="secondary" 
-                  className="text-xs px-2 py-0.5 bg-secondary/50 hover:bg-secondary"
-                >
-                  {genre}
-                </Badge>
-              ))}
-              {genres.length > 3 && (
-                <Badge variant="secondary" className="text-xs px-2 py-0.5">
-                  +{genres.length - 3}
-                </Badge>
-              )}
-            </div>
-          )}
+          {/* Status & Genres */}
+          <div className="flex flex-wrap gap-1">
+            <Badge className={`${statusColors[status]} text-xs px-2 py-0.5`} variant="outline">
+              {status}
+            </Badge>
+            {genres.slice(0, 2).map((genre) => (
+              <Badge 
+                key={genre} 
+                variant="secondary" 
+                className="text-xs px-2 py-0.5 bg-secondary/50 hover:bg-secondary"
+              >
+                {genre}
+              </Badge>
+            ))}
+            {genres.length > 2 && (
+              <Badge variant="secondary" className="text-xs px-2 py-0.5">
+                +{genres.length - 2}
+              </Badge>
+            )}
+          </div>
 
           {/* Rating */}
           {ratingsEnabled && (

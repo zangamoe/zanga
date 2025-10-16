@@ -53,6 +53,7 @@ const SeriesManagement = () => {
     published: true,
     ratings_enabled: true,
     is_new: false,
+    next_chapter_release: "",
   });
 
   const [selectedAuthors, setSelectedAuthors] = useState<string[]>([]);
@@ -188,6 +189,7 @@ const SeriesManagement = () => {
       published: series.published,
       ratings_enabled: series.ratings_enabled ?? true,
       is_new: (series as any).is_new ?? false,
+      next_chapter_release: (series as any).next_chapter_release || "",
     });
 
     // Fetch related authors and genres
@@ -227,6 +229,7 @@ const SeriesManagement = () => {
       published: true,
       ratings_enabled: true,
       is_new: false,
+      next_chapter_release: "",
     });
     setSelectedAuthors([]);
     setSelectedGenres([]);
@@ -392,6 +395,19 @@ const SeriesManagement = () => {
                   checked={formData.is_new}
                   onCheckedChange={(checked) => setFormData({ ...formData, is_new: checked })}
                 />
+              </div>
+
+              <div>
+                <label className="text-sm font-medium">Next Chapter Release (Optional)</label>
+                <Input
+                  type="datetime-local"
+                  value={formData.next_chapter_release}
+                  onChange={(e) => setFormData({ ...formData, next_chapter_release: e.target.value })}
+                  className="bg-secondary border-border"
+                />
+                <p className="text-xs text-muted-foreground mt-1">
+                  Leave empty to display "Undetermined"
+                </p>
               </div>
 
               <div className="flex gap-2">

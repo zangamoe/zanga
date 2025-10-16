@@ -425,6 +425,7 @@ export type Database = {
           created_at: string
           id: string
           is_new: boolean
+          next_chapter_release: string | null
           published: boolean
           ratings_enabled: boolean
           status: string
@@ -437,6 +438,7 @@ export type Database = {
           created_at?: string
           id?: string
           is_new?: boolean
+          next_chapter_release?: string | null
           published?: boolean
           ratings_enabled?: boolean
           status: string
@@ -449,6 +451,7 @@ export type Database = {
           created_at?: string
           id?: string
           is_new?: boolean
+          next_chapter_release?: string | null
           published?: boolean
           ratings_enabled?: boolean
           status?: string
