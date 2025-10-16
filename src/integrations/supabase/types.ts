@@ -423,6 +423,7 @@ export type Database = {
         Row: {
           cover_image_url: string
           created_at: string
+          detailed_synopsis: string | null
           id: string
           is_new: boolean
           next_chapter_release: string | null
@@ -436,6 +437,7 @@ export type Database = {
         Insert: {
           cover_image_url: string
           created_at?: string
+          detailed_synopsis?: string | null
           id?: string
           is_new?: boolean
           next_chapter_release?: string | null
@@ -449,6 +451,7 @@ export type Database = {
         Update: {
           cover_image_url?: string
           created_at?: string
+          detailed_synopsis?: string | null
           id?: string
           is_new?: boolean
           next_chapter_release?: string | null

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { ArrowRight, Sparkles, TrendingUp, Zap } from "lucide-react";
+import { ArrowRight, Sparkles, TrendingUp, Zap, Library, Flame } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import HomeSeriesCard from "@/components/HomeSeriesCard";
@@ -197,8 +197,8 @@ const Index = () => {
             <div className="flex items-center justify-between mb-8 md:mb-12">
               <div>
                 <div className="flex items-center gap-3 mb-2">
-                  <TrendingUp className="h-6 w-6 text-primary" />
-                  <h2 className="text-3xl md:text-4xl font-black">Popular Releases</h2>
+                  <Library className="h-6 w-6 text-primary" />
+                  <h2 className="text-3xl md:text-4xl font-black">Browse Series</h2>
                 </div>
                 <p className="text-muted-foreground">Most loved by our community</p>
               </div>
@@ -237,7 +237,7 @@ const Index = () => {
             <div className="flex items-center justify-between mb-8 md:mb-12">
               <div>
                 <div className="flex items-center gap-3 mb-2">
-                  <Zap className="h-6 w-6 text-primary animate-pulse" />
+                  <Flame className="h-6 w-6 text-primary animate-pulse" />
                   <h2 className="text-3xl md:text-4xl font-black">
                     {settings.latest_releases_title || "Latest Releases"}
                   </h2>

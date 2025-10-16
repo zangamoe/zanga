@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import Series from "./pages/Series";
 import SeriesDetail from "./pages/SeriesDetail";
+import AllChapters from "./pages/AllChapters";
 import Reader from "./pages/Reader";
 import Authors from "./pages/Authors";
 import AuthorDetail from "./pages/AuthorDetail";
@@ -29,6 +30,7 @@ const App = () => (
           <Route path="/" element={<Index />} />
           <Route path="/series" element={<Series />} />
           <Route path="/series/:id" element={<SeriesDetail />} />
+          <Route path="/series/:id/chapters" element={<AllChapters />} />
           <Route path="/read/:seriesId/:chapterNumber" element={<Reader />} />
           <Route path="/authors" element={<Authors />} />
           <Route path="/authors/:id" element={<AuthorDetail />} />

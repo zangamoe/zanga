@@ -202,6 +202,29 @@ const SeriesDetail = () => {
           </div>
         </div>
 
+        {/* About this Series */}
+        {displaySeries.detailed_synopsis && (
+          <div className="mb-12">
+            <h2 className="text-2xl md:text-3xl font-bold mb-6">About {displaySeries.title}</h2>
+            <Card className="bg-card/50 border-border/50">
+              <CardContent className="p-8">
+                <p className="text-muted-foreground leading-relaxed whitespace-pre-wrap mb-6">
+                  {displaySeries.detailed_synopsis}
+                </p>
+                {displaySeries.authors?.length > 0 && (
+                  <Link 
+                    to={`/authors/${displaySeries.authors[0].id}`}
+                    className="inline-flex items-center gap-2 text-primary hover:underline font-semibold"
+                  >
+                    Check out the author
+                    <ExternalLink className="h-4 w-4" />
+                  </Link>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+        )}
+
         {/* Latest Chapters Section */}
         <div id="chapters" className="mb-12">
           <div className="flex items-center justify-between mb-6">
@@ -209,10 +232,19 @@ const SeriesDetail = () => {
               <h2 className="text-2xl md:text-3xl font-bold">Latest Chapters</h2>
               <p className="text-sm text-muted-foreground">Stay up to date with the newest releases</p>
             </div>
+            {displaySeries.chapters?.length > 3 && (
+              <Link 
+                to={`/series/${id}/chapters`}
+                className="text-primary hover:underline flex items-center gap-2 font-semibold"
+              >
+                View All
+                <ExternalLink className="h-4 w-4" />
+              </Link>
+            )}
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {displaySeries.chapters?.slice(0, 6).map((chapter: any, index: number) => (
+            {displaySeries.chapters?.slice(0, 3).map((chapter: any, index: number) => (
               <Card key={chapter.id} className="hover:shadow-glow transition-all duration-300 bg-card/50 border-border/50 group relative overflow-hidden">
                 {index === 0 && (
                   <Badge className="absolute top-3 right-3 bg-gradient-primary z-10">NEW</Badge>
@@ -240,41 +272,6 @@ const SeriesDetail = () => {
         </div>
 
 
-        {/* All Chapters List */}
-        {displaySeries.chapters?.length > 6 && (
-          <div className="mt-12">
-            <h2 className="text-2xl md:text-3xl font-bold mb-6">All Chapters</h2>
-            <div className="space-y-2">
-              {displaySeries.chapters?.slice(6).map((chapter: any) => (
-                <Card key={chapter.id} className="hover:shadow-glow transition-all duration-300 bg-card/30 border-border/30">
-                  <CardContent className="p-4">
-                    <Link
-                      to={`/read/${id}/${chapter.chapter_number}`}
-                      className="flex items-center justify-between group"
-                    >
-                      <div className="flex items-center gap-4 flex-1">
-                        <div className="text-2xl font-bold text-muted-foreground/30 w-12">{chapter.chapter_number}</div>
-                        <div className="flex-1 min-w-0">
-                          <h3 className="font-semibold group-hover:text-primary transition-colors truncate">
-                            {chapter.title}
-                          </h3>
-                          <p className="text-sm text-muted-foreground">
-                            {new Date(chapter.published_date).toLocaleDateString("en-US", {
-                              month: "short",
-                              day: "numeric",
-                              year: "numeric",
-                            })}
-                          </p>
-                        </div>
-                      </div>
-                      <ExternalLink className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors flex-shrink-0" />
-                    </Link>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </div>
-        )}
       </div>
     </div>
   );

@@ -49,6 +49,7 @@ const SeriesManagement = () => {
     title: "",
     cover_image_url: "",
     synopsis: "",
+    detailed_synopsis: "",
     status: "ongoing" as "ongoing" | "completed" | "hiatus",
     published: true,
     ratings_enabled: true,
@@ -185,6 +186,7 @@ const SeriesManagement = () => {
       title: series.title,
       cover_image_url: series.cover_image_url,
       synopsis: series.synopsis,
+      detailed_synopsis: (series as any).detailed_synopsis || "",
       status: series.status as any,
       published: series.published,
       ratings_enabled: series.ratings_enabled ?? true,
@@ -225,6 +227,7 @@ const SeriesManagement = () => {
       title: "",
       cover_image_url: "",
       synopsis: "",
+      detailed_synopsis: "",
       status: "ongoing",
       published: true,
       ratings_enabled: true,
@@ -309,6 +312,17 @@ const SeriesManagement = () => {
                   onChange={(e) => setFormData({ ...formData, synopsis: e.target.value })}
                   rows={4}
                   required
+                  className="bg-secondary border-border"
+                />
+              </div>
+
+              <div>
+                <label className="text-sm font-medium">Detailed Synopsis (About Section)</label>
+                <Textarea
+                  value={formData.detailed_synopsis}
+                  onChange={(e) => setFormData({ ...formData, detailed_synopsis: e.target.value })}
+                  rows={6}
+                  placeholder="Enter a detailed, in-depth synopsis for the About section..."
                   className="bg-secondary border-border"
                 />
               </div>

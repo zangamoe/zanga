@@ -1,5 +1,5 @@
 import Navigation from "@/components/Navigation";
-import SeriesCard from "@/components/SeriesCard";
+import HomeSeriesCard from "@/components/HomeSeriesCard";
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
 import { useState, useEffect } from "react";
@@ -49,7 +49,8 @@ const Series = () => {
       .from("series")
       .select(`
         *,
-        chapters(chapter_number)
+        series_authors(author:authors(id, name)),
+        series_genres(genre:genres(name))
       `)
       .eq("published", true)
       .order("title");
@@ -60,12 +61,10 @@ const Series = () => {
         title: series.title,
         cover: series.cover_image_url,
         status: series.status as "ongoing" | "completed" | "hiatus",
-        latestChapter: series.chapters?.length > 0 
-          ? `Chapter ${Math.max(...series.chapters.map((c: any) => c.chapter_number))}`
-          : undefined,
-        description: series.synopsis,
+        authors: series.series_authors?.map((sa: any) => sa.author) || [],
+        genres: series.series_genres?.map((sg: any) => sg.genre.name) || [],
         ratingsEnabled: series.ratings_enabled,
-        isNew: (series as any).is_new ?? false,
+        isNew: series.is_new ?? false,
       }));
       setAllSeries(formattedSeries);
     }
@@ -109,9 +108,7 @@ const Series = () => {
           <>
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 md:gap-6">
               {filteredSeries.map((series) => (
-                <div key={series.id}>
-                  <SeriesCard {...series} />
-                </div>
+                <HomeSeriesCard key={series.id} {...series} />
               ))}
             </div>
 
