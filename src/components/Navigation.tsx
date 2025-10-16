@@ -1,8 +1,9 @@
 import { Link, useLocation } from "react-router-dom";
-import { BookOpen, Users, ShoppingBag, Info } from "lucide-react";
+import { BookOpen, Users, ShoppingBag, Info, Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 
 interface MenuItem {
   id: string;
@@ -32,6 +33,7 @@ const Navigation = () => {
   const location = useLocation();
   const [siteName, setSiteName] = useState("");
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     if (siteName) {
@@ -84,7 +86,8 @@ const Navigation = () => {
             )}
           </Link>
 
-          <div className="flex items-center gap-1">
+          {/* Desktop Navigation */}
+          <div className="hidden md:flex items-center gap-1">
             {menuItems.map((item) => {
               const Icon = getIconForPath(item.path);
               const isActive = location.pathname === item.path;
@@ -104,6 +107,38 @@ const Navigation = () => {
               );
             })}
           </div>
+
+          {/* Mobile Navigation */}
+          <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
+            <SheetTrigger asChild className="md:hidden">
+              <Button variant="ghost" size="icon">
+                <Menu className="h-6 w-6" />
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="right" className="w-[300px] sm:w-[400px]">
+              <nav className="flex flex-col gap-4 mt-8">
+                {menuItems.map((item) => {
+                  const Icon = getIconForPath(item.path);
+                  const isActive = location.pathname === item.path;
+                  
+                  return (
+                    <Button
+                      key={item.id}
+                      asChild
+                      variant={isActive ? "default" : "ghost"}
+                      className={`justify-start ${isActive ? "bg-gradient-primary" : ""}`}
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      <Link to={item.path} className="flex items-center gap-2">
+                        {Icon && <Icon className="h-5 w-5" />}
+                        <span className="text-lg">{item.label}</span>
+                      </Link>
+                    </Button>
+                  );
+                })}
+              </nav>
+            </SheetContent>
+          </Sheet>
         </div>
       </div>
     </nav>

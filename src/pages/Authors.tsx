@@ -108,12 +108,12 @@ const Authors = () => {
     <div className="min-h-screen bg-background">
       <Navigation />
       
-      <div className="container mx-auto px-4 py-12">
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold mb-4 bg-gradient-primary bg-clip-text text-transparent">
+      <div className="container mx-auto px-4 py-8 md:py-12">
+        <div className="mb-6 md:mb-8">
+          <h1 className="text-3xl md:text-4xl font-bold mb-3 md:mb-4 bg-gradient-primary bg-clip-text text-transparent">
             {selectedAuthor ? selectedAuthor.name : pageContent.title}
           </h1>
-          <p className="text-muted-foreground text-lg max-w-3xl">
+          <p className="text-muted-foreground text-sm md:text-base lg:text-lg max-w-3xl">
             {selectedAuthor 
               ? pageContent.singleSubtitle
               : pageContent.subtitle}
@@ -122,12 +122,12 @@ const Authors = () => {
 
         {authors.length === 0 ? (
           <div className="text-center py-12">
-            <p className="text-muted-foreground text-lg">
+            <p className="text-muted-foreground text-base md:text-lg">
               {pageContent.emptyText}
             </p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8">
             {authors.map((author) => (
               <Link key={author.id} to={`/authors/${author.id}`}>
                 <Card className="bg-gradient-card border-border/50 hover:shadow-glow transition-all duration-300 cursor-pointer h-full">

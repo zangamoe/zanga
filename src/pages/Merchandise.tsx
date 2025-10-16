@@ -85,23 +85,23 @@ const Merchandise = () => {
     <div className="min-h-screen bg-background">
       <Navigation />
       
-      <div className="container mx-auto px-4 py-12">
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold mb-4 bg-gradient-primary bg-clip-text text-transparent">
+      <div className="container mx-auto px-4 py-8 md:py-12">
+        <div className="mb-6 md:mb-8">
+          <h1 className="text-3xl md:text-4xl font-bold mb-3 md:mb-4 bg-gradient-primary bg-clip-text text-transparent">
             {pageContent.title}
           </h1>
-          <p className="text-muted-foreground text-lg max-w-3xl">
+          <p className="text-muted-foreground text-sm md:text-base lg:text-lg max-w-3xl">
             {pageContent.subtitle}
           </p>
         </div>
 
         {products.length === 0 ? (
           <div className="text-center py-12">
-            <p className="text-muted-foreground text-lg">{pageContent.emptyText}</p>
+            <p className="text-muted-foreground text-base md:text-lg">{pageContent.emptyText}</p>
             <p className="text-sm text-muted-foreground mt-2">{pageContent.emptySubtitle}</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 md:gap-6">
             {products.map((product) => (
               <Card key={product.id} className="group overflow-hidden bg-gradient-card border-border/50 hover:shadow-glow transition-all duration-300">
                 <div className="aspect-[2/3] overflow-hidden relative">

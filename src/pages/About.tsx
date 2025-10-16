@@ -86,13 +86,13 @@ const About = () => {
     <div className="min-h-screen bg-background">
       <Navigation />
       
-      <div className="container mx-auto px-4 py-12">
+      <div className="container mx-auto px-4 py-8 md:py-12">
         <div className="max-w-4xl mx-auto">
-          <h1 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-primary bg-clip-text text-transparent text-center">
+          <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 md:mb-6 bg-gradient-primary bg-clip-text text-transparent text-center">
             {content.title}
           </h1>
 
-          <div className="prose prose-invert max-w-none mb-12">
+          <div className="prose prose-invert max-w-none mb-8 md:mb-12">
             <Card className="bg-gradient-card border-border/50 mb-8">
               <CardContent className="p-8">
                 <p className="text-lg text-muted-foreground leading-relaxed mb-4">
@@ -104,7 +104,7 @@ const About = () => {
               </CardContent>
             </Card>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 mb-8 md:mb-12">
               <Card className="bg-secondary/30 border-border/50">
                 <CardContent className="p-6">
                   <div className="flex items-center gap-3 mb-4">

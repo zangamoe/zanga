@@ -117,7 +117,7 @@ const Index = () => {
       <Navigation />
       
       {/* Hero Banner */}
-      <section className="relative h-[60vh] overflow-hidden">
+      <section className="relative h-[50vh] md:h-[60vh] overflow-hidden">
         <div className="absolute inset-0">
           {settings.home_hero_image && (
             <>
@@ -126,7 +126,7 @@ const Index = () => {
                 alt="Hero Banner"
                 className="h-full w-full object-cover"
               />
-              <div className="absolute inset-0 bg-gradient-to-r from-background via-background/80 to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-r from-background via-background/90 to-background/60" />
             </>
           )}
           {!settings.home_hero_image && (
@@ -136,16 +136,16 @@ const Index = () => {
         
         <div className="container relative mx-auto px-4 h-full flex items-center">
           <div className="max-w-2xl">
-            <div className="flex items-center gap-2 mb-4">
-              <Sparkles className="h-6 w-6 text-primary" />
-              <span className="text-primary font-semibold">
+            <div className="flex items-center gap-2 mb-3 md:mb-4">
+              <Sparkles className="h-4 w-4 md:h-6 md:w-6 text-primary" />
+              <span className="text-primary font-semibold text-sm md:text-base">
                 {settings.home_hero_badge || "Discover Amazing Stories"}
               </span>
             </div>
-            <h1 className="text-5xl md:text-6xl font-bold mb-6 bg-gradient-primary bg-clip-text text-transparent">
+            <h1 className="text-3xl md:text-5xl lg:text-6xl font-bold mb-4 md:mb-6 bg-gradient-primary bg-clip-text text-transparent">
               {settings.home_hero_title || "Welcome to Manga Reader"}
             </h1>
-            <p className="text-xl text-muted-foreground mb-8">
+            <p className="text-base md:text-xl text-muted-foreground mb-6 md:mb-8">
               {settings.home_hero_subtitle || "Read the latest manga chapters"}
             </p>
             <Button asChild size="lg" className="bg-gradient-primary hover:opacity-90 transition-opacity">
@@ -160,10 +160,10 @@ const Index = () => {
 
       {/* Popular Releases */}
       {popularSeries.length > 0 && (
-        <section className="container mx-auto px-4 py-16">
-          <div className="flex items-center justify-between mb-8">
-            <h2 className="text-3xl font-bold">Popular Releases</h2>
-            <Button asChild variant="ghost">
+        <section className="container mx-auto px-4 py-8 md:py-16">
+          <div className="flex items-center justify-between mb-6 md:mb-8">
+            <h2 className="text-2xl md:text-3xl font-bold">Popular Releases</h2>
+            <Button asChild variant="ghost" size="sm" className="hidden sm:flex">
               <Link to="/series" className="flex items-center gap-2">
                 View All
                 <ArrowRight className="h-4 w-4" />
@@ -171,7 +171,7 @@ const Index = () => {
             </Button>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 md:gap-6">
             {popularSeries.map((series) => (
               <div key={series.id}>
                 <SeriesCard
@@ -191,12 +191,12 @@ const Index = () => {
 
       {/* Latest Releases - AUTO-POPULATED FROM SERIES */}
       {latestSeries.length > 0 && (
-        <section className="container mx-auto px-4 py-16">
-          <div className="flex items-center justify-between mb-8">
-            <h2 className="text-3xl font-bold">
+        <section className="container mx-auto px-4 py-8 md:py-16">
+          <div className="flex items-center justify-between mb-6 md:mb-8">
+            <h2 className="text-2xl md:text-3xl font-bold">
               {settings.latest_releases_title || "Latest Releases"}
             </h2>
-            <Button asChild variant="ghost">
+            <Button asChild variant="ghost" size="sm" className="hidden sm:flex">
               <Link to="/series" className="flex items-center gap-2">
                 View All
                 <ArrowRight className="h-4 w-4" />
@@ -204,7 +204,7 @@ const Index = () => {
             </Button>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 md:gap-6">
             {latestSeries.map((series: any) => (
               <div key={series.id}>
                 <SeriesCard
@@ -223,13 +223,13 @@ const Index = () => {
       )}
 
       {/* About Section - EDITABLE IN SITE CONTENT */}
-      <section className="bg-secondary/30 py-16">
+      <section className="bg-secondary/30 py-12 md:py-16">
         <div className="container mx-auto px-4">
           <div className="max-w-3xl mx-auto text-center">
-            <h2 className="text-3xl font-bold mb-4">
+            <h2 className="text-2xl md:text-3xl font-bold mb-4">
               {settings.home_about_title || "Supporting Aspiring Artists"}
             </h2>
-            <p className="text-lg text-muted-foreground mb-8">
+            <p className="text-base md:text-lg text-muted-foreground mb-6 md:mb-8">
               {settings.home_about_text || "We're dedicated to bringing exceptional manga from talented Japanese artists to English-speaking audiences."}
             </p>
             <Button asChild size="lg" variant="outline" className="border-primary text-primary hover:bg-primary hover:text-primary-foreground">

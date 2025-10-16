@@ -79,12 +79,12 @@ const Series = () => {
     <div className="min-h-screen bg-background">
       <Navigation />
       
-      <div className="container mx-auto px-4 py-12">
+      <div className="container mx-auto px-4 py-8 md:py-12">
         <div className="mb-8">
-          <h1 className="text-4xl font-bold mb-4 bg-gradient-primary bg-clip-text text-transparent">
+          <h1 className="text-3xl md:text-4xl font-bold mb-4 bg-gradient-primary bg-clip-text text-transparent">
             {pageContent.title}
           </h1>
-          <p className="text-muted-foreground mb-6">
+          <p className="text-muted-foreground mb-6 text-sm md:text-base">
             {pageContent.subtitle}
           </p>
           
@@ -106,7 +106,7 @@ const Series = () => {
           </div>
         ) : (
           <>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 md:gap-6">
               {filteredSeries.map((series) => (
                 <div key={series.id}>
                   <SeriesCard {...series} />
