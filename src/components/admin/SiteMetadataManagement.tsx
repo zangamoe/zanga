@@ -23,21 +23,36 @@ const SiteMetadataManagement = () => {
   }, []);
 
   const fetchMetadata = async () => {
-    const { data, error } = await supabase
-      .from("site_settings")
-      .select("key, value")
-      .in("key", ["site_title", "site_description", "site_favicon_url", "site_og_image_url"]);
+    try {
+      const { data, error } = await supabase
+        .from("site_settings")
+        .select("key, value")
+        .in("key", ["site_title", "site_description", "site_favicon_url", "site_og_image_url"]);
 
-    if (error) {
-      toast({ variant: "destructive", title: "Error loading metadata", description: error.message });
-    } else {
-      const metadataObj: any = {};
+      if (error) throw error;
+      
+      const metadataObj: any = {
+        site_title: "",
+        site_description: "",
+        site_favicon_url: "",
+        site_og_image_url: "",
+      };
+      
       data?.forEach((item) => {
-        metadataObj[item.key] = typeof item.value === 'string' ? JSON.parse(item.value) : item.value;
+        try {
+          const parsed = JSON.parse(String(item.value));
+          metadataObj[item.key] = String(parsed);
+        } catch {
+          metadataObj[item.key] = String(item.value);
+        }
       });
+      
       setMetadata(metadataObj);
+    } catch (error: any) {
+      toast({ variant: "destructive", title: "Error loading metadata", description: error.message });
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   const handleSave = async (key: string, value: string) => {

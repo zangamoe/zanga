@@ -169,14 +169,8 @@ const SeriesDetail = () => {
                   ))}
                 </div>
                 
-                <h1 className="text-3xl md:text-5xl font-bold mb-2">
-                  {displaySeries.title.split(' ').slice(0, -1).join(' ') && (
-                    <span className="text-foreground">{displaySeries.title.split(' ').slice(0, -1).join(' ')}</span>
-                  )}
-                  {displaySeries.title.split(' ').length > 1 && ' '}
-                  <span className="bg-gradient-primary bg-clip-text text-transparent">
-                    {displaySeries.title.split(' ').slice(-1)[0]}
-                  </span>
+                <h1 className="text-3xl md:text-5xl font-bold mb-2 bg-gradient-primary bg-clip-text text-transparent">
+                  {displaySeries.title}
                 </h1>
 
                 {/* Author Info - More Prominent */}
@@ -203,22 +197,22 @@ const SeriesDetail = () => {
               </p>
 
               {/* Stats Grid */}
-              <div className="grid grid-cols-2 gap-6 bg-card/50 rounded-lg p-6 border border-border/30">
+              <div className="grid grid-cols-2 gap-3 md:gap-6 bg-card/50 rounded-lg p-4 md:p-6 border border-border/30">
                 <div className="text-center">
-                  <div className="text-3xl md:text-4xl font-bold text-primary">{totalChapters}</div>
-                  <div className="text-sm text-muted-foreground mt-1">{pageContent.chaptersLabel}</div>
+                  <div className="text-2xl md:text-3xl lg:text-4xl font-bold text-primary">{totalChapters}</div>
+                  <div className="text-xs md:text-sm text-muted-foreground mt-1">{pageContent.chaptersLabel}</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-2xl md:text-3xl font-bold text-primary">
+                  <div className="text-lg md:text-2xl lg:text-3xl font-bold text-primary">
                     {displaySeries.next_chapter_release 
                       ? new Date(displaySeries.next_chapter_release).toLocaleDateString("en-US", {
                           month: "short",
                           day: "numeric",
                         })
-                      : "Undetermined"
+                      : "TBD"
                     }
                   </div>
-                  <div className="text-sm text-muted-foreground mt-1">{pageContent.nextReleaseLabel}</div>
+                  <div className="text-xs md:text-sm text-muted-foreground mt-1">{pageContent.nextReleaseLabel}</div>
                 </div>
               </div>
 

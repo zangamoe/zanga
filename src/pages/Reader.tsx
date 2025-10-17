@@ -351,13 +351,33 @@ const Reader = () => {
               <div
                 key={page.id}
                 ref={(el) => (pageRefs.current[page.page_number] = el)}
-                className="rounded-lg overflow-hidden shadow-card max-w-full"
+                className="rounded-lg overflow-hidden shadow-card max-w-full relative cursor-pointer"
+                onClick={(e) => {
+                  // Mobile tap navigation zones
+                  const rect = e.currentTarget.getBoundingClientRect();
+                  const clickX = e.clientX - rect.left;
+                  const zoneWidth = rect.width / 3;
+                  
+                  if (clickX < zoneWidth) {
+                    // Left zone - Previous (or Next in RTL)
+                    readingDirection === "rtl" ? handleNextPage() : handlePrevPage();
+                  } else if (clickX > zoneWidth * 2) {
+                    // Right zone - Next (or Previous in RTL)
+                    readingDirection === "rtl" ? handlePrevPage() : handleNextPage();
+                  }
+                  // Center zone - do nothing (can be used for controls toggle later)
+                }}
               >
                 <img
                   src={page.image_url}
                   alt={`Page ${page.page_number}`}
                   className="w-full h-auto"
                 />
+                {/* Visual tap zone hints for mobile */}
+                <div className="absolute inset-0 pointer-events-none md:hidden">
+                  <div className="absolute left-0 top-0 bottom-0 w-1/3 opacity-0 hover:opacity-10 bg-gradient-to-r from-white to-transparent transition-opacity" />
+                  <div className="absolute right-0 top-0 bottom-0 w-1/3 opacity-0 hover:opacity-10 bg-gradient-to-l from-white to-transparent transition-opacity" />
+                </div>
               </div>
             ))}
             <div className="flex items-center gap-4 mt-6">

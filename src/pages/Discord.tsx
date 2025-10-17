@@ -95,19 +95,19 @@ const Discord = () => {
       
       <div className="flex-1 container mx-auto px-4 py-12">
         <div className="max-w-4xl mx-auto">
-          <div className="text-center mb-12">
-            <div className="inline-block p-4 bg-gradient-primary rounded-2xl mb-6">
-              <SiDiscord className="h-16 w-16 text-white" />
+          <div className="text-center mb-8 md:mb-12">
+            <div className="inline-block p-3 md:p-4 bg-gradient-primary rounded-2xl mb-4 md:mb-6">
+              <SiDiscord className="h-12 w-12 md:h-16 md:w-16 text-white" />
             </div>
-            <h1 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-primary bg-clip-text text-transparent">
+            <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-3 md:mb-4 bg-gradient-primary bg-clip-text text-transparent px-4">
               {content.title}
             </h1>
-            <p className="text-xl text-muted-foreground">
+            <p className="text-lg md:text-xl text-muted-foreground px-4">
               {content.subtitle}
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 mb-8 md:mb-12 px-4">
             <Card className="bg-gradient-card border-border/50">
               <CardContent className="p-6 text-center">
                 <div className="inline-flex items-center justify-center w-12 h-12 bg-primary/20 rounded-lg mb-4">
@@ -140,21 +140,21 @@ const Discord = () => {
           </div>
 
           <Card className="bg-gradient-to-br from-primary/20 to-accent/20 border-primary/50 shadow-glow">
-            <CardContent className="p-8 text-center">
+            <CardContent className="p-6 md:p-8 text-center">
               <Button
                 asChild
                 size="lg"
-                className="bg-gradient-primary hover:opacity-90 text-lg px-8 py-6"
+                className="bg-gradient-primary hover:opacity-90 text-base md:text-lg px-6 md:px-8 py-5 md:py-6 w-full sm:w-auto"
               >
                 <a
                   href={content.discordUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center gap-2"
+                  className="flex items-center gap-2 justify-center"
                 >
-                  <SiDiscord className="h-6 w-6" />
+                  <SiDiscord className="h-5 w-5 md:h-6 md:w-6" />
                   {content.ctaText}
-                  <ExternalLink className="h-5 w-5" />
+                  <ExternalLink className="h-4 w-4 md:h-5 md:w-5" />
                 </a>
               </Button>
             </CardContent>

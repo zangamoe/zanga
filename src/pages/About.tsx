@@ -109,17 +109,17 @@ const About = () => {
       
       <div className="flex-1 container mx-auto px-4 py-8 md:py-12">
         <div className="max-w-4xl mx-auto">
-          <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 md:mb-6 bg-gradient-primary bg-clip-text text-transparent text-center">
+          <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 md:mb-6 bg-gradient-primary bg-clip-text text-transparent text-center px-4">
             {content.title}
           </h1>
 
           <div className="prose prose-invert max-w-none mb-8 md:mb-12">
-            <Card className="bg-gradient-card border-border/50 mb-8">
-              <CardContent className="p-8">
-                <p className="text-lg text-muted-foreground leading-relaxed mb-4">
+            <Card className="bg-gradient-card border-border/50 mb-6 md:mb-8">
+              <CardContent className="p-6 md:p-8">
+                <p className="text-base md:text-lg text-muted-foreground leading-relaxed mb-4">
                   {content.intro1}
                 </p>
-                <p className="text-lg text-muted-foreground leading-relaxed">
+                <p className="text-base md:text-lg text-muted-foreground leading-relaxed">
                   {content.intro2}
                 </p>
               </CardContent>
@@ -127,56 +127,56 @@ const About = () => {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 mb-8 md:mb-12">
               <Card className="bg-secondary/30 border-border/50">
-                <CardContent className="p-6">
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className="p-3 bg-gradient-primary rounded-lg">
-                      <Globe className="h-6 w-6 text-primary-foreground" />
+                <CardContent className="p-5 md:p-6">
+                  <div className="flex items-center gap-3 mb-3 md:mb-4">
+                    <div className="p-2 md:p-3 bg-gradient-primary rounded-lg">
+                      <Globe className="h-5 w-5 md:h-6 md:w-6 text-primary-foreground" />
                     </div>
-                    <h3 className="text-xl font-semibold">{content.missionTitle}</h3>
+                    <h3 className="text-lg md:text-xl font-semibold">{content.missionTitle}</h3>
                   </div>
-                  <p className="text-muted-foreground">
+                  <p className="text-sm md:text-base text-muted-foreground">
                     {content.missionText}
                   </p>
                 </CardContent>
               </Card>
 
               <Card className="bg-secondary/30 border-border/50">
-                <CardContent className="p-6">
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className="p-3 bg-gradient-primary rounded-lg">
-                      <Users className="h-6 w-6 text-primary-foreground" />
+                <CardContent className="p-5 md:p-6">
+                  <div className="flex items-center gap-3 mb-3 md:mb-4">
+                    <div className="p-2 md:p-3 bg-gradient-primary rounded-lg">
+                      <Users className="h-5 w-5 md:h-6 md:w-6 text-primary-foreground" />
                     </div>
-                    <h3 className="text-xl font-semibold">{content.communityTitle}</h3>
+                    <h3 className="text-lg md:text-xl font-semibold">{content.communityTitle}</h3>
                   </div>
-                  <p className="text-muted-foreground">
+                  <p className="text-sm md:text-base text-muted-foreground">
                     {content.communityText}
                   </p>
                 </CardContent>
               </Card>
 
               <Card className="bg-secondary/30 border-border/50">
-                <CardContent className="p-6">
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className="p-3 bg-gradient-primary rounded-lg">
-                      <BookOpen className="h-6 w-6 text-primary-foreground" />
+                <CardContent className="p-5 md:p-6">
+                  <div className="flex items-center gap-3 mb-3 md:mb-4">
+                    <div className="p-2 md:p-3 bg-gradient-primary rounded-lg">
+                      <BookOpen className="h-5 w-5 md:h-6 md:w-6 text-primary-foreground" />
                     </div>
-                    <h3 className="text-xl font-semibold">{content.qualityTitle}</h3>
+                    <h3 className="text-lg md:text-xl font-semibold">{content.qualityTitle}</h3>
                   </div>
-                  <p className="text-muted-foreground">
+                  <p className="text-sm md:text-base text-muted-foreground">
                     {content.qualityText}
                   </p>
                 </CardContent>
               </Card>
 
               <Card className="bg-secondary/30 border-border/50">
-                <CardContent className="p-6">
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className="p-3 bg-gradient-primary rounded-lg">
-                      <Heart className="h-6 w-6 text-primary-foreground" />
+                <CardContent className="p-5 md:p-6">
+                  <div className="flex items-center gap-3 mb-3 md:mb-4">
+                    <div className="p-2 md:p-3 bg-gradient-primary rounded-lg">
+                      <Heart className="h-5 w-5 md:h-6 md:w-6 text-primary-foreground" />
                     </div>
-                    <h3 className="text-xl font-semibold">{content.passionTitle}</h3>
+                    <h3 className="text-lg md:text-xl font-semibold">{content.passionTitle}</h3>
                   </div>
-                  <p className="text-muted-foreground">
+                  <p className="text-sm md:text-base text-muted-foreground">
                     {content.passionText}
                   </p>
                 </CardContent>
@@ -186,31 +186,31 @@ const About = () => {
 
           {/* Support Section */}
           <Card className="bg-gradient-to-br from-primary/20 to-accent/20 border-primary/50 shadow-glow">
-            <CardContent className="p-8 text-center">
-              <h2 className="text-3xl font-bold mb-4">{content.supportTitle}</h2>
-              <p className="text-muted-foreground mb-8 max-w-2xl mx-auto">
+            <CardContent className="p-6 md:p-8 text-center">
+              <h2 className="text-2xl md:text-3xl font-bold mb-3 md:mb-4 px-4">{content.supportTitle}</h2>
+              <p className="text-sm md:text-base text-muted-foreground mb-6 md:mb-8 max-w-2xl mx-auto px-4">
                 {content.supportText}
               </p>
               
-              <div className="flex flex-wrap justify-center gap-4">
-                <Button asChild size="lg" className="bg-gradient-primary hover:opacity-90 transition-opacity">
-                  <a href={content.kofiUrl} target="_blank" rel="noopener noreferrer">
-                    <SiKofi className="h-5 w-5 mr-2" />
+              <div className="flex flex-col sm:flex-row flex-wrap justify-center gap-3 md:gap-4 px-4">
+                <Button asChild size="lg" className="bg-gradient-primary hover:opacity-90 transition-opacity w-full sm:w-auto">
+                  <a href={content.kofiUrl} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-2">
+                    <SiKofi className="h-5 w-5" />
                     Support on Ko-fi
-                    <ExternalLink className="h-4 w-4 ml-2" />
+                    <ExternalLink className="h-4 w-4" />
                   </a>
                 </Button>
                 
-                <Button asChild size="lg" variant="outline" className="border-primary text-primary hover:bg-primary hover:text-primary-foreground">
-                  <a href={content.patreonUrl} target="_blank" rel="noopener noreferrer">
-                    <SiPatreon className="h-5 w-5 mr-2" />
+                <Button asChild size="lg" variant="outline" className="border-primary text-primary hover:bg-primary hover:text-primary-foreground w-full sm:w-auto">
+                  <a href={content.patreonUrl} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-2">
+                    <SiPatreon className="h-5 w-5" />
                     Join on Patreon
-                    <ExternalLink className="h-4 w-4 ml-2" />
+                    <ExternalLink className="h-4 w-4" />
                   </a>
                 </Button>
               </div>
 
-              <p className="text-sm text-muted-foreground mt-6">
+              <p className="text-xs md:text-sm text-muted-foreground mt-4 md:mt-6 px-4">
                 {content.disclaimer}
               </p>
             </CardContent>

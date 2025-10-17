@@ -88,7 +88,17 @@ const Index = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
+    <div className="min-h-screen bg-background flex flex-col relative">
+      {/* Full Page Background Gradient */}
+      <div className="fixed inset-0 -z-10">
+        <img
+          src={settings.home_hero_image || heroGradient}
+          alt="Background"
+          className="h-full w-full object-cover opacity-20"
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-background/60 via-background/90 to-background" />
+      </div>
+
       <MetadataUpdater />
       <Navigation />
       
