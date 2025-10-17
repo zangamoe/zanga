@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
-import { ArrowRight, Sparkles, Library, Flame } from "lucide-react";
+import { ArrowRight, Sparkles, Library } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import HomeSeriesCard from "@/components/HomeSeriesCard";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
+import HomepageSection from "@/components/HomepageSection";
+import MetadataUpdater from "@/components/MetadataUpdater";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import heroGradient from "@/assets/hero-gradient-bg.jpg";
@@ -16,20 +17,17 @@ interface SiteSetting {
   type: string;
 }
 
-interface Series {
+interface HomepageSection {
   id: string;
   title: string;
-  cover_image_url: string;
-  synopsis: string;
-  status: string;
-  ratings_enabled?: boolean;
+  section_type: string;
+  filter_criteria: any;
+  order_index: number;
 }
-
 
 const Index = () => {
   const [settings, setSettings] = useState<Record<string, string>>({});
-  const [popularSeries, setPopularSeries] = useState<Series[]>([]);
-  const [latestSeries, setLatestSeries] = useState<Series[]>([]);
+  const [sections, setSections] = useState<HomepageSection[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -58,62 +56,15 @@ const Index = () => {
       });
       setSettings(settingsMap);
 
-      // Fetch popular series from hero slider with full details
-      const { data: sliderData, error: sliderError } = await supabase
-        .from("hero_slider_series")
-        .select(`
-          *,
-          series:series_id (
-            id,
-            title,
-            cover_image_url,
-            synopsis,
-            status,
-            published,
-            ratings_enabled,
-            created_at,
-            series_authors(author:authors(id, name)),
-            series_genres(genre:genres(name))
-          )
-        `)
+      // Fetch homepage sections
+      const { data: sectionsData, error: sectionsError } = await supabase
+        .from("homepage_sections")
+        .select("*")
         .eq("enabled", true)
         .order("order_index");
 
-      if (sliderError) throw sliderError;
-      // Filter only published series and format data
-      const popularSeriesData = (sliderData || [])
-        .map((item: any) => {
-          const series = item.series;
-          if (!series.published) return null;
-          return {
-            ...series,
-            authors: series.series_authors?.map((sa: any) => sa.author) || [],
-            genres: series.series_genres?.map((sg: any) => sg.genre.name) || [],
-          };
-        })
-        .filter(Boolean);
-      setPopularSeries(popularSeriesData);
-
-      // Fetch latest series with full details
-      const { data: seriesData, error: seriesError } = await supabase
-        .from("series")
-        .select(`
-          *,
-          series_authors(author:authors(id, name)),
-          series_genres(genre:genres(name))
-        `)
-        .eq("published", true)
-        .order("created_at", { ascending: false })
-        .limit(6);
-
-      if (seriesError) throw seriesError;
-      const formattedLatestSeries = (seriesData || []).map((series: any) => ({
-        ...series,
-        authors: series.series_authors?.map((sa: any) => sa.author) || [],
-        genres: series.series_genres?.map((sg: any) => sg.genre.name) || [],
-        isNew: new Date(series.created_at) > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000), // Last 7 days
-      }));
-      setLatestSeries(formattedLatestSeries);
+      if (sectionsError) throw sectionsError;
+      setSections(sectionsData || []);
     } catch (error: any) {
       toast({
         variant: "destructive",
@@ -138,6 +89,7 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
+      <MetadataUpdater />
       <Navigation />
       
       {/* Hero Banner */}
@@ -188,96 +140,19 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Popular Releases */}
-      {popularSeries.length > 0 && (
-        <section className="relative py-12 md:py-20 overflow-hidden flex-1">
-          <div className="absolute inset-0 opacity-5">
-            <img src={sectionPattern} alt="" className="w-full h-full object-cover" />
-          </div>
-          <div className="container mx-auto px-4 relative">
-            <div className="flex items-center justify-between mb-8 md:mb-12">
-              <div>
-                <div className="flex items-center gap-3 mb-2">
-                  <Library className="h-6 w-6 text-primary" />
-                  <h2 className="text-3xl md:text-4xl font-black">Browse Series</h2>
-                </div>
-                <p className="text-muted-foreground">Most loved by our community</p>
-              </div>
-              <Button asChild variant="outline" size="lg" className="hidden md:flex border-primary/50 hover:bg-primary/10">
-                <Link to="/series" className="flex items-center gap-2">
-                  View All
-                  <ArrowRight className="h-5 w-5" />
-                </Link>
-              </Button>
-            </div>
-            
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 md:gap-6">
-              {popularSeries.map((series: any) => (
-                <div key={series.id} className="animate-fade-in">
-                  <HomeSeriesCard
-                    id={series.id}
-                    title={series.title}
-                    cover={series.cover_image_url}
-                    status={series.status as "ongoing" | "completed"}
-                    authors={series.authors}
-                    genres={series.genres}
-                    ratingsEnabled={series.ratings_enabled}
-                  />
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
+      {/* Dynamic Homepage Sections - Crunchyroll Style */}
+      <div className="flex-1 bg-background">
+        {sections.map((section) => (
+          <HomepageSection
+            key={section.id}
+            title={section.title}
+            sectionType={section.section_type}
+            filterCriteria={section.filter_criteria}
+          />
+        ))}
+      </div>
 
-      {/* Latest Releases - AUTO-POPULATED FROM SERIES */}
-      {latestSeries.length > 0 && (
-        <section className="relative py-12 md:py-20 bg-secondary/20">
-          <div className="absolute inset-0 bg-gradient-to-b from-background/50 to-transparent" />
-          <div className="container mx-auto px-4 relative">
-            <div className="flex items-center justify-between mb-8 md:mb-12">
-              <div>
-                <div className="flex items-center gap-3 mb-2">
-                  <Flame className="h-6 w-6 text-primary animate-pulse" />
-                  <h2 className="text-3xl md:text-4xl font-black">
-                    {settings.latest_releases_title || "Latest Releases"}
-                  </h2>
-                </div>
-                <p className="text-muted-foreground">Fresh off the press</p>
-              </div>
-              <Button asChild variant="outline" size="lg" className="hidden md:flex border-primary/50 hover:bg-primary/10">
-                <Link to="/series" className="flex items-center gap-2">
-                  View All
-                  <ArrowRight className="h-5 w-5" />
-                </Link>
-              </Button>
-            </div>
-            
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 md:gap-6">
-              {latestSeries.map((series: any, index: number) => (
-                <div 
-                  key={series.id} 
-                  className="animate-fade-in"
-                  style={{ animationDelay: `${index * 0.1}s` }}
-                >
-                  <HomeSeriesCard
-                    id={series.id}
-                    title={series.title}
-                    cover={series.cover_image_url}
-                    status={series.status as "ongoing" | "completed"}
-                    authors={series.authors}
-                    genres={series.genres}
-                    ratingsEnabled={series.ratings_enabled}
-                    isNew={series.isNew}
-                  />
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
-
-      {/* About Section - EDITABLE IN SITE CONTENT */}
+      {/* About Section */}
       <section className="relative py-16 md:py-24 overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-background to-accent/10" />
         <div className="absolute inset-0 opacity-10">
