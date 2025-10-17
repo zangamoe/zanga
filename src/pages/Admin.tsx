@@ -3,14 +3,13 @@ import { Navigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { LogOut, BookOpen, Users, ShoppingBag, Settings, Layout, Info } from "lucide-react";
+import { LogOut, BookOpen, Users, ShoppingBag, Settings, Layout, Info, MessageCircle } from "lucide-react";
 import Navigation from "@/components/Navigation";
 import AuthorManagement from "@/components/admin/AuthorManagement";
 import SeriesManagement from "@/components/admin/SeriesManagement";
 import MerchandiseManagement from "@/components/admin/MerchandiseManagement";
 import SiteContentManagement from "@/components/admin/SiteContentManagement";
 import AdminGuide from "@/components/admin/AdminGuide";
-import HeroSliderManagement from "@/components/admin/HeroSliderManagement";
 import MenuManagement from "@/components/admin/MenuManagement";
 import HomepagePageContent from "@/components/admin/HomepagePageContent";
 import SeriesPageContent from "@/components/admin/SeriesPageContent";
@@ -20,6 +19,7 @@ import MerchandisePageContent from "@/components/admin/MerchandisePageContent";
 import SpecificSeriesEditor from "@/components/admin/SpecificSeriesEditor";
 import SpecificAuthorEditor from "@/components/admin/SpecificAuthorEditor";
 import OurStoryManagement from "@/components/admin/OurStoryManagement";
+import DiscordManagement from "@/components/admin/DiscordManagement";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -112,7 +112,7 @@ const Admin = () => {
         </div>
 
         <Tabs defaultValue="guide" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4 lg:grid-cols-7 bg-secondary/50">
+          <TabsList className="grid w-full grid-cols-4 lg:grid-cols-8 bg-secondary/50">
             <TabsTrigger value="guide" className="flex items-center gap-2">
               <Info className="h-4 w-4" />
               Guide
@@ -124,6 +124,10 @@ const Admin = () => {
             <TabsTrigger value="our-story" className="flex items-center gap-2">
               <Info className="h-4 w-4" />
               Our Story
+            </TabsTrigger>
+            <TabsTrigger value="discord" className="flex items-center gap-2">
+              <MessageCircle className="h-4 w-4" />
+              Discord
             </TabsTrigger>
             <TabsTrigger value="homepage" className="flex items-center gap-2">
               <Layout className="h-4 w-4" />
@@ -186,10 +190,23 @@ const Admin = () => {
             </Card>
           </TabsContent>
 
+          <TabsContent value="discord">
+            <Card className="bg-gradient-card border-border/50">
+              <CardHeader>
+                <CardTitle>Discord Page Content</CardTitle>
+                <CardDescription>
+                  Manage all content for the Discord community page
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <DiscordManagement />
+              </CardContent>
+            </Card>
+          </TabsContent>
+
           <TabsContent value="homepage">
             <div className="space-y-6">
               <HomepagePageContent />
-              <HeroSliderManagement />
             </div>
           </TabsContent>
 

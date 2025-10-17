@@ -12,6 +12,7 @@ import Authors from "./pages/Authors";
 import AuthorDetail from "./pages/AuthorDetail";
 import Merchandise from "./pages/Merchandise";
 import About from "./pages/About";
+import Discord from "./pages/Discord";
 import Auth from "./pages/Auth";
 import Admin from "./pages/Admin";
 import AdminSeriesChapters from "./pages/AdminSeriesChapters";
@@ -34,9 +35,9 @@ const App = () => (
           <Route path="/read/:seriesId/:chapterNumber" element={<Reader />} />
           <Route path="/authors" element={<Authors />} />
           <Route path="/authors/:id" element={<AuthorDetail />} />
-          <Route path="/authors/:id" element={<Authors />} />
           <Route path="/merchandise" element={<Merchandise />} />
           <Route path="/about" element={<About />} />
+          <Route path="/discord" element={<Discord />} />
           <Route path="/auth" element={<Auth />} />
           <Route path="/admin" element={<Admin />} />
           <Route path="/admin/series/:seriesId/chapters" element={<AdminSeriesChapters />} />

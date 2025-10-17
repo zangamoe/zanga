@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
-import { ArrowRight, Sparkles, TrendingUp, Library, Flame, BookOpen } from "lucide-react";
+import { ArrowRight, Sparkles, Library, Flame } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import HomeSeriesCard from "@/components/HomeSeriesCard";
 import Navigation from "@/components/Navigation";
+import Footer from "@/components/Footer";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import heroGradient from "@/assets/hero-gradient-bg.jpg";
@@ -136,7 +137,7 @@ const Index = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background flex flex-col">
       <Navigation />
       
       {/* Hero Banner */}
@@ -189,7 +190,7 @@ const Index = () => {
 
       {/* Popular Releases */}
       {popularSeries.length > 0 && (
-        <section className="relative py-12 md:py-20 overflow-hidden">
+        <section className="relative py-12 md:py-20 overflow-hidden flex-1">
           <div className="absolute inset-0 opacity-5">
             <img src={sectionPattern} alt="" className="w-full h-full object-cover" />
           </div>
@@ -301,6 +302,8 @@ const Index = () => {
           </div>
         </div>
       </section>
+
+      <Footer />
     </div>
   );
 };

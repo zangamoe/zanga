@@ -1,4 +1,5 @@
 import Navigation from "@/components/Navigation";
+import Footer from "@/components/Footer";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Heart, Globe, Users, BookOpen, ExternalLink } from "lucide-react";
@@ -33,7 +34,7 @@ const About = () => {
 
   const fetchAboutContent = async () => {
     const { data } = await supabase
-      .from("site_settings")
+      .from("public_site_settings")
       .select("key, value")
       .in("key", [
         "about_title", "about_intro_1", "about_intro_2",
@@ -48,23 +49,43 @@ const About = () => {
     if (data) {
       const newContent = { ...content };
       data.forEach((setting) => {
-        const value = String(setting.value);
-        if (setting.key === "about_title") newContent.title = value;
-        if (setting.key === "about_intro_1") newContent.intro1 = value;
-        if (setting.key === "about_intro_2") newContent.intro2 = value;
-        if (setting.key === "about_mission_title") newContent.missionTitle = value;
-        if (setting.key === "about_mission_text") newContent.missionText = value;
-        if (setting.key === "about_community_title") newContent.communityTitle = value;
-        if (setting.key === "about_community_text") newContent.communityText = value;
-        if (setting.key === "about_quality_title") newContent.qualityTitle = value;
-        if (setting.key === "about_quality_text") newContent.qualityText = value;
-        if (setting.key === "about_passion_title") newContent.passionTitle = value;
-        if (setting.key === "about_passion_text") newContent.passionText = value;
-        if (setting.key === "about_support_title") newContent.supportTitle = value;
-        if (setting.key === "about_support_text") newContent.supportText = value;
-        if (setting.key === "about_kofi_url") newContent.kofiUrl = value;
-        if (setting.key === "about_patreon_url") newContent.patreonUrl = value;
-        if (setting.key === "about_disclaimer") newContent.disclaimer = value;
+        try {
+          const value = JSON.parse(String(setting.value));
+          if (setting.key === "about_title") newContent.title = String(value);
+          if (setting.key === "about_intro_1") newContent.intro1 = String(value);
+          if (setting.key === "about_intro_2") newContent.intro2 = String(value);
+          if (setting.key === "about_mission_title") newContent.missionTitle = String(value);
+          if (setting.key === "about_mission_text") newContent.missionText = String(value);
+          if (setting.key === "about_community_title") newContent.communityTitle = String(value);
+          if (setting.key === "about_community_text") newContent.communityText = String(value);
+          if (setting.key === "about_quality_title") newContent.qualityTitle = String(value);
+          if (setting.key === "about_quality_text") newContent.qualityText = String(value);
+          if (setting.key === "about_passion_title") newContent.passionTitle = String(value);
+          if (setting.key === "about_passion_text") newContent.passionText = String(value);
+          if (setting.key === "about_support_title") newContent.supportTitle = String(value);
+          if (setting.key === "about_support_text") newContent.supportText = String(value);
+          if (setting.key === "about_kofi_url") newContent.kofiUrl = String(value);
+          if (setting.key === "about_patreon_url") newContent.patreonUrl = String(value);
+          if (setting.key === "about_disclaimer") newContent.disclaimer = String(value);
+        } catch {
+          const value = String(setting.value);
+          if (setting.key === "about_title") newContent.title = value;
+          if (setting.key === "about_intro_1") newContent.intro1 = value;
+          if (setting.key === "about_intro_2") newContent.intro2 = value;
+          if (setting.key === "about_mission_title") newContent.missionTitle = value;
+          if (setting.key === "about_mission_text") newContent.missionText = value;
+          if (setting.key === "about_community_title") newContent.communityTitle = value;
+          if (setting.key === "about_community_text") newContent.communityText = value;
+          if (setting.key === "about_quality_title") newContent.qualityTitle = value;
+          if (setting.key === "about_quality_text") newContent.qualityText = value;
+          if (setting.key === "about_passion_title") newContent.passionTitle = value;
+          if (setting.key === "about_passion_text") newContent.passionText = value;
+          if (setting.key === "about_support_title") newContent.supportTitle = value;
+          if (setting.key === "about_support_text") newContent.supportText = value;
+          if (setting.key === "about_kofi_url") newContent.kofiUrl = value;
+          if (setting.key === "about_patreon_url") newContent.patreonUrl = value;
+          if (setting.key === "about_disclaimer") newContent.disclaimer = value;
+        }
       });
       setContent(newContent);
     }
@@ -83,10 +104,10 @@ const About = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background flex flex-col">
       <Navigation />
       
-      <div className="container mx-auto px-4 py-8 md:py-12">
+      <div className="flex-1 container mx-auto px-4 py-8 md:py-12">
         <div className="max-w-4xl mx-auto">
           <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 md:mb-6 bg-gradient-primary bg-clip-text text-transparent text-center">
             {content.title}
@@ -196,6 +217,8 @@ const About = () => {
           </Card>
         </div>
       </div>
+
+      <Footer />
     </div>
   );
 };

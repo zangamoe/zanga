@@ -66,8 +66,14 @@ const HomeSeriesCard = ({
           {authors.length > 0 && (
             <div className="text-xs text-muted-foreground">
               By {authors.map((author, idx) => (
-                <span key={author.id} className="text-primary">
-                  {author.name}
+                <span key={author.id}>
+                  <Link 
+                    to={`/authors/${author.id}`} 
+                    className="text-primary hover:underline"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    {author.name}
+                  </Link>
                   {idx < authors.length - 1 && ", "}
                 </span>
               ))}

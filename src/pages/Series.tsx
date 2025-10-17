@@ -1,4 +1,5 @@
 import Navigation from "@/components/Navigation";
+import Footer from "@/components/Footer";
 import HomeSeriesCard from "@/components/HomeSeriesCard";
 import { Input } from "@/components/ui/input";
 import { Search, ArrowUpDown } from "lucide-react";
@@ -89,10 +90,10 @@ const Series = () => {
     });
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background flex flex-col">
       <Navigation />
       
-      <div className="container mx-auto px-4 py-8 md:py-12">
+      <div className="flex-1 container mx-auto px-4 py-8 md:py-12">
         <div className="mb-8">
           <h1 className="text-3xl md:text-4xl font-bold mb-4 bg-gradient-primary bg-clip-text text-transparent">
             {pageContent.title}
@@ -151,6 +152,8 @@ const Series = () => {
           </>
         )}
       </div>
+
+      <Footer />
     </div>
   );
 };
