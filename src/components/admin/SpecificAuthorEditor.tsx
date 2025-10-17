@@ -101,7 +101,7 @@ const SpecificAuthorEditor = ({ authorId, onBack }: SpecificAuthorEditorProps) =
   };
 
   const handleSave = async () => {
-    const { error } = await supabase
+      const { error } = await supabase
       .from("authors")
       .update({
         name: author.name,
@@ -111,6 +111,7 @@ const SpecificAuthorEditor = ({ authorId, onBack }: SpecificAuthorEditorProps) =
         instagram_url: author.instagram_url,
         website_url: author.website_url,
         published: author.published,
+        custom_slug: author.custom_slug,
       })
       .eq("id", authorId);
 
@@ -163,6 +164,21 @@ const SpecificAuthorEditor = ({ authorId, onBack }: SpecificAuthorEditorProps) =
                   onChange={(e) => setAuthor({ ...author, name: e.target.value })}
                   className="bg-secondary border-border"
                 />
+              </div>
+
+              <div>
+                <Label>Custom URL Slug (optional)</Label>
+                <Input
+                  value={author.custom_slug || ""}
+                  onChange={(e) =>
+                    setAuthor({ ...author, custom_slug: e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '-') })
+                  }
+                  placeholder="e.g., author-name"
+                  className="bg-secondary border-border"
+                />
+                <p className="text-xs text-muted-foreground mt-1">
+                  Leave empty to use auto-generated ID. Only lowercase letters, numbers, and hyphens.
+                </p>
               </div>
 
               <div>

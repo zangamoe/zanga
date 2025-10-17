@@ -138,6 +138,20 @@ const SpecificSeriesEditor = ({ seriesId, onBack }: SpecificSeriesEditorProps) =
               </div>
 
               <div>
+                <Label>Custom URL Slug (optional)</Label>
+                <Input
+                  value={series.custom_slug || ""}
+                  onChange={(e) =>
+                    setSeries({ ...series, custom_slug: e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '-') })
+                  }
+                  placeholder="e.g., my-series-name"
+                />
+                <p className="text-xs text-muted-foreground mt-1">
+                  Leave empty to use auto-generated ID. Only lowercase letters, numbers, and hyphens.
+                </p>
+              </div>
+
+              <div>
                 <Label htmlFor="status">Status</Label>
                 <Input
                   id="status"

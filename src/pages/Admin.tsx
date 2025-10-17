@@ -20,6 +20,8 @@ import SpecificSeriesEditor from "@/components/admin/SpecificSeriesEditor";
 import SpecificAuthorEditor from "@/components/admin/SpecificAuthorEditor";
 import OurStoryManagement from "@/components/admin/OurStoryManagement";
 import DiscordManagement from "@/components/admin/DiscordManagement";
+import SiteMetadataManagement from "@/components/admin/SiteMetadataManagement";
+import HomepageSectionsManagement from "@/components/admin/HomepageSectionsManagement";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -156,15 +158,19 @@ const Admin = () => {
               <CardHeader>
                 <CardTitle>Site Settings & Navigation</CardTitle>
                 <CardDescription>
-                  Manage site-wide settings including site name, logo, and navigation menu
+                  Manage site-wide settings including site name, metadata, and navigation menu
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <Tabs defaultValue="general" className="space-y-6">
-                  <TabsList className="grid w-full grid-cols-2">
+                <Tabs defaultValue="metadata" className="space-y-6">
+                  <TabsList className="grid w-full grid-cols-3">
+                    <TabsTrigger value="metadata">Site Metadata</TabsTrigger>
                     <TabsTrigger value="general">General Settings</TabsTrigger>
                     <TabsTrigger value="menu">Navigation Menu</TabsTrigger>
                   </TabsList>
+                  <TabsContent value="metadata">
+                    <SiteMetadataManagement />
+                  </TabsContent>
                   <TabsContent value="general">
                     <SiteContentManagement />
                   </TabsContent>
@@ -205,9 +211,28 @@ const Admin = () => {
           </TabsContent>
 
           <TabsContent value="homepage">
-            <div className="space-y-6">
-              <HomepagePageContent />
-            </div>
+            <Card className="bg-gradient-card border-border/50">
+              <CardHeader>
+                <CardTitle>Homepage Management</CardTitle>
+                <CardDescription>
+                  Manage homepage content sections and customize the layout
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Tabs defaultValue="sections" className="space-y-6">
+                  <TabsList className="grid w-full grid-cols-2">
+                    <TabsTrigger value="sections">Content Sections</TabsTrigger>
+                    <TabsTrigger value="content">Page Content</TabsTrigger>
+                  </TabsList>
+                  <TabsContent value="sections">
+                    <HomepageSectionsManagement />
+                  </TabsContent>
+                  <TabsContent value="content">
+                    <HomepagePageContent />
+                  </TabsContent>
+                </Tabs>
+              </CardContent>
+            </Card>
           </TabsContent>
 
           <TabsContent value="series">

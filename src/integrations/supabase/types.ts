@@ -18,6 +18,7 @@ export type Database = {
         Row: {
           bio: string | null
           created_at: string
+          custom_slug: string | null
           id: string
           instagram_url: string | null
           name: string
@@ -30,6 +31,7 @@ export type Database = {
         Insert: {
           bio?: string | null
           created_at?: string
+          custom_slug?: string | null
           id?: string
           instagram_url?: string | null
           name: string
@@ -42,6 +44,7 @@ export type Database = {
         Update: {
           bio?: string | null
           created_at?: string
+          custom_slug?: string | null
           id?: string
           instagram_url?: string | null
           name?: string
@@ -323,6 +326,39 @@ export type Database = {
         }
         Relationships: []
       }
+      homepage_sections: {
+        Row: {
+          created_at: string | null
+          enabled: boolean | null
+          filter_criteria: Json | null
+          id: string
+          order_index: number | null
+          section_type: string
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          enabled?: boolean | null
+          filter_criteria?: Json | null
+          id?: string
+          order_index?: number | null
+          section_type: string
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          enabled?: boolean | null
+          filter_criteria?: Json | null
+          id?: string
+          order_index?: number | null
+          section_type?: string
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       menu_items: {
         Row: {
           created_at: string
@@ -386,6 +422,39 @@ export type Database = {
         }
         Relationships: []
       }
+      page_builder: {
+        Row: {
+          access_level: string | null
+          content_blocks: Json | null
+          created_at: string | null
+          id: string
+          published: boolean | null
+          slug: string
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          access_level?: string | null
+          content_blocks?: Json | null
+          created_at?: string | null
+          id?: string
+          published?: boolean | null
+          slug: string
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          access_level?: string | null
+          content_blocks?: Json | null
+          created_at?: string | null
+          id?: string
+          published?: boolean | null
+          slug?: string
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       page_sections: {
         Row: {
           content: string
@@ -423,6 +492,7 @@ export type Database = {
         Row: {
           cover_image_url: string
           created_at: string
+          custom_slug: string | null
           detailed_synopsis: string | null
           id: string
           is_new: boolean
@@ -438,6 +508,7 @@ export type Database = {
         Insert: {
           cover_image_url: string
           created_at?: string
+          custom_slug?: string | null
           detailed_synopsis?: string | null
           id?: string
           is_new?: boolean
@@ -453,6 +524,7 @@ export type Database = {
         Update: {
           cover_image_url?: string
           created_at?: string
+          custom_slug?: string | null
           detailed_synopsis?: string | null
           id?: string
           is_new?: boolean

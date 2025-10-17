@@ -8,17 +8,18 @@ import { supabase } from "@/integrations/supabase/client";
 import { Link, useParams, useNavigate } from "react-router-dom";
 
 const AuthorDetail = () => {
-  const { id } = useParams();
+  const { slugOrId } = useParams();
   const navigate = useNavigate();
   const [author, setAuthor] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetchAuthor();
-  }, [id]);
+  }, [slugOrId]);
 
   const fetchAuthor = async () => {
-    const { data } = await supabase
+    // Try to fetch by custom_slug first, then by id
+    let query = supabase
       .from("authors")
       .select(`
         *,
@@ -28,13 +29,23 @@ const AuthorDetail = () => {
             title,
             cover_image_url,
             synopsis,
-            status
+            status,
+            custom_slug
           )
         )
       `)
-      .eq("id", id)
-      .eq("published", true)
-      .maybeSingle();
+      .eq("published", true);
+    
+    // Check if slugOrId looks like a UUID
+    const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(slugOrId || '');
+    
+    if (isUUID) {
+      query = query.eq("id", slugOrId);
+    } else {
+      query = query.eq("custom_slug", slugOrId);
+    }
+    
+    const { data } = await query.maybeSingle();
 
     if (data) {
       setAuthor({
@@ -173,7 +184,7 @@ const AuthorDetail = () => {
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {author.seriesData.map((series: any) => (
-                  <Link key={series.id} to={`/series/${series.id}`}>
+                  <Link key={series.id} to={`/series/${series.custom_slug || series.id}`}>
                     <Card className="bg-gradient-card border-border/50 hover:shadow-glow transition-all duration-300 cursor-pointer h-full">
                       <CardContent className="p-0">
                         {series.cover_image_url && (

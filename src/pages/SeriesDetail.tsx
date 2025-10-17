@@ -10,7 +10,7 @@ import SeriesRating from "@/components/SeriesRating";
 import UserSeriesRating from "@/components/reader/SeriesRating";
 
 const SeriesDetail = () => {
-  const { id } = useParams();
+  const { slugOrId } = useParams();
   const [series, setSeries] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [pageContent, setPageContent] = useState({
@@ -26,11 +26,11 @@ const SeriesDetail = () => {
   });
 
   useEffect(() => {
-    if (id) {
+    if (slugOrId) {
       fetchSeries();
       fetchPageContent();
     }
-  }, [id]);
+  }, [slugOrId]);
 
   const fetchPageContent = async () => {
     const { data } = await supabase
@@ -66,16 +66,26 @@ const SeriesDetail = () => {
   };
 
   const fetchSeries = async () => {
-    const { data } = await supabase
+    // Try to fetch by custom_slug first, then by id
+    let query = supabase
       .from("series")
       .select(`
         *,
-        series_authors(author:authors(id, name)),
+        series_authors(author:authors(id, name, custom_slug)),
         series_genres(genre:genres(name)),
         chapters(id, chapter_number, title, published_date)
-      `)
-      .eq("id", id)
-      .single();
+      `);
+    
+    // Check if slugOrId looks like a UUID
+    const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(slugOrId || '');
+    
+    if (isUUID) {
+      query = query.eq("id", slugOrId);
+    } else {
+      query = query.eq("custom_slug", slugOrId);
+    }
+    
+    const { data } = await query.maybeSingle();
 
     if (data) {
       setSeries({
@@ -175,7 +185,7 @@ const SeriesDetail = () => {
                   {displaySeries.authors?.length > 0 ? (
                     displaySeries.authors.map((author: any, index: number) => (
                       <span key={author.id}>
-                        <Link to={`/authors/${author.id}`} className="text-primary hover:underline font-semibold">
+                        <Link to={`/authors/${author.custom_slug || author.id}`} className="text-primary hover:underline font-semibold">
                           {author.name}
                         </Link>
                         {index < displaySeries.authors.length - 1 && ", "}
@@ -228,8 +238,8 @@ const SeriesDetail = () => {
 
               {/* Action Buttons */}
               <div className="flex flex-col sm:flex-row gap-4">
-                <Button asChild size="lg" className="bg-gradient-primary hover:opacity-90 transition-opacity text-lg py-6">
-                  <Link to={`/read/${id}/1`} className="flex items-center gap-2">
+              <Button asChild size="lg" className="bg-gradient-primary hover:opacity-90 transition-opacity text-lg py-6">
+                  <Link to={`/read/${displaySeries.id}/1`} className="flex items-center gap-2">
                     <BookOpen className="h-6 w-6" />
                     Start Reading
                   </Link>
@@ -256,7 +266,7 @@ const SeriesDetail = () => {
             </div>
             {displaySeries.chapters?.length > 3 && (
               <Button asChild variant="outline" size="sm">
-                <Link to={`/series/${id}/chapters`}>
+                <Link to={`/series/${displaySeries.id}/chapters`}>
                   {pageContent.viewAllText}
                   <ArrowRight className="h-4 w-4 ml-2" />
                 </Link>
@@ -266,7 +276,7 @@ const SeriesDetail = () => {
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {displaySeries.chapters?.slice(0, 3).map((chapter: any, index: number) => (
-              <Link key={chapter.id} to={`/read/${id}/${chapter.chapter_number}`}>
+              <Link key={chapter.id} to={`/read/${displaySeries.id}/${chapter.chapter_number}`}>
                 <Card className="hover:shadow-glow transition-all duration-300 bg-card/50 border-border/50 group relative overflow-hidden h-full">
                   {index === 0 && (
                     <Badge className="absolute top-3 right-3 bg-gradient-primary z-10 text-xs px-2 py-1">NEW</Badge>
@@ -320,7 +330,7 @@ const SeriesDetail = () => {
                   )}
                   {displaySeries.authors?.length > 0 && (
                     <Link 
-                      to={`/authors/${displaySeries.authors[0].id}`}
+                      to={`/authors/${displaySeries.authors[0].custom_slug || displaySeries.authors[0].id}`}
                       className="inline-flex items-center gap-2 text-primary hover:underline font-semibold"
                     >
                       {pageContent.authorLinkText}
