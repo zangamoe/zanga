@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { ArrowRight, Sparkles, Library } from "lucide-react";
+import { ArrowRight, Rocket, Library } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import Navigation from "@/components/Navigation";
@@ -118,7 +118,7 @@ const Index = () => {
           <div className="max-w-3xl">
             <div className="flex items-center gap-3 mb-4 md:mb-6 animate-fade-in">
               <div className="p-2 bg-gradient-primary rounded-lg">
-                <Sparkles className="h-5 w-5 md:h-7 md:w-7 text-white" />
+                <Rocket className="h-5 w-5 md:h-7 md:w-7 text-white" />
               </div>
               <span className="text-primary font-bold text-base md:text-lg uppercase tracking-wider">
                 {settings.home_hero_badge || "Discover Amazing Stories"}

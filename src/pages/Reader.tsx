@@ -257,9 +257,7 @@ const Reader = () => {
   return (
     <div className="min-h-screen bg-background">
       {/* Compact Header */}
-      <div className={`fixed top-0 left-0 right-0 z-50 border-b border-border transition-all duration-300 ${
-        viewMode === "scroll" ? "bg-background" : "bg-background/98 backdrop-blur-md"
-      }`}>
+      <div className="fixed top-0 left-0 right-0 z-50 border-b border-border bg-background">
         <div className="flex items-center justify-between px-4 py-2 max-w-7xl mx-auto">
           {/* Left: Navigation */}
           <div className="flex items-center gap-2">
@@ -403,7 +401,7 @@ const Reader = () => {
       {/* Reader Content */}
       <div 
         ref={containerRef}
-        className="pt-16 pb-4"
+        className={viewMode === "scroll" ? "pt-[4rem]" : "pt-0"}
         onTouchStart={onTouchStart}
         onTouchMove={onTouchMove}
         onTouchEnd={onTouchEnd}
@@ -415,12 +413,12 @@ const Reader = () => {
                 key={page.id}
                 ref={(el) => (pageRefs.current[page.page_number] = el)}
                 className="relative w-full flex items-center justify-center bg-background"
-                style={{ minHeight: "100vh" }}
+                style={{ minHeight: "calc(100vh - 4rem)" }}
               >
                 <img
                   src={page.image_url}
                   alt={`Page ${page.page_number}`}
-                  className="w-full h-auto max-h-screen object-contain"
+                  className="w-full h-auto max-h-[calc(100vh-4rem)] object-contain"
                   loading="lazy"
                   onLoad={() => {
                     const rect = pageRefs.current[page.page_number]?.getBoundingClientRect();
@@ -468,11 +466,11 @@ const Reader = () => {
             </div>
           </div>
         ) : (
-          <div className="min-h-screen flex flex-col items-center justify-center px-0 bg-background">
+          <div className="min-h-screen flex flex-col items-center justify-center px-0 bg-background pt-16">
             {pages.filter(p => p.page_number === currentPage).map((page) => (
               <div
                 key={page.id}
-                className="relative w-full h-screen flex items-center justify-center animate-fade-in"
+                className="relative w-full h-[calc(100vh-4rem)] flex items-center justify-center animate-fade-in"
                 onClick={(e) => {
                   const rect = e.currentTarget.getBoundingClientRect();
                   const clickX = e.clientX - rect.left;
@@ -490,7 +488,7 @@ const Reader = () => {
                 <img
                   src={page.image_url}
                   alt={`Page ${page.page_number}`}
-                  className="max-w-full max-h-screen w-auto h-auto object-contain cursor-pointer select-none"
+                  className="max-w-full max-h-full w-auto h-auto object-contain cursor-pointer select-none"
                   draggable={false}
                 />
               </div>

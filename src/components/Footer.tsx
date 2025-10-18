@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { Heart, Mail } from "lucide-react";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import siteIcon from "@/assets/site-icon.png";
 
 const Footer = () => {
   const [siteName, setSiteName] = useState("");
@@ -37,9 +38,10 @@ const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {/* Brand Section */}
           <div>
-            <Link to="/" className="inline-block mb-4">
+            <Link to="/" className="inline-flex items-center gap-2 mb-4">
+              <img src={siteIcon} alt="Site Icon" className="h-8 w-8" />
               <div className="bg-gradient-primary bg-clip-text text-2xl font-bold text-transparent">
-                {siteName || "Manga Reader"}
+                {siteName || "Zanga"}
               </div>
             </Link>
             <p className="text-sm text-muted-foreground">
@@ -86,7 +88,7 @@ const Footer = () => {
         </div>
 
         <div className="border-t border-border mt-8 pt-8 text-center text-sm text-muted-foreground">
-          <p>© {new Date().getFullYear()} {siteName || "Manga Reader"}. All rights reserved.</p>
+          <p>© {new Date().getFullYear()} {siteName || "Zanga"}. All rights reserved.</p>
         </div>
       </div>
     </footer>
