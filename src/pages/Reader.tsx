@@ -1,9 +1,10 @@
 import { useParams, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight, Home, List } from "lucide-react";
+import { ChevronLeft, ChevronRight, Home, List, Settings } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
 import ChapterComments from "@/components/reader/ChapterComments";
 import ChapterRating from "@/components/reader/ChapterRating";
 
@@ -22,9 +23,14 @@ const Reader = () => {
   const [loading, setLoading] = useState(true);
   const [viewMode, setViewMode] = useState<"scroll" | "page">("page");
   const [readingDirection, setReadingDirection] = useState<"ltr" | "rtl">("rtl");
+  const [showSettings, setShowSettings] = useState(false);
+  const [touchStart, setTouchStart] = useState<number | null>(null);
+  const [touchEnd, setTouchEnd] = useState<number | null>(null);
   const pageRefs = useRef<{ [key: number]: HTMLDivElement | null }>({});
+  const containerRef = useRef<HTMLDivElement>(null);
   
   const chapterNum = parseInt(chapterNumber || "1");
+  const minSwipeDistance = 50;
 
   useEffect(() => {
     if (seriesId && chapterNumber) {
@@ -60,7 +66,35 @@ const Reader = () => {
     setLoading(false);
   };
 
-  // Keyboard navigation - disabled in scroll mode
+  // Touch handlers for swipe gestures
+  const onTouchStart = (e: React.TouchEvent) => {
+    setTouchEnd(null);
+    setTouchStart(e.targetTouches[0].clientX);
+  };
+
+  const onTouchMove = (e: React.TouchEvent) => {
+    setTouchEnd(e.targetTouches[0].clientX);
+  };
+
+  const onTouchEnd = () => {
+    if (!touchStart || !touchEnd) return;
+    
+    const distance = touchStart - touchEnd;
+    const isLeftSwipe = distance > minSwipeDistance;
+    const isRightSwipe = distance < -minSwipeDistance;
+
+    if (viewMode === "page") {
+      if (readingDirection === "rtl") {
+        if (isLeftSwipe) handleNextPage();
+        if (isRightSwipe) handlePrevPage();
+      } else {
+        if (isLeftSwipe) handlePrevPage();
+        if (isRightSwipe) handleNextPage();
+      }
+    }
+  };
+
+  // Keyboard navigation
   useEffect(() => {
     const handleKeyPress = (e: KeyboardEvent) => {
       if (viewMode !== "page") return;
@@ -93,10 +127,14 @@ const Reader = () => {
   const goToPage = (pageNum: number) => {
     if (pageNum >= 1 && pageNum <= pages.length) {
       setCurrentPage(pageNum);
-      if (viewMode === "page") {
-        pageRefs.current[pageNum]?.scrollIntoView({ behavior: "smooth", block: "start" });
-      }
     }
+  };
+
+  const getProgress = () => {
+    if (readingDirection === "rtl") {
+      return ((pages.length - currentPage + 1) / pages.length) * 100;
+    }
+    return (currentPage / pages.length) * 100;
   };
 
   const handleNextPage = () => {
@@ -171,117 +209,111 @@ const Reader = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Reader Header */}
-      <div className="sticky top-0 z-50 bg-background/95 backdrop-blur border-b border-border">
-        <div className="container mx-auto px-4 py-3">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <Button asChild variant="ghost" size="sm">
-                <Link to="/" className="flex items-center gap-2">
-                  <Home className="h-4 w-4" />
-                  Home
-                </Link>
-              </Button>
-              <Button asChild variant="ghost" size="sm">
-                <Link to={`/series/${seriesId}`} className="flex items-center gap-2">
-                  <List className="h-4 w-4" />
-                  Chapters
-                </Link>
-              </Button>
-            </div>
-            
-            <div className="text-center">
-              <p className="font-semibold">Chapter {chapterNumber}{chapterTitle && `: ${chapterTitle}`}</p>
-              <p className="text-sm text-muted-foreground">Page {currentPage} of {pages.length}</p>
-              <div className="flex gap-2 justify-center mt-1">
+      {/* Compact Header */}
+      <div className="fixed top-0 left-0 right-0 z-50 bg-background/98 backdrop-blur-md border-b border-border transition-all duration-300">
+        <div className="flex items-center justify-between px-4 py-2 max-w-7xl mx-auto">
+          {/* Left: Navigation */}
+          <div className="flex items-center gap-2">
+            <Button asChild variant="ghost" size="sm" className="h-8">
+              <Link to="/">
+                <Home className="h-4 w-4" />
+              </Link>
+            </Button>
+            <Button asChild variant="ghost" size="sm" className="h-8">
+              <Link to={`/series/${seriesId}`}>
+                <List className="h-4 w-4" />
+              </Link>
+            </Button>
+          </div>
+
+          {/* Center: Chapter Info */}
+          <div className="flex-1 text-center px-4">
+            <p className="text-sm font-semibold truncate">
+              Ch. {chapterNumber}{chapterTitle && `: ${chapterTitle}`}
+            </p>
+            <p className="text-xs text-muted-foreground">
+              {currentPage} / {pages.length}
+            </p>
+          </div>
+
+          {/* Right: Settings */}
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            className="h-8"
+            onClick={() => setShowSettings(!showSettings)}
+          >
+            <Settings className="h-4 w-4" />
+          </Button>
+        </div>
+
+        {/* Settings Panel */}
+        {showSettings && (
+          <div className="border-t border-border bg-background/95 backdrop-blur-md p-4">
+            <div className="max-w-7xl mx-auto space-y-3">
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="text-sm font-medium">View:</span>
                 <Badge 
-                  variant={viewMode === "scroll" ? "default" : "outline"} 
-                  className="cursor-pointer"
-                  onClick={() => setViewMode("scroll")}
-                >
-                  Scroll
-                </Badge>
-                <Badge 
-                  variant={viewMode === "page" ? "default" : "outline"}
-                  className="cursor-pointer"
+                  variant={viewMode === "page" ? "default" : "outline"} 
+                  className="cursor-pointer transition-all"
                   onClick={() => setViewMode("page")}
                 >
-                  Page-by-Page
+                  Single Page
                 </Badge>
-                {viewMode === "page" && (
-                  <>
-                    <Badge 
-                      variant={readingDirection === "rtl" ? "default" : "outline"}
-                      className="cursor-pointer"
-                      onClick={() => setReadingDirection("rtl")}
-                    >
-                      RTL ←
-                    </Badge>
-                    <Badge 
-                      variant={readingDirection === "ltr" ? "default" : "outline"}
-                      className="cursor-pointer"
-                      onClick={() => setReadingDirection("ltr")}
-                    >
-                      LTR →
-                    </Badge>
-                  </>
-                )}
+                <Badge 
+                  variant={viewMode === "scroll" ? "default" : "outline"}
+                  className="cursor-pointer transition-all"
+                  onClick={() => setViewMode("scroll")}
+                >
+                  Vertical Scroll
+                </Badge>
               </div>
-            </div>
 
-            <div className="flex items-center gap-2">
               {viewMode === "page" && (
-                <>
-                  {readingDirection === "rtl" ? (
-                    <>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={handleNextPage}
-                        disabled={currentPage === pages.length}
-                      >
-                        <ChevronLeft className="h-4 w-4" />
-                        Next
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={handlePrevPage}
-                        disabled={currentPage === 1}
-                      >
-                        Prev
-                        <ChevronRight className="h-4 w-4" />
-                      </Button>
-                    </>
-                  ) : (
-                    <>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={handlePrevPage}
-                        disabled={currentPage === 1}
-                      >
-                        <ChevronLeft className="h-4 w-4" />
-                        Prev
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={handleNextPage}
-                        disabled={currentPage === pages.length}
-                      >
-                        Next
-                        <ChevronRight className="h-4 w-4" />
-                      </Button>
-                    </>
-                  )}
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="text-sm font-medium">Direction:</span>
+                  <Badge 
+                    variant={readingDirection === "rtl" ? "default" : "outline"}
+                    className="cursor-pointer transition-all"
+                    onClick={() => setReadingDirection("rtl")}
+                  >
+                    Right to Left ←
+                  </Badge>
+                  <Badge 
+                    variant={readingDirection === "ltr" ? "default" : "outline"}
+                    className="cursor-pointer transition-all"
+                    onClick={() => setReadingDirection("ltr")}
+                  >
+                    Left to Right →
+                  </Badge>
+                </div>
+              )}
+
+              {viewMode === "page" && (
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handlePrevPage}
+                    disabled={currentPage === 1}
+                  >
+                    <ChevronLeft className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleNextPage}
+                    disabled={currentPage === pages.length}
+                  >
+                    <ChevronRight className="h-4 w-4" />
+                  </Button>
+                  <div className="h-4 w-px bg-border mx-2" />
                   <Button
                     variant="outline"
                     size="sm"
                     onClick={goToPrevChapter}
                     disabled={chapterNum <= 1}
                   >
-                    <ChevronLeft className="h-4 w-4" />
                     Prev Chapter
                   </Button>
                   <Button
@@ -290,38 +322,66 @@ const Reader = () => {
                     onClick={goToNextChapter}
                   >
                     Next Chapter
-                    <ChevronRight className="h-4 w-4" />
                   </Button>
-                </>
+                </div>
               )}
             </div>
           </div>
-        </div>
+        )}
+      </div>
+
+      {/* Progress Bar */}
+      <div className="fixed bottom-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-sm">
+        <Progress 
+          value={getProgress()} 
+          className="h-1 rounded-none"
+        />
       </div>
 
       {/* Reader Content */}
-      <div className="container mx-auto px-4 py-8 max-w-4xl">
+      <div 
+        ref={containerRef}
+        className="pt-16 pb-4"
+        onTouchStart={onTouchStart}
+        onTouchMove={onTouchMove}
+        onTouchEnd={onTouchEnd}
+      >
         {viewMode === "scroll" ? (
-          <>
-            <div className="space-y-2">
-              {pages.map((page) => (
-                <div
-                  key={page.id}
-                  ref={(el) => (pageRefs.current[page.page_number] = el)}
-                  className="rounded-lg overflow-hidden shadow-card"
-                  onMouseEnter={() => setCurrentPage(page.page_number)}
-                >
-                  <img
-                    src={page.image_url}
-                    alt={`Page ${page.page_number}`}
-                    className="w-full h-auto"
-                    loading="lazy"
-                  />
+          <div className="max-w-4xl mx-auto px-2 space-y-1">
+            {pages.map((page) => (
+              <div
+                key={page.id}
+                ref={(el) => (pageRefs.current[page.page_number] = el)}
+                className="relative overflow-hidden rounded-sm"
+              >
+                <img
+                  src={page.image_url}
+                  alt={`Page ${page.page_number}`}
+                  className="w-full h-auto"
+                  loading="lazy"
+                  onLoad={() => {
+                    const rect = pageRefs.current[page.page_number]?.getBoundingClientRect();
+                    if (rect && rect.top >= 0 && rect.top < window.innerHeight / 2) {
+                      setCurrentPage(page.page_number);
+                    }
+                  }}
+                />
+              </div>
+            ))}
+            
+            {/* Chapter End - Comments and Ratings */}
+            {chapterId && (
+              <div className="mt-12 space-y-8 px-4">
+                <div className="text-center py-8 border-t border-border">
+                  <h2 className="text-2xl font-bold mb-4">End of Chapter {chapterNumber}</h2>
                 </div>
-              ))}
-            </div>
+                <ChapterRating chapterId={chapterId} seriesId={seriesId!} />
+                <ChapterComments chapterId={chapterId} />
+              </div>
+            )}
+
             {/* Scroll Mode Navigation */}
-            <div className="flex items-center justify-center gap-4 mt-8 py-6 border-t border-border">
+            <div className="flex items-center justify-center gap-4 py-8 border-t border-border">
               <Button
                 variant="outline"
                 onClick={goToPrevChapter}
@@ -336,7 +396,6 @@ const Reader = () => {
                 </Link>
               </Button>
               <Button
-                variant="default"
                 onClick={goToNextChapter}
                 className="bg-gradient-primary hover:opacity-90"
               >
@@ -344,99 +403,72 @@ const Reader = () => {
                 <ChevronRight className="h-4 w-4 ml-2" />
               </Button>
             </div>
-          </>
+          </div>
         ) : (
-          <div className="flex flex-col items-center">
+          <div className="min-h-screen flex flex-col items-center justify-center px-2">
             {pages.filter(p => p.page_number === currentPage).map((page) => (
               <div
                 key={page.id}
-                ref={(el) => (pageRefs.current[page.page_number] = el)}
-                className="rounded-lg overflow-hidden shadow-card max-w-full relative cursor-pointer"
+                className="relative max-w-4xl w-full animate-fade-in"
                 onClick={(e) => {
-                  // Mobile tap navigation zones
                   const rect = e.currentTarget.getBoundingClientRect();
                   const clickX = e.clientX - rect.left;
                   const zoneWidth = rect.width / 3;
                   
                   if (clickX < zoneWidth) {
-                    // Left zone - Previous (or Next in RTL)
                     readingDirection === "rtl" ? handleNextPage() : handlePrevPage();
                   } else if (clickX > zoneWidth * 2) {
-                    // Right zone - Next (or Previous in RTL)
                     readingDirection === "rtl" ? handlePrevPage() : handleNextPage();
+                  } else {
+                    setShowSettings(!showSettings);
                   }
-                  // Center zone - do nothing (can be used for controls toggle later)
                 }}
               >
                 <img
                   src={page.image_url}
                   alt={`Page ${page.page_number}`}
-                  className="w-full h-auto"
+                  className="w-full h-auto rounded-lg shadow-2xl cursor-pointer select-none"
+                  draggable={false}
                 />
-                {/* Visual tap zone hints for mobile */}
-                <div className="absolute inset-0 pointer-events-none md:hidden">
-                  <div className="absolute left-0 top-0 bottom-0 w-1/3 opacity-0 hover:opacity-10 bg-gradient-to-r from-white to-transparent transition-opacity" />
-                  <div className="absolute right-0 top-0 bottom-0 w-1/3 opacity-0 hover:opacity-10 bg-gradient-to-l from-white to-transparent transition-opacity" />
-                </div>
               </div>
             ))}
-            <div className="flex items-center gap-4 mt-6">
-              <Button
-                variant="outline"
-                onClick={handlePrevPage}
-                disabled={currentPage === 1}
-              >
-                <ChevronLeft className="h-4 w-4 mr-2" />
-                Previous Page
-              </Button>
-              <span className="text-muted-foreground">
-                Page {currentPage} of {pages.length}
-              </span>
-              <Button
-                variant="outline"
-                onClick={handleNextPage}
-                disabled={currentPage === pages.length}
-              >
-                Next Page
-                <ChevronRight className="h-4 w-4 ml-2" />
-              </Button>
-            </div>
+
+            {/* Show comments at last page */}
+            {currentPage === pages.length && chapterId && (
+              <div className="mt-12 space-y-8 w-full max-w-4xl px-4">
+                <div className="text-center py-8 border-t border-border">
+                  <h2 className="text-2xl font-bold mb-4">End of Chapter {chapterNumber}</h2>
+                </div>
+                <ChapterRating chapterId={chapterId} seriesId={seriesId!} />
+                <ChapterComments chapterId={chapterId} />
+                
+                {/* Navigation Footer */}
+                <div className="flex items-center justify-center gap-4 py-8 border-t border-border">
+                  <Button
+                    variant="outline"
+                    onClick={goToPrevChapter}
+                    disabled={chapterNum <= 1}
+                  >
+                    <ChevronLeft className="h-4 w-4 mr-2" />
+                    Previous Chapter
+                  </Button>
+                  <Button asChild variant="outline">
+                    <Link to={`/series/${seriesId}`}>
+                      Back to Series
+                    </Link>
+                  </Button>
+                  <Button
+                    onClick={goToNextChapter}
+                    className="bg-gradient-primary hover:opacity-90"
+                  >
+                    Next Chapter
+                    <ChevronRight className="h-4 w-4 ml-2" />
+                  </Button>
+                </div>
+              </div>
+            )}
           </div>
         )}
-
-        {/* Comments and Ratings Section */}
-        {chapterId && (
-          <div className="mt-12 space-y-8">
-            <ChapterRating chapterId={chapterId} seriesId={seriesId!} />
-            <ChapterComments chapterId={chapterId} />
-          </div>
-        )}
-
-        {/* Navigation Footer */}
-        <div className="flex items-center justify-between mt-8 py-6 border-t border-border">
-          <Button
-            variant="default"
-            onClick={goToPrevChapter}
-            disabled={chapterNum <= 1}
-            className="bg-gradient-primary hover:opacity-90"
-          >
-            <ChevronLeft className="h-4 w-4 mr-2" />
-            Previous Chapter
-          </Button>
-          <Button asChild variant="outline">
-            <Link to={`/series/${seriesId}`}>
-              Back to Series
-            </Link>
-          </Button>
-          <Button
-            variant="default"
-            onClick={goToNextChapter}
-            className="bg-gradient-primary hover:opacity-90"
-          >
-            Next Chapter
-            <ChevronRight className="h-4 w-4 ml-2" />
-          </Button>
-        </div>
       </div>
     </div>
   );
