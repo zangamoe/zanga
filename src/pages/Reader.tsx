@@ -1,6 +1,6 @@
 import { useParams, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight, Home, List, Settings } from "lucide-react";
+import { ChevronLeft, ChevronRight, Home, Settings } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Badge } from "@/components/ui/badge";
@@ -26,6 +26,9 @@ const Reader = () => {
   const [showSettings, setShowSettings] = useState(false);
   const [touchStart, setTouchStart] = useState<number | null>(null);
   const [touchEnd, setTouchEnd] = useState<number | null>(null);
+  const [seriesTitle, setSeriesTitle] = useState("");
+  const [allChapters, setAllChapters] = useState<any[]>([]);
+  const [scrollProgress, setScrollProgress] = useState(0);
   const pageRefs = useRef<{ [key: number]: HTMLDivElement | null }>({});
   const containerRef = useRef<HTMLDivElement>(null);
   
@@ -39,7 +42,7 @@ const Reader = () => {
   }, [seriesId, chapterNumber]);
 
   const fetchChapterPages = async () => {
-    // First get the chapter ID
+    // First get the chapter ID and series info
     const { data: chapterData } = await supabase
       .from("chapters")
       .select("id, title, reading_direction")
@@ -63,6 +66,29 @@ const Reader = () => {
         setPages(pagesData);
       }
     }
+
+    // Fetch series title
+    const { data: seriesData } = await supabase
+      .from("series")
+      .select("title")
+      .eq("id", seriesId)
+      .single();
+    
+    if (seriesData) {
+      setSeriesTitle(seriesData.title);
+    }
+
+    // Fetch all chapters for selector
+    const { data: chaptersData } = await supabase
+      .from("chapters")
+      .select("*")
+      .eq("series_id", seriesId)
+      .order("chapter_number", { ascending: false });
+    
+    if (chaptersData) {
+      setAllChapters(chaptersData);
+    }
+
     setLoading(false);
   };
 
@@ -131,11 +157,32 @@ const Reader = () => {
   };
 
   const getProgress = () => {
+    if (viewMode === "scroll") {
+      return scrollProgress;
+    }
     if (readingDirection === "rtl") {
       return ((pages.length - currentPage + 1) / pages.length) * 100;
     }
     return (currentPage / pages.length) * 100;
   };
+
+  // Handle scroll progress for vertical scroll mode
+  useEffect(() => {
+    if (viewMode !== "scroll" || !containerRef.current) return;
+
+    const handleScroll = () => {
+      const container = containerRef.current;
+      if (!container) return;
+
+      const scrollTop = window.scrollY;
+      const scrollHeight = document.documentElement.scrollHeight - window.innerHeight;
+      const progress = (scrollTop / scrollHeight) * 100;
+      setScrollProgress(Math.min(100, Math.max(0, progress)));
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [viewMode]);
 
   const handleNextPage = () => {
     if (readingDirection === "rtl") {
@@ -210,7 +257,9 @@ const Reader = () => {
   return (
     <div className="min-h-screen bg-background">
       {/* Compact Header */}
-      <div className="fixed top-0 left-0 right-0 z-50 bg-background/98 backdrop-blur-md border-b border-border transition-all duration-300">
+      <div className={`fixed top-0 left-0 right-0 z-50 border-b border-border transition-all duration-300 ${
+        viewMode === "scroll" ? "bg-background" : "bg-background/98 backdrop-blur-md"
+      }`}>
         <div className="flex items-center justify-between px-4 py-2 max-w-7xl mx-auto">
           {/* Left: Navigation */}
           <div className="flex items-center gap-2">
@@ -219,21 +268,34 @@ const Reader = () => {
                 <Home className="h-4 w-4" />
               </Link>
             </Button>
-            <Button asChild variant="ghost" size="sm" className="h-8">
-              <Link to={`/series/${seriesId}`}>
-                <List className="h-4 w-4" />
+            <Button asChild variant="ghost" size="sm" className="h-8 px-3">
+              <Link to={`/series/${seriesId}`} className="flex items-center gap-1">
+                <ChevronLeft className="h-4 w-4" />
+                <span className="text-xs">Back to {seriesTitle || "Series"}</span>
               </Link>
             </Button>
           </div>
 
-          {/* Center: Chapter Info */}
-          <div className="flex-1 text-center px-4">
-            <p className="text-sm font-semibold truncate">
-              Ch. {chapterNumber}{chapterTitle && `: ${chapterTitle}`}
-            </p>
-            <p className="text-xs text-muted-foreground">
-              {currentPage} / {pages.length}
-            </p>
+          {/* Center: Chapter Selector */}
+          <div className="flex-1 flex items-center justify-center gap-2 px-4">
+            <select
+              value={chapterNum}
+              onChange={(e) => {
+                window.location.href = `/read/${seriesId}/${e.target.value}`;
+              }}
+              className="bg-secondary text-foreground text-sm font-semibold px-3 py-1 rounded border border-border focus:outline-none focus:ring-2 focus:ring-primary"
+            >
+              {allChapters.map((chapter) => (
+                <option key={chapter.id} value={chapter.chapter_number}>
+                  Ch. {chapter.chapter_number}: {chapter.title}
+                </option>
+              ))}
+            </select>
+            {viewMode === "page" && (
+              <span className="text-xs text-muted-foreground whitespace-nowrap">
+                {currentPage} / {pages.length}
+              </span>
+            )}
           </div>
 
           {/* Right: Settings */}
@@ -347,17 +409,18 @@ const Reader = () => {
         onTouchEnd={onTouchEnd}
       >
         {viewMode === "scroll" ? (
-          <div className="max-w-4xl mx-auto px-2 space-y-1">
+          <div className="max-w-full mx-auto px-0 space-y-0">
             {pages.map((page) => (
               <div
                 key={page.id}
                 ref={(el) => (pageRefs.current[page.page_number] = el)}
-                className="relative overflow-hidden rounded-sm"
+                className="relative w-full flex items-center justify-center bg-background"
+                style={{ minHeight: "100vh" }}
               >
                 <img
                   src={page.image_url}
                   alt={`Page ${page.page_number}`}
-                  className="w-full h-auto"
+                  className="w-full h-auto max-h-screen object-contain"
                   loading="lazy"
                   onLoad={() => {
                     const rect = pageRefs.current[page.page_number]?.getBoundingClientRect();
@@ -405,11 +468,11 @@ const Reader = () => {
             </div>
           </div>
         ) : (
-          <div className="min-h-screen flex flex-col items-center justify-center px-2">
+          <div className="min-h-screen flex flex-col items-center justify-center px-0 bg-background">
             {pages.filter(p => p.page_number === currentPage).map((page) => (
               <div
                 key={page.id}
-                className="relative max-w-4xl w-full animate-fade-in"
+                className="relative w-full h-screen flex items-center justify-center animate-fade-in"
                 onClick={(e) => {
                   const rect = e.currentTarget.getBoundingClientRect();
                   const clickX = e.clientX - rect.left;
@@ -427,7 +490,7 @@ const Reader = () => {
                 <img
                   src={page.image_url}
                   alt={`Page ${page.page_number}`}
-                  className="w-full h-auto rounded-lg shadow-2xl cursor-pointer select-none"
+                  className="max-w-full max-h-screen w-auto h-auto object-contain cursor-pointer select-none"
                   draggable={false}
                 />
               </div>

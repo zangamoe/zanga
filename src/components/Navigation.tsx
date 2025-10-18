@@ -79,6 +79,11 @@ const Navigation = () => {
       <div className="container max-w-screen-2xl mx-auto px-4 md:px-6 lg:px-8">
         <div className="flex h-14 md:h-16 items-center justify-between">
           <Link to="/" className="flex items-center space-x-2">
+            <img 
+              src="/favicon.ico" 
+              alt="Site Icon" 
+              className="h-6 w-6 md:h-8 md:w-8"
+            />
             {siteName && (
               <div className="bg-gradient-primary bg-clip-text text-xl md:text-2xl font-bold text-transparent">
                 {siteName}
