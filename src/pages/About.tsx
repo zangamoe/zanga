@@ -1,5 +1,6 @@
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
+import SEO from "@/components/SEO";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Heart, Globe, Users, BookOpen, ExternalLink } from "lucide-react";
@@ -105,6 +106,11 @@ const About = () => {
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
+      <SEO
+        title="About Us - Our Story - Zanga"
+        description="Learn about Zanga's mission to bring professionally localized manga from aspiring Japanese authors to English-speaking audiences."
+        keywords="about zanga, manga localization, manga translation, our story, support manga authors"
+      />
       <Navigation />
       
       <div className="flex-1 container mx-auto px-4 py-8 md:py-12">

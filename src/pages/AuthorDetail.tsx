@@ -1,4 +1,5 @@
 import Navigation from "@/components/Navigation";
+import SEO from "@/components/SEO";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ExternalLink, ArrowLeft } from "lucide-react";
@@ -88,6 +89,19 @@ const AuthorDetail = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <SEO
+        title={`${author.name} - Manga Author - Zanga`}
+        description={author.bio?.substring(0, 155) || `Discover manga works by ${author.name} on Zanga`}
+        keywords={`${author.name}, manga author, manga artist, japanese manga creator`}
+        schema={{
+          "@context": "https://schema.org",
+          "@type": "Person",
+          "name": author.name,
+          "description": author.bio,
+          "image": author.profile_picture_url,
+          "sameAs": [author.social.twitter, author.social.instagram, author.social.website].filter(Boolean)
+        }}
+      />
       <Navigation />
       
       <div className="container mx-auto px-4 py-12">

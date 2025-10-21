@@ -1,4 +1,5 @@
 import { useParams, Link } from "react-router-dom";
+import SEO from "@/components/SEO";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight, Home, Settings } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
@@ -256,6 +257,25 @@ const Reader = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <SEO
+        title={`${seriesTitle} - Chapter ${chapterNum} ${chapterTitle ? `- ${chapterTitle}` : ''} - Zanga`}
+        description={`Read ${seriesTitle} Chapter ${chapterNum} online. Continue reading this manga series on Zanga.`}
+        keywords={`${seriesTitle}, chapter ${chapterNum}, read manga online, manga reader`}
+        type="article"
+        schema={{
+          "@context": "https://schema.org",
+          "@type": "Article",
+          "headline": `${seriesTitle} - Chapter ${chapterNum}`,
+          "description": `Read ${seriesTitle} Chapter ${chapterNum}`,
+          "articleSection": "Manga",
+          "pageStart": 1,
+          "pageEnd": pages.length,
+          "isPartOf": {
+            "@type": "Book",
+            "name": seriesTitle
+          }
+        }}
+      />
       {/* Compact Header */}
       <div className="fixed top-0 left-0 right-0 z-50 border-b border-border bg-background">
         <div className="flex items-center justify-between px-4 py-2 max-w-7xl mx-auto">

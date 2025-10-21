@@ -6,6 +6,7 @@ import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import HomepageSection from "@/components/HomepageSection";
 import MetadataUpdater from "@/components/MetadataUpdater";
+import SEO from "@/components/SEO";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import heroGradient from "@/assets/hero-gradient-bg.jpg";
@@ -100,6 +101,22 @@ const Index = () => {
       </div>
 
       <MetadataUpdater />
+      <SEO
+        title={settings.site_title || "Zanga - Discover On The Rise Manga Series"}
+        description={settings.site_description || "Discover professionally localized manga from aspiring Japanese authors. Read on the rise manga translated for English-speaking audiences."}
+        schema={{
+          "@context": "https://schema.org",
+          "@type": "WebSite",
+          "name": "Zanga",
+          "url": window.location.origin,
+          "description": "Discover professionally localized manga from aspiring Japanese authors",
+          "potentialAction": {
+            "@type": "SearchAction",
+            "target": `${window.location.origin}/series?q={search_term_string}`,
+            "query-input": "required name=search_term_string"
+          }
+        }}
+      />
       <Navigation />
       
       {/* Hero Banner */}

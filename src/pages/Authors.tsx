@@ -1,4 +1,5 @@
 import Navigation from "@/components/Navigation";
+import SEO from "@/components/SEO";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ExternalLink } from "lucide-react";
@@ -106,6 +107,33 @@ const Authors = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <SEO
+        title={selectedAuthor ? `${selectedAuthor.name} - Manga Author - Zanga` : "Our Authors - Zanga"}
+        description={selectedAuthor 
+          ? `Discover manga works by ${selectedAuthor.name}. ${selectedAuthor.bio?.substring(0, 100)}...`
+          : "Meet the talented Japanese manga artists creating unforgettable stories on Zanga"}
+        keywords={selectedAuthor 
+          ? `${selectedAuthor.name}, manga author, manga artist, japanese manga creator`
+          : "manga authors, manga artists, japanese manga creators"}
+        schema={selectedAuthor ? {
+          "@context": "https://schema.org",
+          "@type": "Person",
+          "name": selectedAuthor.name,
+          "description": selectedAuthor.bio,
+          "image": selectedAuthor.profile_picture_url,
+          "sameAs": [
+            selectedAuthor.twitter_handle,
+            selectedAuthor.instagram_handle,
+            selectedAuthor.website_url
+          ].filter(Boolean)
+        } : {
+          "@context": "https://schema.org",
+          "@type": "ItemList",
+          "name": "Manga Authors",
+          "description": "List of manga authors on Zanga",
+          "numberOfItems": authors.length
+        }}
+      />
       <Navigation />
       
       <div className="container mx-auto px-4 py-8 md:py-12">

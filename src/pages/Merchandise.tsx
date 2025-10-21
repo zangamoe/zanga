@@ -1,4 +1,5 @@
 import Navigation from "@/components/Navigation";
+import SEO from "@/components/SEO";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ShoppingCart, ExternalLink } from "lucide-react";
@@ -83,6 +84,18 @@ const Merchandise = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <SEO
+        title="Merchandise - Official Manga Products - Zanga"
+        description="Support manga authors by purchasing official merchandise. Manga volumes, art books, apparel and more from talented Japanese creators."
+        keywords="manga merchandise, manga products, buy manga, manga art books, official manga merch"
+        schema={{
+          "@context": "https://schema.org",
+          "@type": "Store",
+          "name": "Zanga Merchandise",
+          "description": "Official manga merchandise from Zanga",
+          "url": window.location.href
+        }}
+      />
       <Navigation />
       
       <div className="container mx-auto px-4 py-8 md:py-12">

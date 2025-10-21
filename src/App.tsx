@@ -2,7 +2,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import Series from "./pages/Series";
 import SeriesDetail from "./pages/SeriesDetail";
@@ -26,24 +26,26 @@ const App = () => (
     <TooltipProvider>
       <Toaster />
       <Sonner />
-      <Routes>
-        <Route path="/" element={<Index />} />
-        <Route path="/series" element={<Series />} />
-        <Route path="/series/:slugOrId" element={<SeriesDetail />} />
-        <Route path="/series/:slugOrId/chapters" element={<AllChapters />} />
-        <Route path="/read/:seriesId/:chapterNumber" element={<Reader />} />
-        <Route path="/authors" element={<Authors />} />
-        <Route path="/authors/:slugOrId" element={<AuthorDetail />} />
-        <Route path="/merchandise" element={<Merchandise />} />
-        <Route path="/about" element={<About />} />
-        <Route path="/discord" element={<Discord />} />
-        <Route path="/auth" element={<Auth />} />
-        <Route path="/admin" element={<Admin />} />
-        <Route path="/admin/series/:seriesId/chapters" element={<AdminSeriesChapters />} />
-        <Route path="/admin/chapter/:chapterId" element={<ManageChapter />} />
-        {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-        <Route path="*" element={<NotFound />} />
-      </Routes>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<Index />} />
+          <Route path="/series" element={<Series />} />
+          <Route path="/series/:slugOrId" element={<SeriesDetail />} />
+          <Route path="/series/:slugOrId/chapters" element={<AllChapters />} />
+          <Route path="/read/:seriesId/:chapterNumber" element={<Reader />} />
+          <Route path="/authors" element={<Authors />} />
+          <Route path="/authors/:slugOrId" element={<AuthorDetail />} />
+          <Route path="/merchandise" element={<Merchandise />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/discord" element={<Discord />} />
+          <Route path="/auth" element={<Auth />} />
+          <Route path="/admin" element={<Admin />} />
+          <Route path="/admin/series/:seriesId/chapters" element={<AdminSeriesChapters />} />
+          <Route path="/admin/chapter/:chapterId" element={<ManageChapter />} />
+          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
 );

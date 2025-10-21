@@ -1,5 +1,6 @@
 import { useParams, Link } from "react-router-dom";
 import Navigation from "@/components/Navigation";
+import SEO from "@/components/SEO";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -132,6 +133,33 @@ const SeriesDetail = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <SEO
+        title={`${displaySeries.title} - Zanga`}
+        description={displaySeries.synopsis?.substring(0, 155) + '...' || `Read ${displaySeries.title} manga on Zanga`}
+        keywords={`${displaySeries.title}, manga, ${displaySeries.genres?.join(', ')}, ${displaySeries.status} manga`}
+        type="article"
+        ogImage={displaySeries.cover_image_url || displaySeries.cover}
+        schema={{
+          "@context": "https://schema.org",
+          "@type": "Book",
+          "name": displaySeries.title,
+          "image": displaySeries.cover_image_url || displaySeries.cover,
+          "description": displaySeries.synopsis,
+          "author": displaySeries.authors?.map((a: any) => ({
+            "@type": "Person",
+            "name": a.name
+          })),
+          "genre": displaySeries.genres,
+          "inLanguage": "en-US",
+          "bookFormat": "EBook",
+          "numberOfPages": totalChapters,
+          "aggregateRating": displaySeries.ratings_enabled ? {
+            "@type": "AggregateRating",
+            "ratingValue": displaySeries.average_rating || 0,
+            "ratingCount": displaySeries.rating_count || 0
+          } : undefined
+        }}
+      />
       <Navigation />
       
       {/* Hero Section - Redesigned */}

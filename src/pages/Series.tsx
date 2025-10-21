@@ -1,6 +1,7 @@
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import HomeSeriesCard from "@/components/HomeSeriesCard";
+import SEO from "@/components/SEO";
 import { Input } from "@/components/ui/input";
 import { Search, ArrowUpDown } from "lucide-react";
 import { useState, useEffect } from "react";
@@ -91,6 +92,22 @@ const Series = () => {
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
+      <SEO
+        title="All Series - Zanga"
+        description="Browse and discover all manga series on Zanga. Find ongoing, completed, and upcoming manga from talented Japanese authors."
+        keywords="manga series, all manga, browse manga, manga collection, japanese manga series"
+        schema={{
+          "@context": "https://schema.org",
+          "@type": "CollectionPage",
+          "name": "All Manga Series",
+          "description": "Collection of manga series available on Zanga",
+          "url": window.location.href,
+          "mainEntity": {
+            "@type": "ItemList",
+            "numberOfItems": allSeries.length
+          }
+        }}
+      />
       <Navigation />
       
       <div className="flex-1 container mx-auto px-4 py-8 md:py-12">
