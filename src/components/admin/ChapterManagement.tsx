@@ -7,8 +7,10 @@ import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "@/hooks/use-toast";
-import { Pencil, Trash2, FileImage, ExternalLink } from "lucide-react";
+import { Pencil, Trash2, FileImage, ExternalLink, Link as LinkIcon } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { isValidImgurUrl } from "@/lib/imgurParser";
+import { Separator } from "@/components/ui/separator";
 
 interface Chapter {
   id: string;
@@ -16,6 +18,7 @@ interface Chapter {
   chapter_number: number;
   title: string;
   published_date: string;
+  imgur_album_url?: string | null;
 }
 
 interface Series {
@@ -40,6 +43,7 @@ const ChapterManagement = ({ seriesId }: ChapterManagementProps) => {
     chapter_number: "",
     title: "",
     published_date: new Date().toISOString().split('T')[0],
+    imgur_album_url: "",
   });
   const [pageFiles, setPageFiles] = useState<FileList | null>(null);
 
@@ -91,6 +95,16 @@ const ChapterManagement = ({ seriesId }: ChapterManagementProps) => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    // Validate imgur URL if provided
+    if (formData.imgur_album_url && !isValidImgurUrl(formData.imgur_album_url)) {
+      toast({
+        variant: "destructive",
+        title: "Invalid imgur URL",
+        description: "Please provide a valid imgur album or gallery URL (e.g., https://imgur.com/a/abc123)",
+      });
+      return;
+    }
+
     if (editingChapter) {
       const { error } = await supabase
         .from("chapters")
@@ -98,6 +112,7 @@ const ChapterManagement = ({ seriesId }: ChapterManagementProps) => {
           chapter_number: parseInt(formData.chapter_number),
           title: formData.title,
           published_date: formData.published_date,
+          imgur_album_url: formData.imgur_album_url || null,
         })
         .eq("id", editingChapter.id);
 
@@ -123,6 +138,7 @@ const ChapterManagement = ({ seriesId }: ChapterManagementProps) => {
           chapter_number: parseInt(formData.chapter_number),
           title: formData.title,
           published_date: formData.published_date,
+          imgur_album_url: formData.imgur_album_url || null,
         })
         .select()
         .single();
@@ -177,6 +193,7 @@ const ChapterManagement = ({ seriesId }: ChapterManagementProps) => {
       chapter_number: chapter.chapter_number.toString(),
       title: chapter.title,
       published_date: chapter.published_date,
+      imgur_album_url: chapter.imgur_album_url || "",
     });
     setDialogOpen(true);
   };
@@ -207,6 +224,7 @@ const ChapterManagement = ({ seriesId }: ChapterManagementProps) => {
       chapter_number: "",
       title: "",
       published_date: new Date().toISOString().split('T')[0],
+      imgur_album_url: "",
     });
     setEditingChapter(null);
     setPageFiles(null);
@@ -324,9 +342,47 @@ const ChapterManagement = ({ seriesId }: ChapterManagementProps) => {
                 />
               </div>
 
+              <Separator className="my-4" />
+
+              <div className="space-y-4">
+                <div className="flex items-center gap-2">
+                  <LinkIcon className="h-5 w-5 text-primary" />
+                  <div>
+                    <h4 className="font-semibold">Imgur Album Link (Recommended)</h4>
+                    <p className="text-sm text-muted-foreground">
+                      Paste an imgur album URL to load images directly from imgur - no storage needed!
+                    </p>
+                  </div>
+                </div>
+                
+                <div>
+                  <Label htmlFor="imgur_url">Imgur Album URL</Label>
+                  <Input
+                    id="imgur_url"
+                    placeholder="https://imgur.com/a/abc123"
+                    value={formData.imgur_album_url}
+                    onChange={(e) => setFormData({ ...formData, imgur_album_url: e.target.value })}
+                  />
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Format: https://imgur.com/a/ALBUM_ID or https://imgur.com/gallery/GALLERY_ID
+                  </p>
+                </div>
+              </div>
+
+              <Separator className="my-4" />
+
               <div>
+                <div className="flex items-center gap-2 mb-2">
+                  <FileImage className="h-5 w-5 text-muted-foreground" />
+                  <div>
+                    <h4 className="font-semibold">Or Upload Files</h4>
+                    <p className="text-sm text-muted-foreground">
+                      Upload images to server storage (imgur is faster)
+                    </p>
+                  </div>
+                </div>
                 <Label htmlFor="pages">
-                  Chapter Pages {editingChapter && "(Optional - use Pages button to manage)"}
+                  Chapter Pages {editingChapter && "(Optional - use Manage Pages button)"}
                 </Label>
                 <Input
                   id="pages"
@@ -334,7 +390,13 @@ const ChapterManagement = ({ seriesId }: ChapterManagementProps) => {
                   accept="image/*"
                   multiple
                   onChange={(e) => setPageFiles(e.target.files)}
+                  disabled={!!formData.imgur_album_url}
                 />
+                {formData.imgur_album_url && (
+                  <p className="text-xs text-yellow-600 dark:text-yellow-400 mt-1">
+                    File upload disabled when using imgur link
+                  </p>
+                )}
                 {pageFiles && pageFiles.length > 0 && (
                   <p className="text-sm text-muted-foreground mt-1">
                     {pageFiles.length} file(s) selected
@@ -372,10 +434,16 @@ const ChapterManagement = ({ seriesId }: ChapterManagementProps) => {
                       className="flex justify-between items-center p-4 border border-border/50 rounded-lg hover:bg-secondary/50 transition-colors"
                     >
                       <div className="flex-1">
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-2 flex-wrap">
                           <span className="font-semibold">Chapter {chapter.chapter_number}</span>
                           <span className="text-muted-foreground">•</span>
                           <span>{chapter.title}</span>
+                          {chapter.imgur_album_url && (
+                            <span className="inline-flex items-center gap-1 px-2 py-0.5 text-xs bg-primary/10 text-primary rounded-full">
+                              <LinkIcon className="h-3 w-3" />
+                              Imgur
+                            </span>
+                          )}
                         </div>
                         <p className="text-sm text-muted-foreground mt-1">
                           Published: {new Date(chapter.published_date).toLocaleDateString()}
