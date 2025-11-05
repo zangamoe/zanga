@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import ChapterComments from "@/components/reader/ChapterComments";
 import ChapterRating from "@/components/reader/ChapterRating";
+import { parseImgurUrl, ImgurImage } from "@/lib/imgurParser";
 
 interface ChapterPage {
   id: string;
@@ -46,7 +47,7 @@ const Reader = () => {
     // First get the chapter ID and series info
     const { data: chapterData } = await supabase
       .from("chapters")
-      .select("id, title, reading_direction")
+      .select("id, title, reading_direction, imgur_album_url")
       .eq("series_id", seriesId)
       .eq("chapter_number", chapterNum)
       .single();
@@ -56,15 +57,32 @@ const Reader = () => {
       setChapterId(chapterData.id);
       setReadingDirection((chapterData.reading_direction as "ltr" | "rtl") || "rtl");
       
-      // Then get the pages for this chapter
-      const { data: pagesData } = await supabase
-        .from("chapter_pages")
-        .select("*")
-        .eq("chapter_id", chapterData.id)
-        .order("page_number", { ascending: true });
+      // Check if chapter uses imgur
+      if (chapterData.imgur_album_url) {
+        try {
+          const imgurImages = await parseImgurUrl(chapterData.imgur_album_url);
+          const imgurPages = imgurImages.map(img => ({
+            id: `imgur-${img.page_number}`,
+            chapter_id: chapterData.id,
+            page_number: img.page_number,
+            image_url: img.url
+          }));
+          setPages(imgurPages);
+        } catch (error) {
+          console.error("Error loading imgur album:", error);
+          setPages([]);
+        }
+      } else {
+        // Fallback to traditional chapter_pages
+        const { data: pagesData } = await supabase
+          .from("chapter_pages")
+          .select("*")
+          .eq("chapter_id", chapterData.id)
+          .order("page_number", { ascending: true });
 
-      if (pagesData) {
-        setPages(pagesData);
+        if (pagesData) {
+          setPages(pagesData);
+        }
       }
     }
 

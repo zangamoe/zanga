@@ -189,6 +189,7 @@ export type Database = {
           chapter_number: number
           created_at: string
           id: string
+          imgur_album_url: string | null
           published_date: string
           reading_direction: string
           series_id: string
@@ -199,6 +200,7 @@ export type Database = {
           chapter_number: number
           created_at?: string
           id?: string
+          imgur_album_url?: string | null
           published_date?: string
           reading_direction?: string
           series_id: string
@@ -209,6 +211,7 @@ export type Database = {
           chapter_number?: number
           created_at?: string
           id?: string
+          imgur_album_url?: string | null
           published_date?: string
           reading_direction?: string
           series_id?: string
@@ -766,10 +769,7 @@ export type Database = {
         }
         Returns: boolean
       }
-      is_comment_owner: {
-        Args: { comment_id: string }
-        Returns: boolean
-      }
+      is_comment_owner: { Args: { comment_id: string }; Returns: boolean }
     }
     Enums: {
       app_role: "admin" | "user"
