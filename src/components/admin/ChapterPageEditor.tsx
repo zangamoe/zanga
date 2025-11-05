@@ -204,31 +204,62 @@ const ChapterPageEditor = ({ chapterId, onClose }: ChapterPageEditorProps) => {
     setImgurLoading(true);
 
     try {
-      // Save imgur URL to chapter
-      const { error: updateError } = await supabase
-        .from("chapters")
-        .update({ imgur_album_url: imgurUrl })
-        .eq("id", chapterId);
+      // Call edge function to parse imgur album
+      const { data: parseData, error: parseError } = await supabase.functions.invoke('parse-imgur', {
+        body: { imgurUrl }
+      });
 
-      if (updateError) throw updateError;
+      if (parseError) throw parseError;
+      
+      if (!parseData.success) {
+        throw new Error(parseData.error || 'Failed to parse imgur album');
+      }
 
-      // Clear existing chapter_pages since we're using imgur now
+      const images = parseData.images;
+      
+      if (!images || images.length === 0) {
+        throw new Error('No images found in album');
+      }
+
+      // Clear existing chapter_pages
       await supabase
         .from("chapter_pages")
         .delete()
         .eq("chapter_id", chapterId);
 
+      // Insert new pages with imgur URLs
+      const pagesToInsert = images.map((img: any) => ({
+        chapter_id: chapterId,
+        page_number: img.page_number,
+        image_url: img.url
+      }));
+
+      const { error: insertError } = await supabase
+        .from("chapter_pages")
+        .insert(pagesToInsert);
+
+      if (insertError) throw insertError;
+
+      // Save imgur URL to chapter for reference
+      await supabase
+        .from("chapters")
+        .update({ imgur_album_url: imgurUrl })
+        .eq("id", chapterId);
+
       setChapterImgurUrl(imgurUrl);
-      setPages([]);
+      
+      // Refresh pages
+      await fetchPages();
 
       toast({
-        title: "Imgur album linked successfully!",
-        description: "Chapter will now load images directly from imgur",
+        title: `Imgur album imported successfully!`,
+        description: `${images.length} pages added from imgur`,
       });
     } catch (error: any) {
+      console.error('Imgur import error:', error);
       toast({
         variant: "destructive",
-        title: "Error linking imgur album",
+        title: "Error importing imgur album",
         description: error.message,
       });
     } finally {

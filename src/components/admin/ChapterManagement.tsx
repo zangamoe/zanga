@@ -123,7 +123,10 @@ const ChapterManagement = ({ seriesId }: ChapterManagementProps) => {
           description: error.message,
         });
       } else {
-        if (pageFiles && pageFiles.length > 0) {
+        // If imgur URL was provided, import images
+        if (formData.imgur_album_url) {
+          await importImgurAlbum(editingChapter.id, formData.imgur_album_url);
+        } else if (pageFiles && pageFiles.length > 0) {
           await uploadPages(editingChapter.id);
         }
         toast({ title: "Chapter updated successfully" });
@@ -150,7 +153,10 @@ const ChapterManagement = ({ seriesId }: ChapterManagementProps) => {
           description: error.message,
         });
       } else {
-        if (pageFiles && pageFiles.length > 0) {
+        // If imgur URL was provided, import images
+        if (formData.imgur_album_url) {
+          await importImgurAlbum(data.id, formData.imgur_album_url);
+        } else if (pageFiles && pageFiles.length > 0) {
           await uploadPages(data.id);
         }
         toast({ title: "Chapter created successfully" });
@@ -183,6 +189,56 @@ const ChapterManagement = ({ seriesId }: ChapterManagementProps) => {
           image_url: publicUrl,
         });
       }
+    }
+  };
+
+  const importImgurAlbum = async (chapterId: string, imgurUrl: string) => {
+    try {
+      // Call edge function to parse imgur album
+      const { data: parseData, error: parseError } = await supabase.functions.invoke('parse-imgur', {
+        body: { imgurUrl }
+      });
+
+      if (parseError) throw parseError;
+      
+      if (!parseData.success) {
+        throw new Error(parseData.error || 'Failed to parse imgur album');
+      }
+
+      const images = parseData.images;
+      
+      if (!images || images.length === 0) {
+        throw new Error('No images found in album');
+      }
+
+      // Clear existing pages
+      await supabase
+        .from("chapter_pages")
+        .delete()
+        .eq("chapter_id", chapterId);
+
+      // Insert pages with imgur URLs
+      const pagesToInsert = images.map((img: any) => ({
+        chapter_id: chapterId,
+        page_number: img.page_number,
+        image_url: img.url
+      }));
+
+      const { error: insertError } = await supabase
+        .from("chapter_pages")
+        .insert(pagesToInsert);
+
+      if (insertError) throw insertError;
+
+      toast({
+        title: `Imported ${images.length} images from imgur`,
+      });
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Error importing imgur album",
+        description: error.message,
+      });
     }
   };
 
