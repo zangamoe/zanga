@@ -36,6 +36,21 @@ const Reader = () => {
   const chapterNum = parseInt(chapterNumber || "1");
   const minSwipeDistance = 50;
 
+  // Extract album ID from various Imgur URL formats
+  const extractAlbumId = (url: string): string | null => {
+    const patterns = [
+      /imgur\.com\/a\/([a-zA-Z0-9]+)/,
+      /imgur\.com\/gallery\/([a-zA-Z0-9]+)/,
+      /imgur\.com\/([a-zA-Z0-9]+)$/
+    ];
+    
+    for (const pattern of patterns) {
+      const match = url.match(pattern);
+      if (match) return match[1];
+    }
+    return null;
+  };
+
   useEffect(() => {
     if (seriesId && chapterNumber) {
       fetchChapterPages();
@@ -56,16 +71,44 @@ const Reader = () => {
       setChapterId(chapterData.id);
       setReadingDirection((chapterData.reading_direction as "ltr" | "rtl") || "rtl");
       
-      // Fetch pages from chapter_pages table
-      // (imgur URLs are already imported as regular pages during admin upload)
-      const { data: pagesData } = await supabase
-        .from("chapter_pages")
-        .select("*")
-        .eq("chapter_id", chapterData.id)
-        .order("page_number", { ascending: true });
+      // If chapter uses Imgur, fetch directly from Imgur API
+      if (chapterData.imgur_album_url) {
+        const albumId = extractAlbumId(chapterData.imgur_album_url);
+        if (albumId) {
+          try {
+            // Try Imgur's hash endpoint first (no API key needed)
+            const response = await fetch(`https://api.imgur.com/3/album/${albumId}/images`, {
+              headers: {
+                'Authorization': 'Client-ID 546c25a59c58ad7'
+              }
+            });
+            
+            if (response.ok) {
+              const json = await response.json();
+              const imgurPages = json.data.map((img: any, idx: number) => ({
+                id: `imgur-${idx}`,
+                page_number: idx + 1,
+                image_url: img.link
+              }));
+              setPages(imgurPages);
+            } else {
+              console.error("Failed to fetch from Imgur API:", response.status);
+            }
+          } catch (error) {
+            console.error("Error fetching Imgur album:", error);
+          }
+        }
+      } else {
+        // Fetch pages from chapter_pages table for local uploads
+        const { data: pagesData } = await supabase
+          .from("chapter_pages")
+          .select("*")
+          .eq("chapter_id", chapterData.id)
+          .order("page_number", { ascending: true });
 
-      if (pagesData) {
-        setPages(pagesData);
+        if (pagesData) {
+          setPages(pagesData);
+        }
       }
     }
 

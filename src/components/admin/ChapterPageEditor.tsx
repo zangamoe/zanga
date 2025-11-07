@@ -4,10 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { toast } from "@/hooks/use-toast";
-import { Trash2, Upload, GripVertical, Download, ChevronUp, ChevronDown, Link as LinkIcon } from "lucide-react";
+import { Trash2, Upload, GripVertical, Download, ChevronUp, ChevronDown } from "lucide-react";
 import { Label } from "@/components/ui/label";
-import { parseImgurUrl, isValidImgurUrl } from "@/lib/imgurParser";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface ChapterPage {
   id: string;
@@ -26,27 +24,10 @@ const ChapterPageEditor = ({ chapterId, onClose }: ChapterPageEditorProps) => {
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
   const [draggedPage, setDraggedPage] = useState<string | null>(null);
-  const [imgurUrl, setImgurUrl] = useState("");
-  const [imgurLoading, setImgurLoading] = useState(false);
-  const [chapterImgurUrl, setChapterImgurUrl] = useState<string | null>(null);
 
   useEffect(() => {
     fetchPages();
-    fetchChapterImgurUrl();
   }, [chapterId]);
-
-  const fetchChapterImgurUrl = async () => {
-    const { data } = await supabase
-      .from("chapters")
-      .select("imgur_album_url")
-      .eq("id", chapterId)
-      .single();
-    
-    if (data?.imgur_album_url) {
-      setChapterImgurUrl(data.imgur_album_url);
-      setImgurUrl(data.imgur_album_url);
-    }
-  };
 
   const fetchPages = async () => {
     const { data, error } = await supabase
@@ -183,111 +164,6 @@ const ChapterPageEditor = ({ chapterId, onClose }: ChapterPageEditorProps) => {
     fetchPages();
   };
 
-  const handleImgurSubmit = async () => {
-    if (!imgurUrl.trim()) {
-      toast({
-        variant: "destructive",
-        title: "Please enter an imgur URL",
-      });
-      return;
-    }
-
-    if (!isValidImgurUrl(imgurUrl)) {
-      toast({
-        variant: "destructive",
-        title: "Invalid imgur URL",
-        description: "Please provide a valid imgur album or gallery URL (e.g., https://imgur.com/a/abc123)",
-      });
-      return;
-    }
-
-    setImgurLoading(true);
-
-    try {
-      // Call edge function to parse imgur album
-      const { data: parseData, error: parseError } = await supabase.functions.invoke('parse-imgur', {
-        body: { imgurUrl }
-      });
-
-      if (parseError) throw parseError;
-      
-      if (!parseData.success) {
-        throw new Error(parseData.error || 'Failed to parse imgur album');
-      }
-
-      const images = parseData.images;
-      
-      if (!images || images.length === 0) {
-        throw new Error('No images found in album');
-      }
-
-      // Clear existing chapter_pages
-      await supabase
-        .from("chapter_pages")
-        .delete()
-        .eq("chapter_id", chapterId);
-
-      // Insert new pages with imgur URLs
-      const pagesToInsert = images.map((img: any) => ({
-        chapter_id: chapterId,
-        page_number: img.page_number,
-        image_url: img.url
-      }));
-
-      const { error: insertError } = await supabase
-        .from("chapter_pages")
-        .insert(pagesToInsert);
-
-      if (insertError) throw insertError;
-
-      // Save imgur URL to chapter for reference
-      await supabase
-        .from("chapters")
-        .update({ imgur_album_url: imgurUrl })
-        .eq("id", chapterId);
-
-      setChapterImgurUrl(imgurUrl);
-      
-      // Refresh pages
-      await fetchPages();
-
-      toast({
-        title: `Imgur album imported successfully!`,
-        description: `${images.length} pages added from imgur`,
-      });
-    } catch (error: any) {
-      console.error('Imgur import error:', error);
-      toast({
-        variant: "destructive",
-        title: "Error importing imgur album",
-        description: error.message,
-      });
-    } finally {
-      setImgurLoading(false);
-    }
-  };
-
-  const handleRemoveImgur = async () => {
-    if (!confirm("Remove imgur link? This will not affect the album on imgur.")) return;
-
-    const { error } = await supabase
-      .from("chapters")
-      .update({ imgur_album_url: null })
-      .eq("id", chapterId);
-
-    if (error) {
-      toast({
-        variant: "destructive",
-        title: "Error removing imgur link",
-        description: error.message,
-      });
-    } else {
-      setChapterImgurUrl(null);
-      setImgurUrl("");
-      toast({ title: "Imgur link removed" });
-    }
-  };
-
   const handleDownload = (page: ChapterPage) => {
     const link = document.createElement('a');
     link.href = page.image_url;
@@ -395,104 +271,27 @@ const ChapterPageEditor = ({ chapterId, onClose }: ChapterPageEditorProps) => {
         </Button>
       </div>
 
-      <Tabs defaultValue={chapterImgurUrl ? "imgur" : "upload"}>
-        <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="imgur">
-            <LinkIcon className="h-4 w-4 mr-2" />
-            Imgur Link (Recommended)
-          </TabsTrigger>
-          <TabsTrigger value="upload">
-            <Upload className="h-4 w-4 mr-2" />
-            Upload Files
-          </TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="imgur" className="space-y-4">
-          <Card className="bg-gradient-card border-border/50">
-            <CardHeader>
-              <CardTitle className="text-base">Link Imgur Album</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label>Imgur Album/Gallery URL</Label>
-                <div className="flex gap-2">
-                  <Input
-                    placeholder="https://imgur.com/a/abc123"
-                    value={imgurUrl}
-                    onChange={(e) => setImgurUrl(e.target.value)}
-                    disabled={imgurLoading}
-                  />
-                  <Button 
-                    onClick={handleImgurSubmit} 
-                    disabled={imgurLoading || !imgurUrl.trim()}
-                  >
-                    {imgurLoading ? "Loading..." : "Link Album"}
-                  </Button>
-                </div>
-                <p className="text-sm text-muted-foreground">
-                  Paste an imgur album URL (e.g., https://imgur.com/a/abc123). Images will load directly from imgur - no storage needed!
-                </p>
-              </div>
-
-              {chapterImgurUrl && (
-                <div className="p-4 bg-secondary/50 rounded-lg space-y-2">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm font-medium">Active Imgur Album</p>
-                      <a 
-                        href={chapterImgurUrl} 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        className="text-xs text-primary hover:underline"
-                      >
-                        {chapterImgurUrl}
-                      </a>
-                    </div>
-                    <Button 
-                      variant="destructive" 
-                      size="sm"
-                      onClick={handleRemoveImgur}
-                    >
-                      Remove
-                    </Button>
-                  </div>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="upload" className="space-y-4">
-          <div className="flex justify-between items-center">
-            <p className="text-sm text-muted-foreground">Upload individual page images (stored on server)</p>
-            <div className="flex gap-2">
-              <Label htmlFor={`upload-${chapterId}`} className="cursor-pointer">
-                <Button type="button" disabled={uploading || !!chapterImgurUrl} asChild>
-                  <span>
-                    <Upload className="h-4 w-4 mr-2" />
-                    {uploading ? "Uploading..." : "Add Pages"}
-                  </span>
-                </Button>
-              </Label>
-              <Input
-                id={`upload-${chapterId}`}
-                type="file"
-                accept="image/*"
-                multiple
-                onChange={handleUpload}
-                className="hidden"
-                disabled={!!chapterImgurUrl}
-              />
-            </div>
-          </div>
-
-          {chapterImgurUrl && (
-            <div className="p-4 bg-yellow-500/10 border border-yellow-500/20 rounded-lg">
-              <p className="text-sm text-yellow-600 dark:text-yellow-400">
-                This chapter uses an imgur album. Remove the imgur link first to upload individual files.
-              </p>
-            </div>
-          )}
+      <div className="flex justify-between items-center">
+        <p className="text-sm text-muted-foreground">Upload and manage chapter pages</p>
+        <div className="flex gap-2">
+          <Label htmlFor={`upload-${chapterId}`} className="cursor-pointer">
+            <Button type="button" disabled={uploading} asChild>
+              <span>
+                <Upload className="h-4 w-4 mr-2" />
+                {uploading ? "Uploading..." : "Add Pages"}
+              </span>
+            </Button>
+          </Label>
+          <Input
+            id={`upload-${chapterId}`}
+            type="file"
+            accept="image/*"
+            multiple
+            onChange={handleUpload}
+            className="hidden"
+          />
+        </div>
+      </div>
 
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
         {pages.map((page) => (
@@ -568,15 +367,13 @@ const ChapterPageEditor = ({ chapterId, onClose }: ChapterPageEditorProps) => {
         ))}
       </div>
 
-          {pages.length === 0 && !chapterImgurUrl && (
-            <Card className="bg-gradient-card border-border/50">
-              <CardContent className="py-8 text-center text-muted-foreground">
-                No pages uploaded yet. Click "Add Pages" to upload chapter pages.
-              </CardContent>
-            </Card>
-          )}
-        </TabsContent>
-      </Tabs>
+      {pages.length === 0 && (
+        <Card className="bg-gradient-card border-border/50">
+          <CardContent className="py-8 text-center text-muted-foreground">
+            No pages uploaded yet. Click "Add Pages" to upload chapter pages.
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 };
