@@ -86,7 +86,9 @@ const SeriesDetail = () => {
       query = query.eq("custom_slug", slugOrId);
     }
     
-    const { data } = await query.maybeSingle();
+    const { data, error } = await query.maybeSingle();
+
+    console.log("Series fetch result:", { data, error, chaptersCount: data?.chapters?.length });
 
     if (data) {
       setSeries({

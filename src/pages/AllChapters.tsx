@@ -17,7 +17,7 @@ const AllChapters = () => {
   }, [id]);
 
   const fetchSeriesAndChapters = async () => {
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from("series")
       .select(`
         *,
@@ -25,6 +25,8 @@ const AllChapters = () => {
       `)
       .eq("id", id)
       .single();
+
+    console.log("AllChapters fetch result:", { data, error, chaptersCount: data?.chapters?.length });
 
     if (data) {
       setSeries({

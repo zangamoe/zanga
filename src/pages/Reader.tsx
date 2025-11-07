@@ -556,7 +556,7 @@ const Reader = () => {
             {pages.filter(p => p.page_number === currentPage).map((page) => (
               <div
                 key={page.id}
-                className="relative w-full h-[calc(100vh-4rem)] flex items-center justify-center animate-fade-in"
+                className="relative w-full h-[calc(100vh-4rem)] flex items-center justify-center"
                 onClick={(e) => {
                   const rect = e.currentTarget.getBoundingClientRect();
                   const clickX = e.clientX - rect.left;
