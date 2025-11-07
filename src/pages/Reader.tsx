@@ -38,16 +38,24 @@ const Reader = () => {
 
   // Extract album ID from various Imgur URL formats
   const extractAlbumId = (url: string): string | null => {
-    const patterns = [
-      /imgur\.com\/a\/([a-zA-Z0-9]+)/,
-      /imgur\.com\/gallery\/([a-zA-Z0-9]+)/,
-      /imgur\.com\/([a-zA-Z0-9]+)$/
-    ];
+    // Imgur album IDs are typically 5-7 alphanumeric characters (case-sensitive)
+    // They can be in formats like:
+    // - imgur.com/a/{albumId}
+    // - imgur.com/a/{custom-text-albumId}
+    // - imgur.com/gallery/{albumId}
     
-    for (const pattern of patterns) {
-      const match = url.match(pattern);
-      if (match) return match[1];
-    }
+    // Try standard formats first
+    const standardMatch = url.match(/imgur\.com\/(?:a|gallery)\/([a-zA-Z0-9]{5,7})$/);
+    if (standardMatch) return standardMatch[1];
+    
+    // For custom URLs with text, the ID is typically at the end after the last hyphen
+    const customMatch = url.match(/imgur\.com\/a\/.*-([a-zA-Z0-9]{5,7})$/);
+    if (customMatch) return customMatch[1];
+    
+    // Fallback: try to get any alphanumeric sequence after /a/ or /gallery/
+    const fallbackMatch = url.match(/imgur\.com\/(?:a|gallery)\/([a-zA-Z0-9]+)/);
+    if (fallbackMatch) return fallbackMatch[1];
+    
     return null;
   };
 
@@ -74,29 +82,43 @@ const Reader = () => {
       // If chapter uses Imgur, fetch directly from Imgur API
       if (chapterData.imgur_album_url) {
         const albumId = extractAlbumId(chapterData.imgur_album_url);
+        console.log("Extracted album ID:", albumId, "from URL:", chapterData.imgur_album_url);
+        
         if (albumId) {
           try {
-            // Try Imgur's hash endpoint first (no API key needed)
+            // Try Imgur's hash endpoint first (public API, no key needed)
             const response = await fetch(`https://api.imgur.com/3/album/${albumId}/images`, {
               headers: {
                 'Authorization': 'Client-ID 546c25a59c58ad7'
               }
             });
             
+            console.log("Imgur API response status:", response.status);
+            
             if (response.ok) {
               const json = await response.json();
-              const imgurPages = json.data.map((img: any, idx: number) => ({
-                id: `imgur-${idx}`,
-                page_number: idx + 1,
-                image_url: img.link
-              }));
-              setPages(imgurPages);
+              console.log("Imgur API response:", json);
+              
+              if (json.data && json.data.length > 0) {
+                const imgurPages = json.data.map((img: any, idx: number) => ({
+                  id: `imgur-${idx}`,
+                  page_number: idx + 1,
+                  image_url: img.link
+                }));
+                setPages(imgurPages);
+                console.log(`Loaded ${imgurPages.length} pages from Imgur`);
+              } else {
+                console.error("No images found in Imgur album");
+              }
             } else {
-              console.error("Failed to fetch from Imgur API:", response.status);
+              const errorText = await response.text();
+              console.error("Failed to fetch from Imgur API:", response.status, errorText);
             }
           } catch (error) {
             console.error("Error fetching Imgur album:", error);
           }
+        } else {
+          console.error("Could not extract album ID from URL:", chapterData.imgur_album_url);
         }
       } else {
         // Fetch pages from chapter_pages table for local uploads
